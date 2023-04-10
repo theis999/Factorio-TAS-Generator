@@ -370,7 +370,7 @@ local function cancel_crafting()
 	for i = 1, #queue do
 		if queue[i].recipe == item then
 			if count == -1 then
-				player.cancel_crafting{index = i}
+				player.cancel_crafting{index = i, count = 1000000}
 				return true
 			elseif queue[i].count >= count then
 				player.cancel_crafting{index = i, count = count}
