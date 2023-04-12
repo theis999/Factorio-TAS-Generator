@@ -36,27 +36,39 @@ public:
     /// Used after building the GUI to update shortcuts from the settings file
     /// </summary>
     /// <param name="menu_shortcuts">The shortcut menu where the keybinds should be updated</param>
-    static inline void UpdateShortcutsFromFile(wxMenu* menu_shortcuts)
+    static inline void UpdateShortcutsFromFile(wxMenuBar* menubar)
     {
         try
-        {
+        {            
             settings::setting s = settings::ReadSettingFile();
-            // For each shortcut in the settings file
+            // For each shortcut type in the settings file
             for (auto& [_menu, map] : s.shortcuts)
             {
+                // For each shortcut in the settings file
                 for (auto& [key, value] : map)
                 {
-                    for (auto& a : menu_shortcuts->GetMenuItems())
+                    // For each drop down menu
+                    for (int i = 0; i < menubar->GetMenuCount(); i++)
                     {
-                        // Try to find a matching menu point
-                        if (a->GetItemLabel().StartsWith(key))
+                        bool found = false;
+                        auto sub_menu = menubar->GetMenu(i);
+                        // For each item in the drop down menu
+                        for (auto& a : sub_menu->GetMenuItems())
                         {
-                            // If one is found
-                            // Change the last part of the label containing the shortcut
-                            // Which incidentally also updates the keybind
-                            a->SetItemLabel(key + wxT('\t') + value);
+                            // Try to find a matching menu point
+                            if (a->GetItemLabel().StartsWith(key))
+                            {
+                                // If one is found
+                                // Change the last part of the label containing the shortcut
+                                // Which incidentally also updates the keybind
+                                a->SetItemLabel(key + wxT('\t') + value);
+                                found = true;
+                                break;
+                            }
                         }
+                        if (found) break;
                     }
+                    
                 }
             }
         } catch (...) { } // ignore all errors

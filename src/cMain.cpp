@@ -135,7 +135,7 @@ cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSi
 	a->Split(1, wxRIGHT);
 
 	//set shortcuts from settings file
-	ShortcutChanger::UpdateShortcutsFromFile(menu_shortcuts);
+	ShortcutChanger::UpdateShortcutsFromFile(main_menubar);
 	settings::setting settings = settings::ReadSettingFile();
 	if (settings.last_tas != "")
 	{
