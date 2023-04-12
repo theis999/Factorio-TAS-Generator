@@ -1461,7 +1461,7 @@ void cMain::OnChangeShortcutMenuSelected(wxCommandEvent& event)
 		wxDefaultSize, 
 		wxCAPTION | wxCLOSE_BOX | wxDEFAULT_DIALOG_STYLE | wxSTAY_ON_TOP | wxBORDER_DEFAULT);
 
-	sc->Build(menu_shortcuts);	
+	sc->Build(main_menubar);	
 
 	sc->Show();
 

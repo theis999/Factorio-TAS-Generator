@@ -1302,10 +1302,93 @@ Shortcut_changer::Shortcut_changer( wxWindow* parent, wxWindowID id, const wxStr
 	sc_help_label->Wrap( -1 );
 	sc_vertical_sizer->Add( sc_help_label, 0, wxALL|wxEXPAND, 5 );
 
-	sc_grid_sizer = new wxGridSizer( 7, 4, 5, 5 );
+	wxBoxSizer* bSizer72;
+	bSizer72 = new wxBoxSizer( wxVERTICAL );
+
+	sc_item_book = new wxListbook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLB_DEFAULT|wxBORDER_RAISED|wxBORDER_THEME );
+	sc_item_book->SetMinSize( wxSize( 900,600 ) );
+	sc_item_book->SetMaxSize( wxSize( 1500,800 ) );
+
+	sc_panel_file = new wxPanel( sc_item_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	sc_file_sizer = new wxBoxSizer( wxVERTICAL );
+
+	sc_file_sizer->SetMinSize( wxSize( 450,350 ) );
+	sc_grid_sizer_file = new wxGridSizer( 0, 3, 5, 5 );
 
 
-	sc_vertical_sizer->Add( sc_grid_sizer, 0, wxALL|wxEXPAND, 5 );
+	sc_file_sizer->Add( sc_grid_sizer_file, 1, wxEXPAND, 5 );
+
+
+	sc_panel_file->SetSizer( sc_file_sizer );
+	sc_panel_file->Layout();
+	sc_file_sizer->Fit( sc_panel_file );
+	sc_item_book->AddPage( sc_panel_file, wxT("File"), true );
+	sc_panel_script = new wxPanel( sc_item_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	sc_script_sizer = new wxBoxSizer( wxVERTICAL );
+
+	sc_grid_sizer_script = new wxGridSizer( 0, 3, 5, 5 );
+
+
+	sc_script_sizer->Add( sc_grid_sizer_script, 1, wxEXPAND, 5 );
+
+
+	sc_panel_script->SetSizer( sc_script_sizer );
+	sc_panel_script->Layout();
+	sc_script_sizer->Fit( sc_panel_script );
+	sc_item_book->AddPage( sc_panel_script, wxT("Script"), false );
+	sc_panel_shortcuts = new wxPanel( sc_item_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	sc_shortcuts_sizer = new wxBoxSizer( wxVERTICAL );
+
+	sc_grid_sizer_shortcuts = new wxGridSizer( 0, 3, 5, 5 );
+
+
+	sc_shortcuts_sizer->Add( sc_grid_sizer_shortcuts, 1, wxEXPAND, 5 );
+
+
+	sc_panel_shortcuts->SetSizer( sc_shortcuts_sizer );
+	sc_panel_shortcuts->Layout();
+	sc_shortcuts_sizer->Fit( sc_panel_shortcuts );
+	sc_item_book->AddPage( sc_panel_shortcuts, wxT("Shortcuts"), false );
+	sc_panel_goals = new wxPanel( sc_item_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	sc_goal_sizer = new wxBoxSizer( wxVERTICAL );
+
+	sc_grid_sizer_goals = new wxGridSizer( 0, 3, 5, 5 );
+
+
+	sc_goal_sizer->Add( sc_grid_sizer_goals, 1, wxEXPAND, 5 );
+
+
+	sc_panel_goals->SetSizer( sc_goal_sizer );
+	sc_panel_goals->Layout();
+	sc_goal_sizer->Fit( sc_panel_goals );
+	sc_item_book->AddPage( sc_panel_goals, wxT("Goals"), false );
+	sc_panel_auto = new wxPanel( sc_item_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	sc_auto_sizer = new wxBoxSizer( wxVERTICAL );
+
+	sc_grid_sizer_auto = new wxGridSizer( 0, 3, 5, 5 );
+
+
+	sc_auto_sizer->Add( sc_grid_sizer_auto, 1, wxEXPAND, 5 );
+
+
+	sc_panel_auto->SetSizer( sc_auto_sizer );
+	sc_panel_auto->Layout();
+	sc_auto_sizer->Fit( sc_panel_auto );
+	sc_item_book->AddPage( sc_panel_auto, wxT("Auto put"), false );
+	#ifdef __WXGTK__ // Small icon style not supported in GTK
+	wxListView* sc_item_bookListView = sc_item_book->GetListView();
+	long sc_item_bookFlags = sc_item_bookListView->GetWindowStyleFlag();
+	if( sc_item_bookFlags & wxLC_SMALL_ICON )
+	{
+		sc_item_bookFlags = ( sc_item_bookFlags & ~wxLC_SMALL_ICON ) | wxLC_ICON;
+	}
+	sc_item_bookListView->SetWindowStyleFlag( sc_item_bookFlags );
+	#endif
+
+	bSizer72->Add( sc_item_book, 1, wxEXPAND | wxALL, 5 );
+
+
+	sc_vertical_sizer->Add( bSizer72, 1, wxEXPAND, 5 );
 
 	wxBoxSizer* sc_control_sizer;
 	sc_control_sizer = new wxBoxSizer( wxHORIZONTAL );

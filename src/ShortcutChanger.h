@@ -26,9 +26,9 @@ public:
     /// Builds the dialog box using the shortcut menu and settings file
     /// </summary>
     /// <param name="menu_shortcuts">Pointer to the shortcut menu, used to strip both their label and keybinding</param>
-    void Build(wxMenu* menu_shortcuts);
+    void Build(wxMenuBar* menu_shortcuts);
 
-    wxMenu* menu;
+    wxMenuBar* menu;
     std::map<std::string, wxTextCtrl*> mapCtrl = {};
     settings::setting state;
 
@@ -42,17 +42,20 @@ public:
         {
             settings::setting s = settings::ReadSettingFile();
             // For each shortcut in the settings file
-            for (auto& [key, value] : s.shortcuts)
+            for (auto& [_menu, map] : s.shortcuts)
             {
-                for (auto& a : menu_shortcuts->GetMenuItems()) 
+                for (auto& [key, value] : map)
                 {
-                    // Try to find a matching menu point
-                    if (a->GetItemLabel().StartsWith(key)) 
+                    for (auto& a : menu_shortcuts->GetMenuItems())
                     {
-                        // If one is found
-                        // Change the last part of the label containing the shortcut
-                        // Which incidentally also updates the keybind
-                        a->SetItemLabel(key + wxT('\t') + value); 
+                        // Try to find a matching menu point
+                        if (a->GetItemLabel().StartsWith(key))
+                        {
+                            // If one is found
+                            // Change the last part of the label containing the shortcut
+                            // Which incidentally also updates the keybind
+                            a->SetItemLabel(key + wxT('\t') + value);
+                        }
                     }
                 }
             }
