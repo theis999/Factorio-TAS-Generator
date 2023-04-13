@@ -63,7 +63,7 @@ private:
 	void reset();
 	void ClearSteps();
 	string EndSteps();
-	void UnexpectedError(DialogProgressBar* dialog_progress_bar);
+	void UnexpectedError(DialogProgressBar* dialog_progress_bar, int error_step);
 
 	void AddInfoFile(string& folder_location);
 
