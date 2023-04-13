@@ -1111,7 +1111,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	import_steps_text_sizer = new wxBoxSizer( wxVERTICAL );
 
 	import_steps_text_sizer->SetMinSize( wxSize( -1,1200 ) );
-	import_steps_text_import = new wxTextCtrl( import_steps_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_LEFT|wxTE_MULTILINE|wxTE_NO_VSCROLL );
+	import_steps_text_import = new wxTextCtrl( import_steps_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_LEFT|wxTE_MULTILINE );
 	import_steps_text_import->SetMinSize( wxSize( 450,600 ) );
 
 	import_steps_text_sizer->Add( import_steps_text_import, 0, wxALL|wxEXPAND, 5 );
