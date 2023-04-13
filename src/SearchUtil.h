@@ -20,8 +20,8 @@ struct Search
 	static tuple<wxString, wxString> ExtractColon(const wxString& s);
 	static tuple<vector<int>, wxString> HandleColon(const wxString& s);
 	static vector<tuple<vector<int>, wxString>> HandleSearchString(wxCommandEvent& even);
-	static bool TrySelectCurrent(wxGrid* grid, vector<tuple<vector<int>, wxString>> searchTerms);
-	static bool TrySelectNext(wxCommandEvent& event, wxGrid* grid, vector<tuple<vector<int>, wxString>> searchTerms);
-	static void FindCurrentOrNext(wxCommandEvent& event, wxGrid* grid);
-	static void FindNext(wxCommandEvent& event, wxGrid* grid);
+	static bool TrySelectCurrent(wxGrid* grid, vector<tuple<vector<int>, wxString>> searchTerms, bool reverse);
+	static bool TrySelectNext(wxCommandEvent& event, wxGrid* grid, vector<tuple<vector<int>, wxString>> searchTerms, bool reverse);
+	static void FindCurrentOrNext(wxCommandEvent& event, wxGrid* grid, bool reverse);
+	static void FindNext(wxCommandEvent& event, wxGrid* grid, bool reverse);
 };
