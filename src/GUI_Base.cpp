@@ -938,52 +938,53 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	bSizer5612->Fit( template_panel );
 	main_book->AddPage( template_panel, wxT("Templates"), false, wxNullBitmap );
 	step_panel = new wxPanel( main_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* bSizer5611;
-	bSizer5611 = new wxBoxSizer( wxVERTICAL );
+	wxBoxSizer* step_panel_sizer;
+	step_panel_sizer = new wxBoxSizer( wxVERTICAL );
 
-
-	bSizer5611->Add( 0, 33, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* bSizer1001;
-	bSizer1001 = new wxBoxSizer( wxHORIZONTAL );
-
-	wxBoxSizer* bSizer113;
-	bSizer113 = new wxBoxSizer( wxHORIZONTAL );
+	wxBoxSizer* step_panel_search_sizer;
+	step_panel_search_sizer = new wxBoxSizer( wxHORIZONTAL );
 
 	step_search_ctrl = new wxSearchCtrl( step_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
 	#ifndef __WXMAC__
 	step_search_ctrl->ShowSearchButton( true );
 	#endif
 	step_search_ctrl->ShowCancelButton( true );
-	bSizer113->Add( step_search_ctrl, 0, wxALL, 5 );
+	step_panel_search_sizer->Add( step_search_ctrl, 0, wxALL, 5 );
+
+	step_search_toggle_updown = new wxCheckBox( step_panel, wxID_ANY, wxT("Search up"), wxDefaultPosition, wxDefaultSize, 0 );
+	step_search_toggle_updown->SetValue(true);
+	step_panel_search_sizer->Add( step_search_toggle_updown, 0, wxALL, 9 );
+
+
+	step_panel_sizer->Add( step_panel_search_sizer, 1, wxEXPAND, 5 );
+
+	wxBoxSizer* step_panel_control_sizer;
+	step_panel_control_sizer = new wxBoxSizer( wxHORIZONTAL );
 
 	btn_add_step = new wxButton( step_panel, wxID_ANY, wxT("Add"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer113->Add( btn_add_step, 0, wxALIGN_CENTER|wxALL, 5 );
+	step_panel_control_sizer->Add( btn_add_step, 0, wxALIGN_CENTER|wxALL, 5 );
 
 	btn_change_step = new wxButton( step_panel, wxID_ANY, wxT("Change"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer113->Add( btn_change_step, 0, wxALL, 5 );
+	step_panel_control_sizer->Add( btn_change_step, 0, wxALL, 5 );
 
 	btn_delete_step = new wxButton( step_panel, wxID_ANY, wxT("Delete"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer113->Add( btn_delete_step, 0, wxALL, 5 );
+	step_panel_control_sizer->Add( btn_delete_step, 0, wxALL, 5 );
 
 	btn_move_up = new wxButton( step_panel, wxID_ANY, wxT("Move Up"), wxDefaultPosition, wxDefaultSize, 0 );
 	btn_move_up->SetToolTip( wxT("Right-click to move 5 but be patient") );
 
-	bSizer113->Add( btn_move_up, 0, wxALL, 5 );
+	step_panel_control_sizer->Add( btn_move_up, 0, wxALL, 5 );
 
 	btn_move_down = new wxButton( step_panel, wxID_ANY, wxT("Move Down"), wxDefaultPosition, wxDefaultSize, 0 );
 	btn_move_down->SetToolTip( wxT("Right-click to move 5 but be patient") );
 
-	bSizer113->Add( btn_move_down, 0, wxALL, 5 );
+	step_panel_control_sizer->Add( btn_move_down, 0, wxALL, 5 );
 
 
-	bSizer1001->Add( bSizer113, 1, wxEXPAND, 5 );
+	step_panel_sizer->Add( step_panel_control_sizer, 0, wxEXPAND, 5 );
 
-
-	bSizer5611->Add( bSizer1001, 0, wxEXPAND, 5 );
-
-	wxBoxSizer* bSizer501;
-	bSizer501 = new wxBoxSizer( wxVERTICAL );
+	wxBoxSizer* step_panel_grid_sizer;
+	step_panel_grid_sizer = new wxBoxSizer( wxVERTICAL );
 
 	grid_steps = new wxGrid( step_panel, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), 0 );
 
@@ -1030,16 +1031,16 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	grid_steps->SetDefaultCellAlignment( wxALIGN_LEFT, wxALIGN_TOP );
 	grid_steps->SetMinSize( wxSize( 860,2500 ) );
 
-	bSizer501->Add( grid_steps, 0, wxALL|wxEXPAND, 5 );
+	step_panel_grid_sizer->Add( grid_steps, 0, wxALL|wxEXPAND, 5 );
 
 
-	bSizer5611->Add( bSizer501, 1, wxEXPAND, 5 );
+	step_panel_sizer->Add( step_panel_grid_sizer, 1, wxEXPAND, 5 );
 
 
-	step_panel->SetSizer( bSizer5611 );
+	step_panel->SetSizer( step_panel_sizer );
 	step_panel->Layout();
-	bSizer5611->Fit( step_panel );
-	main_book->AddPage( step_panel, wxT("Steps"), false, wxNullBitmap );
+	step_panel_sizer->Fit( step_panel );
+	main_book->AddPage( step_panel, wxT("Steps"), true, wxNullBitmap );
 	import_steps_panel = new ImportStepsPanel( main_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, wxT("Import") );
 	wxBoxSizer* import_steps_sizer;
 	import_steps_sizer = new wxBoxSizer( wxVERTICAL );
@@ -1110,7 +1111,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	import_steps_text_sizer = new wxBoxSizer( wxVERTICAL );
 
 	import_steps_text_sizer->SetMinSize( wxSize( -1,1200 ) );
-	import_steps_text_import = new wxTextCtrl( import_steps_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_LEFT|wxTE_MULTILINE|wxTE_NO_VSCROLL );
+	import_steps_text_import = new wxTextCtrl( import_steps_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_LEFT|wxTE_MULTILINE );
 	import_steps_text_import->SetMinSize( wxSize( 450,600 ) );
 
 	import_steps_text_sizer->Add( import_steps_text_import, 0, wxALL|wxEXPAND, 5 );
@@ -1122,7 +1123,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	import_steps_panel->SetSizer( import_steps_sizer );
 	import_steps_panel->Layout();
 	import_steps_sizer->Fit( import_steps_panel );
-	main_book->AddPage( import_steps_panel, wxT("Import"), true, wxNullBitmap );
+	main_book->AddPage( import_steps_panel, wxT("Import"), false, wxNullBitmap );
 
 
 	m_mgr.Update();
@@ -1302,10 +1303,93 @@ Shortcut_changer::Shortcut_changer( wxWindow* parent, wxWindowID id, const wxStr
 	sc_help_label->Wrap( -1 );
 	sc_vertical_sizer->Add( sc_help_label, 0, wxALL|wxEXPAND, 5 );
 
-	sc_grid_sizer = new wxGridSizer( 7, 4, 5, 5 );
+	wxBoxSizer* bSizer72;
+	bSizer72 = new wxBoxSizer( wxVERTICAL );
+
+	sc_item_book = new wxListbook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLB_DEFAULT|wxBORDER_RAISED|wxBORDER_THEME );
+	sc_item_book->SetMinSize( wxSize( 900,600 ) );
+	sc_item_book->SetMaxSize( wxSize( 1500,800 ) );
+
+	sc_panel_file = new wxPanel( sc_item_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	sc_file_sizer = new wxBoxSizer( wxVERTICAL );
+
+	sc_file_sizer->SetMinSize( wxSize( 450,350 ) );
+	sc_grid_sizer_file = new wxGridSizer( 0, 3, 5, 5 );
 
 
-	sc_vertical_sizer->Add( sc_grid_sizer, 0, wxALL|wxEXPAND, 5 );
+	sc_file_sizer->Add( sc_grid_sizer_file, 1, wxEXPAND, 5 );
+
+
+	sc_panel_file->SetSizer( sc_file_sizer );
+	sc_panel_file->Layout();
+	sc_file_sizer->Fit( sc_panel_file );
+	sc_item_book->AddPage( sc_panel_file, wxT("File"), true );
+	sc_panel_script = new wxPanel( sc_item_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	sc_script_sizer = new wxBoxSizer( wxVERTICAL );
+
+	sc_grid_sizer_script = new wxGridSizer( 0, 3, 5, 5 );
+
+
+	sc_script_sizer->Add( sc_grid_sizer_script, 1, wxEXPAND, 5 );
+
+
+	sc_panel_script->SetSizer( sc_script_sizer );
+	sc_panel_script->Layout();
+	sc_script_sizer->Fit( sc_panel_script );
+	sc_item_book->AddPage( sc_panel_script, wxT("Script"), false );
+	sc_panel_shortcuts = new wxPanel( sc_item_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	sc_shortcuts_sizer = new wxBoxSizer( wxVERTICAL );
+
+	sc_grid_sizer_shortcuts = new wxGridSizer( 0, 3, 5, 5 );
+
+
+	sc_shortcuts_sizer->Add( sc_grid_sizer_shortcuts, 1, wxEXPAND, 5 );
+
+
+	sc_panel_shortcuts->SetSizer( sc_shortcuts_sizer );
+	sc_panel_shortcuts->Layout();
+	sc_shortcuts_sizer->Fit( sc_panel_shortcuts );
+	sc_item_book->AddPage( sc_panel_shortcuts, wxT("Shortcuts"), false );
+	sc_panel_goals = new wxPanel( sc_item_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	sc_goal_sizer = new wxBoxSizer( wxVERTICAL );
+
+	sc_grid_sizer_goals = new wxGridSizer( 0, 3, 5, 5 );
+
+
+	sc_goal_sizer->Add( sc_grid_sizer_goals, 1, wxEXPAND, 5 );
+
+
+	sc_panel_goals->SetSizer( sc_goal_sizer );
+	sc_panel_goals->Layout();
+	sc_goal_sizer->Fit( sc_panel_goals );
+	sc_item_book->AddPage( sc_panel_goals, wxT("Goals"), false );
+	sc_panel_auto = new wxPanel( sc_item_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	sc_auto_sizer = new wxBoxSizer( wxVERTICAL );
+
+	sc_grid_sizer_auto = new wxGridSizer( 0, 3, 5, 5 );
+
+
+	sc_auto_sizer->Add( sc_grid_sizer_auto, 1, wxEXPAND, 5 );
+
+
+	sc_panel_auto->SetSizer( sc_auto_sizer );
+	sc_panel_auto->Layout();
+	sc_auto_sizer->Fit( sc_panel_auto );
+	sc_item_book->AddPage( sc_panel_auto, wxT("Auto put"), false );
+	#ifdef __WXGTK__ // Small icon style not supported in GTK
+	wxListView* sc_item_bookListView = sc_item_book->GetListView();
+	long sc_item_bookFlags = sc_item_bookListView->GetWindowStyleFlag();
+	if( sc_item_bookFlags & wxLC_SMALL_ICON )
+	{
+		sc_item_bookFlags = ( sc_item_bookFlags & ~wxLC_SMALL_ICON ) | wxLC_ICON;
+	}
+	sc_item_bookListView->SetWindowStyleFlag( sc_item_bookFlags );
+	#endif
+
+	bSizer72->Add( sc_item_book, 1, wxEXPAND | wxALL, 5 );
+
+
+	sc_vertical_sizer->Add( bSizer72, 1, wxEXPAND, 5 );
 
 	wxBoxSizer* sc_control_sizer;
 	sc_control_sizer = new wxBoxSizer( wxHORIZONTAL );

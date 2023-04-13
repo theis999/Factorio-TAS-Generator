@@ -26,9 +26,9 @@ public:
     /// Builds the dialog box using the shortcut menu and settings file
     /// </summary>
     /// <param name="menu_shortcuts">Pointer to the shortcut menu, used to strip both their label and keybinding</param>
-    void Build(wxMenu* menu_shortcuts);
+    void Build(wxMenuBar* menu_shortcuts);
 
-    wxMenu* menu;
+    wxMenuBar* menu;
     std::map<std::string, wxTextCtrl*> mapCtrl = {};
     settings::setting state;
 
@@ -36,24 +36,39 @@ public:
     /// Used after building the GUI to update shortcuts from the settings file
     /// </summary>
     /// <param name="menu_shortcuts">The shortcut menu where the keybinds should be updated</param>
-    static inline void UpdateShortcutsFromFile(wxMenu* menu_shortcuts)
+    static inline void UpdateShortcutsFromFile(wxMenuBar* menubar)
     {
         try
-        {
+        {            
             settings::setting s = settings::ReadSettingFile();
-            // For each shortcut in the settings file
-            for (auto& [key, value] : s.shortcuts)
+            // For each shortcut type in the settings file
+            for (auto& [_menu, map] : s.shortcuts)
             {
-                for (auto& a : menu_shortcuts->GetMenuItems()) 
+                // For each shortcut in the settings file
+                for (auto& [key, value] : map)
                 {
-                    // Try to find a matching menu point
-                    if (a->GetItemLabel().StartsWith(key)) 
+                    // For each drop down menu
+                    for (int i = 0; i < menubar->GetMenuCount(); i++)
                     {
-                        // If one is found
-                        // Change the last part of the label containing the shortcut
-                        // Which incidentally also updates the keybind
-                        a->SetItemLabel(key + wxT('\t') + value); 
+                        bool found = false;
+                        auto sub_menu = menubar->GetMenu(i);
+                        // For each item in the drop down menu
+                        for (auto& a : sub_menu->GetMenuItems())
+                        {
+                            // Try to find a matching menu point
+                            if (a->GetItemLabel().StartsWith(key))
+                            {
+                                // If one is found
+                                // Change the last part of the label containing the shortcut
+                                // Which incidentally also updates the keybind
+                                a->SetItemLabel(key + wxT('\t') + value);
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found) break;
                     }
+                    
                 }
             }
         } catch (...) { } // ignore all errors

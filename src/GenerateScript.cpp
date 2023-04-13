@@ -61,9 +61,9 @@ string GenerateScript::EndSteps()
 	return step_list + last_step + return_line;
 }
 
-void GenerateScript::UnexpectedError(DialogProgressBar* dialog_progress_bar)
+void GenerateScript::UnexpectedError(DialogProgressBar* dialog_progress_bar, int i)
 {
-	wxMessageBox("Please make an issue at our repository on github with step by step of what happened.", "Unexpected error");
+	wxMessageBox("Unexpected error on step "+std::to_string(i+1)+"\nPlease make an issue at our repository on github with step by step of what happened.\nhttps://github.com/MortenTobiasNielsen/Factorio-TAS-Generator", "Unexpected error");
 	dialog_progress_bar->Close();
 }
 
@@ -173,7 +173,7 @@ void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progre
 			case e_rotate:
 				if (steps[i].BuildingIndex == 0)
 				{
-					UnexpectedError(dialog_progress_bar);
+					UnexpectedError(dialog_progress_bar, i);
 					return;
 				}
 
@@ -205,7 +205,7 @@ void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progre
 
 				if (from_into == "Not Found")
 				{
-					UnexpectedError(dialog_progress_bar);
+					UnexpectedError(dialog_progress_bar, i);
 					return;
 				}
 
@@ -219,7 +219,7 @@ void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progre
 
 				if (from_into == "Not Found")
 				{
-					UnexpectedError(dialog_progress_bar);
+					UnexpectedError(dialog_progress_bar, i);
 					return;
 				}
 
@@ -248,7 +248,7 @@ void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progre
 
 				if (from_into == "Not Found")
 				{
-					UnexpectedError(dialog_progress_bar);
+					UnexpectedError(dialog_progress_bar, i);
 					return;
 				}
 
@@ -259,7 +259,7 @@ void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progre
 
 				if (steps[i].BuildingIndex == 0)
 				{
-					UnexpectedError(dialog_progress_bar);
+					UnexpectedError(dialog_progress_bar, i);
 					return;
 				}
 
@@ -271,7 +271,7 @@ void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progre
 			case e_filter:
 				if (steps[i].BuildingIndex == 0)
 				{
-					UnexpectedError(dialog_progress_bar);
+					UnexpectedError(dialog_progress_bar, i);
 					return;
 				}
 

@@ -235,7 +235,7 @@ namespace settings
         struct setting
         {
             string last_tas;
-            map<string, string> shortcuts;
+            map<string, map<string, string>> shortcuts;
         };
 
         static void to_json(json& j, const setting& s)
@@ -290,15 +290,19 @@ namespace settings
             string l = "";
             for (auto s : uni) l += (char)s;
             data[last] = l;
+
+            return data.get<setting>();
         }
         catch (json::parse_error err)
         {
-        } // parser error
+            // parser error
+        } 
         catch (...)
         {
-        } // ignore all errors
-
-        return data.get<setting>();
+            // ignore all errors
+        } 
+        
+        return setting();
     }
 
     static void SaveSettingFile(setting* s)

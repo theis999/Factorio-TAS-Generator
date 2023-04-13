@@ -135,7 +135,7 @@ cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSi
 	a->Split(1, wxRIGHT);
 
 	//set shortcuts from settings file
-	ShortcutChanger::UpdateShortcutsFromFile(menu_shortcuts);
+	ShortcutChanger::UpdateShortcutsFromFile(main_menubar);
 	settings::setting settings = settings::ReadSettingFile();
 	if (settings.last_tas != "")
 	{
@@ -146,18 +146,20 @@ cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSi
 
 void cMain::StepSeachOnText(wxCommandEvent& event)
 {
-	Search::FindCurrentOrNext(event, grid_steps);
+	bool up = step_search_toggle_updown->GetValue();
+	Search::FindCurrentOrNext(event, grid_steps, up);
 	event.Skip();
 }
 
 void cMain::StepSeachOnTextEnter(wxCommandEvent& event)
 {
-	StepSeachOnText(event);//seems not to fire
+	StepSeachOnSearchButton(event);//seems not to fire
 }
 
 void cMain::StepSeachOnSearchButton(wxCommandEvent& event)
 {
-	Search::FindNext(event, grid_steps);
+	bool up = step_search_toggle_updown->GetValue();
+	Search::FindNext(event, grid_steps, up);
 	event.Skip();
 }
 
@@ -1461,7 +1463,7 @@ void cMain::OnChangeShortcutMenuSelected(wxCommandEvent& event)
 		wxDefaultSize, 
 		wxCAPTION | wxCLOSE_BOX | wxDEFAULT_DIALOG_STYLE | wxSTAY_ON_TOP | wxBORDER_DEFAULT);
 
-	sc->Build(menu_shortcuts);	
+	sc->Build(main_menubar);	
 
 	sc->Show();
 
@@ -1992,6 +1994,7 @@ GridEntry cMain::PrepareStepParametersForGrid(StepParameters* stepParameters)
 			break;
 
 		case e_limit:
+			stepParameters->Orientation = "Chest";
 			gridEntry.X = std::to_string(stepParameters->X);
 			gridEntry.Y = std::to_string(stepParameters->Y);
 			gridEntry.Amount = stepParameters->Amount;
