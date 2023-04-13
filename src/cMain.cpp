@@ -146,18 +146,20 @@ cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSi
 
 void cMain::StepSeachOnText(wxCommandEvent& event)
 {
-	Search::FindCurrentOrNext(event, grid_steps);
+	bool up = step_search_toggle_updown->GetValue();
+	Search::FindCurrentOrNext(event, grid_steps, up);
 	event.Skip();
 }
 
 void cMain::StepSeachOnTextEnter(wxCommandEvent& event)
 {
-	StepSeachOnText(event);//seems not to fire
+	StepSeachOnSearchButton(event);//seems not to fire
 }
 
 void cMain::StepSeachOnSearchButton(wxCommandEvent& event)
 {
-	Search::FindNext(event, grid_steps);
+	bool up = step_search_toggle_updown->GetValue();
+	Search::FindNext(event, grid_steps, up);
 	event.Skip();
 }
 

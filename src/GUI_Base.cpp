@@ -938,52 +938,53 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	bSizer5612->Fit( template_panel );
 	main_book->AddPage( template_panel, wxT("Templates"), false, wxNullBitmap );
 	step_panel = new wxPanel( main_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* bSizer5611;
-	bSizer5611 = new wxBoxSizer( wxVERTICAL );
+	wxBoxSizer* step_panel_sizer;
+	step_panel_sizer = new wxBoxSizer( wxVERTICAL );
 
-
-	bSizer5611->Add( 0, 33, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* bSizer1001;
-	bSizer1001 = new wxBoxSizer( wxHORIZONTAL );
-
-	wxBoxSizer* bSizer113;
-	bSizer113 = new wxBoxSizer( wxHORIZONTAL );
+	wxBoxSizer* step_panel_search_sizer;
+	step_panel_search_sizer = new wxBoxSizer( wxHORIZONTAL );
 
 	step_search_ctrl = new wxSearchCtrl( step_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
 	#ifndef __WXMAC__
 	step_search_ctrl->ShowSearchButton( true );
 	#endif
 	step_search_ctrl->ShowCancelButton( true );
-	bSizer113->Add( step_search_ctrl, 0, wxALL, 5 );
+	step_panel_search_sizer->Add( step_search_ctrl, 0, wxALL, 5 );
+
+	step_search_toggle_updown = new wxCheckBox( step_panel, wxID_ANY, wxT("Search up"), wxDefaultPosition, wxDefaultSize, 0 );
+	step_search_toggle_updown->SetValue(true);
+	step_panel_search_sizer->Add( step_search_toggle_updown, 0, wxALL, 9 );
+
+
+	step_panel_sizer->Add( step_panel_search_sizer, 1, wxEXPAND, 5 );
+
+	wxBoxSizer* step_panel_control_sizer;
+	step_panel_control_sizer = new wxBoxSizer( wxHORIZONTAL );
 
 	btn_add_step = new wxButton( step_panel, wxID_ANY, wxT("Add"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer113->Add( btn_add_step, 0, wxALIGN_CENTER|wxALL, 5 );
+	step_panel_control_sizer->Add( btn_add_step, 0, wxALIGN_CENTER|wxALL, 5 );
 
 	btn_change_step = new wxButton( step_panel, wxID_ANY, wxT("Change"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer113->Add( btn_change_step, 0, wxALL, 5 );
+	step_panel_control_sizer->Add( btn_change_step, 0, wxALL, 5 );
 
 	btn_delete_step = new wxButton( step_panel, wxID_ANY, wxT("Delete"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer113->Add( btn_delete_step, 0, wxALL, 5 );
+	step_panel_control_sizer->Add( btn_delete_step, 0, wxALL, 5 );
 
 	btn_move_up = new wxButton( step_panel, wxID_ANY, wxT("Move Up"), wxDefaultPosition, wxDefaultSize, 0 );
 	btn_move_up->SetToolTip( wxT("Right-click to move 5 but be patient") );
 
-	bSizer113->Add( btn_move_up, 0, wxALL, 5 );
+	step_panel_control_sizer->Add( btn_move_up, 0, wxALL, 5 );
 
 	btn_move_down = new wxButton( step_panel, wxID_ANY, wxT("Move Down"), wxDefaultPosition, wxDefaultSize, 0 );
 	btn_move_down->SetToolTip( wxT("Right-click to move 5 but be patient") );
 
-	bSizer113->Add( btn_move_down, 0, wxALL, 5 );
+	step_panel_control_sizer->Add( btn_move_down, 0, wxALL, 5 );
 
 
-	bSizer1001->Add( bSizer113, 1, wxEXPAND, 5 );
+	step_panel_sizer->Add( step_panel_control_sizer, 0, wxEXPAND, 5 );
 
-
-	bSizer5611->Add( bSizer1001, 0, wxEXPAND, 5 );
-
-	wxBoxSizer* bSizer501;
-	bSizer501 = new wxBoxSizer( wxVERTICAL );
+	wxBoxSizer* step_panel_grid_sizer;
+	step_panel_grid_sizer = new wxBoxSizer( wxVERTICAL );
 
 	grid_steps = new wxGrid( step_panel, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), 0 );
 
@@ -1030,16 +1031,16 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	grid_steps->SetDefaultCellAlignment( wxALIGN_LEFT, wxALIGN_TOP );
 	grid_steps->SetMinSize( wxSize( 860,2500 ) );
 
-	bSizer501->Add( grid_steps, 0, wxALL|wxEXPAND, 5 );
+	step_panel_grid_sizer->Add( grid_steps, 0, wxALL|wxEXPAND, 5 );
 
 
-	bSizer5611->Add( bSizer501, 1, wxEXPAND, 5 );
+	step_panel_sizer->Add( step_panel_grid_sizer, 1, wxEXPAND, 5 );
 
 
-	step_panel->SetSizer( bSizer5611 );
+	step_panel->SetSizer( step_panel_sizer );
 	step_panel->Layout();
-	bSizer5611->Fit( step_panel );
-	main_book->AddPage( step_panel, wxT("Steps"), false, wxNullBitmap );
+	step_panel_sizer->Fit( step_panel );
+	main_book->AddPage( step_panel, wxT("Steps"), true, wxNullBitmap );
 	import_steps_panel = new ImportStepsPanel( main_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, wxT("Import") );
 	wxBoxSizer* import_steps_sizer;
 	import_steps_sizer = new wxBoxSizer( wxVERTICAL );
@@ -1122,7 +1123,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	import_steps_panel->SetSizer( import_steps_sizer );
 	import_steps_panel->Layout();
 	import_steps_sizer->Fit( import_steps_panel );
-	main_book->AddPage( import_steps_panel, wxT("Import"), true, wxNullBitmap );
+	main_book->AddPage( import_steps_panel, wxT("Import"), false, wxNullBitmap );
 
 
 	m_mgr.Update();

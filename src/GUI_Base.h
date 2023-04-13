@@ -135,6 +135,7 @@ class GUI_Base : public wxFrame
 		wxGrid* grid_template;
 		wxPanel* step_panel;
 		wxSearchCtrl* step_search_ctrl;
+		wxCheckBox* step_search_toggle_updown;
 		wxButton* btn_add_step;
 		wxButton* btn_change_step;
 		wxButton* btn_delete_step;
