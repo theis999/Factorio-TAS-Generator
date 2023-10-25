@@ -548,7 +548,7 @@ void GenerateScript::check_mining_distance(string step, string action, string x_
 
 	if (!(modifiers.force || generateconfig.no_intermediate_walk) && (player_x_cord != coordinates[0] || player_y_cord != coordinates[1]))
 	{
-		modifiers.walk_towards = true;
+		modifiers.walk_towards = generateconfig.intermediate_walk_towards;
 		walk(step, action, std::to_string(coordinates[0]), std::to_string(coordinates[1]), last_walking_comment);
 		PaintIntermediateWalk(step);
 		modifiers.walk_towards = false;
@@ -606,7 +606,7 @@ void GenerateScript::check_interact_distance(string step, string action, string 
 
 	if (!(modifiers.force || generateconfig.no_intermediate_walk) && (player_x_cord != coordinates[0] || player_y_cord != coordinates[1]))
 	{
-		modifiers.walk_towards = true;
+		modifiers.walk_towards = generateconfig.intermediate_walk_towards;
 		walk(step, action, std::to_string(coordinates[0]), std::to_string(coordinates[1]), last_walking_comment);
 		PaintIntermediateWalk(step);
 		modifiers.walk_towards = false;
