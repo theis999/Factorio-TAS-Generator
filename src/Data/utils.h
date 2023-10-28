@@ -50,6 +50,7 @@ static const vector<string> filter_inserter_list = {
 };
 
 static const map<string, vector<string>> recipes = {
+	{"None", {}},
 	{"Assembling machine 1", {"Iron plate", "9", "Iron gear wheel", "5", "Electronic circuit", "3"}},
 	{"Automation science pack", {"Copper plate", "1", "Iron gear wheel", "1"}},
 	{"Firearm magazine", {"Iron plate", "4"}},
@@ -665,6 +666,7 @@ static const std::vector<std::string> assemply_level2_list =
 
 static const std::vector<std::string> assemply_level2_extra_list =
 {
+	"None",
 	"Empty crude oil barrel",
 	"Empty heavy oil barrel",
 	"Empty light oil barrel",
@@ -688,6 +690,7 @@ static const std::vector<std::string> chemical_plant_list =
 
 static const std::vector<std::string> chemical_plant_extra_list =
 {
+	"None",
 	"Sulfuric acid",
 	"Lubricant",
 	"Heavy oil cracking",
@@ -704,6 +707,7 @@ static const std::vector<std::string> centrifuge_list =
 
 static const std::vector<std::string> oil_refinery_list = 
 {
+	"None",
 	"Basic oil processing",
 	"Advanced oil processing",
 	"Coal liquefaction"

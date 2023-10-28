@@ -1012,7 +1012,7 @@ local function recipe()
 		return false
 	end
 
-	if not player.force.recipes[item].enabled then
+	if item ~= "none" and not player.force.recipes[item].enabled then
 		if(step > step_reached) then
 			Warning(string.format("Step: %s, Action: %s, Step: %d - Recipe: It is not possible to set recipe %s - It needs to be researched first.", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
 			step_reached = step
@@ -1028,7 +1028,7 @@ local function recipe()
 	end
 	global.wait_for_recipe = nil
 
-	local items_returned = player_selection.set_recipe(item)
+	local items_returned = player_selection.set_recipe(item ~= "none" and item or nil)
 
 	for name, count_ in pairs (items_returned) do
 		player.insert{name = name, count = count_}
