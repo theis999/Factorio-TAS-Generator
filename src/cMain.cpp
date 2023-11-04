@@ -16,47 +16,16 @@ cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSi
 		BuildingsSnapShot.emplace_back(invalidX);
 	}
 
-	part_assembly_recipes.insert(part_assembly_recipes.end(), handcrafted_list.begin(), handcrafted_list.end());
-	part_assembly_recipes.insert(part_assembly_recipes.end(), assemply_level1_list.begin(), assemply_level1_list.end());
-
-	full_assembly_recipes.insert(full_assembly_recipes.end(), part_assembly_recipes.begin(), part_assembly_recipes.end());
-	full_assembly_recipes.insert(full_assembly_recipes.end(), assemply_level2_list.begin(), assemply_level2_list.end());
-	full_assembly_recipes.insert(full_assembly_recipes.end(), assemply_level2_extra_list.begin(), assemply_level2_extra_list.end());
-
-	full_chemical_plant_recipes.insert(full_chemical_plant_recipes.end(), chemical_plant_list.begin(), chemical_plant_list.end());
-	full_chemical_plant_recipes.insert(full_chemical_plant_recipes.end(), chemical_plant_extra_list.begin(), chemical_plant_extra_list.end());
-
-	all_recipes.insert(all_recipes.end(), full_assembly_recipes.begin(), full_assembly_recipes.end());
-	all_recipes.insert(all_recipes.end(), centrifuge_list.begin(), centrifuge_list.end());
-	all_recipes.insert(all_recipes.end(), full_chemical_plant_recipes.begin(), full_chemical_plant_recipes.end());
-	all_recipes.insert(all_recipes.end(), oil_refinery_list.begin(), oil_refinery_list.end());
-
-	for (auto& s : all_recipes)
+	recipe_choices.reserve(Recipes.size());
+	for (auto& recipe : Recipe::RecipeNames)
 	{
-		recipe_choices.Add(s);
+		recipe_choices.Add(recipe);
 	}
-
-	all_items.insert(all_items.end(), handcrafted_list.begin(), handcrafted_list.end());
-	all_items.insert(all_items.end(), assemply_level1_list.begin(), assemply_level1_list.end());
-	all_items.insert(all_items.end(), assemply_level2_list.begin(), assemply_level2_list.end());
-	all_items.insert(all_items.end(), chemical_plant_list.begin(), chemical_plant_list.end());
-	all_items.insert(all_items.end(), filter_take_put_drop_extra_list.begin(), filter_take_put_drop_extra_list.end());
-	all_items.insert(all_items.end(), raw_resource_list.begin(), raw_resource_list.end());
-	all_items.insert(all_items.end(), furnace_list.begin(), furnace_list.end());
 
 	for (auto it = building_size_list.begin(); it != building_size_list.end(); ++it)
 	{
 		all_buildings.push_back(it->first);
-	}
-
-	for (auto& s : all_items)
-	{
-		item_choices.Add(s);
-	}
-
-	for (auto& s : all_buildings)
-	{
-		building_choices.Add(s);
+		building_choices.Add(it->first);
 	}
 
 	for (auto& s : inventory_types_list)
@@ -79,9 +48,10 @@ cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSi
 		input_output_choices.Add(s);
 	}
 
-	for (auto& s : handcrafted_list)
+	for (auto& recipe : Recipes)
 	{
-		handcrafted_choices.Add(s);
+		if (recipe.IsMadeBy(CRAFTING::Character))
+			handcrafted_choices.Add(recipe.Name());
 	}
 
 	// set walk as default value and disable inputs not used
@@ -101,11 +71,12 @@ cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSi
 	cmb_direction_to_build->AutoComplete(building_orientation_choices);
 
 	cmb_item->Clear();
-	for (auto it = all_items.begin(); it < all_items.end(); it++)
+	for (auto& item : Item::names)
 	{
-		cmb_item->Append(*it);
+		cmb_item->Append(item);
+		item_choices.Add(item);
 	}
-	cmb_item->SetValue(*all_items.begin());
+	cmb_item->SetValue(Item::names[1]);
 	cmb_item->AutoComplete(item_choices);
 
 	cmb_from_into->Clear();
@@ -256,26 +227,58 @@ void cMain::OnStepsGridCellChange(wxGridEvent& event)
 		
 	case 4:
 	{
-		auto new_item = new_string.ToStdString();
-		auto items = &all_items;
+		string new_item = new_string.ToStdString();
+		Recipe recipe{};
+		Item type{};
+
 		switch (step.type) {
+		case e_recipe:
+			if (success = Recipe::MapStringToRecipeType(new_item, recipe.type))
+				step.Item = new_item; 
+			break;
+
 		case e_build: 
-			items = &all_buildings;  break;
-		case e_craft:
+			for (auto& item : all_buildings)
+			{
+				if (new_item == item) {
+					step.Item = new_item;
+					success = true;
+					break;
+				}
+			}
+			break;
+
+		[[likely]] case e_craft:
 		case e_cancel_crafting:
-			items = &handcrafted_list; 
+			if (success = Recipe::MapStringToRecipeType(new_item, recipe.type))
+				step.Item = new_item;
+			break;
+
+		case e_drop:
+		case e_filter:
+			if (success = Item::MapStringToItemType(new_string, type))
+				step.Item = new_item; 
+			break;
+
+		case e_throw:
+			if (success = Item::MapStringToItemType(new_string, type))
+				step.Item = new_item;
+			break;
+
+		case e_tech:
+			for (auto& item : tech_list)
+			{
+				if (new_item == item)
+				{
+					step.Item = new_item;
+					success = true;
+					break;
+				}
+			}
 			break;
 		}
-		for (auto& item : *items)
-		{
-			if (new_item == item) {
-				step.Item = new_item;
-				success = true;
-				break;
-			}
-		}
-		break;
 	}
+		break;
 
 	case 5:
 		switch (step.type)
@@ -832,16 +835,16 @@ vector<StepLine> cMain::AddStep(int row, Step step, bool auto_put)
 			
 			int multiplier = step.amount;
 
+			Recipe recipe = Recipes[Recipe::MapStringToRecipeType(step.Item)];
+
 			if (auto_put && 0 < multiplier && check_recipe->IsChecked())
 			{
-				vector<string> recipe = recipes.find(to_check)->second;
-
-				for (int i = 0; i < recipe.size(); i += 2)
+				for (auto& ingredient : recipe.GetItemIngredients())
 				{
 					step.type = e_put;
-					step.amount = stoi(recipe[i + 1]) * multiplier;
-					step.Item = recipe[i];
 					step.inventory = Input;
+					step.amount = ingredient.count * multiplier;
+					step.Item = ingredient.Name();
 
 					UpdateStepGrid(row + 1, &step);
 					returnValue.push_back({row + 1, step});
@@ -2424,61 +2427,48 @@ bool cMain::IsValidBuildStep(Step& step)
 
 bool cMain::IsValidRecipeStep(Step& step)
 {
+	Recipe recipe = Recipes[Recipe::MapStringToRecipeType(step.Item)];
+
 	switch (step.BuildingIndex)
 	{
 		case AssemblingMachine1:
-			if (check_input(step.Item, part_assembly_recipes))
-			{
-				return true;
-			}
+			if (recipe.IsMadeBy(CRAFTING::AssemblingMachine1)) return true;
 
 			wxMessageBox("The item chosen is not a valid recipe for an assembling machine 1", "Item chosen is not valid");
 			return false;
 
 		case AssemblingMachine2:
+			if (recipe.IsMadeBy(CRAFTING::AssemblingMachine2)) return true;
 		case AssemblingMachine3:
-			if (check_input(step.Item, full_assembly_recipes))
-			{
-				return true;
-			}
+			if (recipe.IsMadeBy(CRAFTING::AssemblingMachine3)) return true;
 
 			wxMessageBox("The item chosen is not a valid recipe for an assembling machine", "Item chosen is not valid");
 			return false;
 
 		case OilRefinery:
-			if (check_input(step.Item, oil_refinery_list))
-			{
-				return true;
-			}
+			if (recipe.IsMadeBy(CRAFTING::OilRefinery)) return true;
 
 			wxMessageBox("The item chosen is not a valid recipe for an oil refinery", "Item chosen is not valid");
 			return false;
 
 		case ChemicalPlant:
-			if (check_input(step.Item, full_chemical_plant_recipes))
-			{
-				return true;
-			}
+			if (recipe.IsMadeBy(CRAFTING::ChemicalPlant)) return true;
 
 			wxMessageBox("The item chosen is not a valid recipe for a chemical plant", "Item chosen is not valid");
 			return false;
 
 		case Centrifuge:
-			if (check_input(step.Item, centrifuge_list))
-			{
-				return true;
-			}
+			if (recipe.IsMadeBy(CRAFTING::Centrifuge)) return true;
 
 			wxMessageBox("The item chosen is not a valid recipe for a centrifuge", "Item chosen is not valid");
 			return false;
 
 		case StoneFurnace:
+			if (recipe.IsMadeBy(CRAFTING::StoneFurnace)) return true;
 		case SteelFurnace:
+			if (recipe.IsMadeBy(CRAFTING::SteelFurnace)) return true;
 		case ElectricFurnace:
-			if (check_input(step.Item, furnace_list))
-			{
-				return true;
-			}
+			if (recipe.IsMadeBy(CRAFTING::ElectricFurnace)) return true;
 
 			wxMessageBox("The item chosen is not a valid recipe for a furnace", "Item chosen is not valid");
 			return false;
@@ -2490,13 +2480,9 @@ bool cMain::IsValidRecipeStep(Step& step)
 
 bool cMain::IsValidCraftStep(Step& step)
 {
-	if (!check_input(step.Item, handcrafted_list))
-	{
-		wxMessageBox("The item chosen is not valid - please try again", "Please use the item dropdown menu");
-		return false;
-	}
+	Recipe recipe = Recipes[Recipe::MapStringToRecipeType(step.Item)];
 
-	return true;
+	return recipe.IsMadeBy(CRAFTING::Character);
 }
 
 bool cMain::IsValidPutTakeStep(Step& step)

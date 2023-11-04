@@ -40,6 +40,9 @@
 #include "../icon.xpm"
 #include "CommandStack.h"
 
+#include "Recipe.h"
+#include "Item.h"
+
 using std::string;
 using std::vector;
 using std::pair;
@@ -376,11 +379,6 @@ private:
 	bool ValidateAllSteps();
 
 	vector<string> all_buildings;
-	vector<string> all_items;
-	vector<string> part_assembly_recipes;
-	vector<string> full_assembly_recipes;
-	vector<string> full_chemical_plant_recipes;
-	vector<string> all_recipes;
 	vector<Step> StepGridData;
 	vector<Building> BuildingsSnapShot;
 

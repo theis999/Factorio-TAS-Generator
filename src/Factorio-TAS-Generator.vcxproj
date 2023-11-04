@@ -175,6 +175,8 @@
     <ClCompile Include="GenerateScript.cpp" />
     <ClCompile Include="GUI_Base.cpp" />
     <ClCompile Include="ImportStepsPanel.cpp" />
+    <ClCompile Include="Item.cpp" />
+    <ClCompile Include="Recipe.cpp" />
     <ClCompile Include="Shared functions\Functions.cpp" />
     <ClCompile Include="Shared functions\StringFunctions.cpp" />
     <ClCompile Include="ShortcutChanger.cpp" />
@@ -197,7 +199,9 @@
     <ClInclude Include="GenerateScript.h" />
     <ClInclude Include="GUI_Base.h" />
     <ClInclude Include="ImportStepsPanel.h" />
+    <ClInclude Include="Item.h" />
     <ClInclude Include="nlohmann\json.hpp" />
+    <ClInclude Include="Recipe.h" />
     <ClInclude Include="SearchUtil.h" />
     <ClInclude Include="Shared functions\Functions.h" />
     <ClInclude Include="Shared functions\StringFunctions.h" />
