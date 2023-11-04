@@ -30,7 +30,7 @@ void cMain::UpdateTemplateGrid(vector<Step>& steps)
 	{
 		GridEntry gridEntry = PrepareStepForGrid(&steps[i]);
 		PopulateGrid(grid_template, i, &gridEntry);
-		BackgroundColorUpdate(grid_template, i, steps[i].type);
+		BackgroundColorUpdate(grid_template, i, steps[i]);
 	}
 }
 
@@ -102,8 +102,9 @@ void cMain::OnNewTemplateClicked(wxCommandEvent& event)
 void cMain::OnDeleteTemplate(bool force)
 {
 	auto name = cmb_choose_template->GetValue().ToStdString();
+	auto steps = template_map.find(name);
 
-	if (template_map.find(name) == template_map.end())
+	if (steps == template_map.end())
 	{
 		return;
 	}
@@ -111,6 +112,10 @@ void cMain::OnDeleteTemplate(bool force)
 	{
 		return;
 	}
+
+	Command change{.template_name = name};
+	for (int i = 0; i < steps->second.size(); i++)
+		change.before.push_back({i, steps->second[i]});
 
 	template_map.erase(name);
 	template_choices.Remove(name);
@@ -130,6 +135,7 @@ void cMain::OnDeleteTemplate(bool force)
 		ClearTemplateGrid();
 	}
 
+	stack.Push(change);
 	no_changes = false;
 }
 void cMain::OnDeleteTemplateRightClicked(wxMouseEvent& event)
@@ -151,13 +157,17 @@ void cMain::OnTemplateAddStepClicked(wxCommandEvent& event)
 	grid_template->InsertRows(row);
 	GridEntry gridEntry = PrepareStepForGrid(&step);
 	PopulateGrid(grid_template, row, &gridEntry);
-	BackgroundColorUpdate(grid_template, row, step.type);
+	BackgroundColorUpdate(grid_template, row, step);
 
 	string key = cmb_choose_template->GetValue().ToStdString();
 	vector<Step> list = template_map[key]; 
 	list.insert(list.begin() + row, step);
 	template_map[key] = list;
 
+	Command change{.template_name = key};
+	change.after.push_back({row, step});
+
+	stack.Push(change);
 	no_changes = false;
 }
 
@@ -165,10 +175,16 @@ void cMain::OnTemplateChangeStepClicked(wxCommandEvent& event)
 {
 	auto step = ExtractStep();
 	auto name = cmb_choose_template->GetValue().ToStdString();
-	if (template_map.find(name) == template_map.end())
+	Command change{.template_name = name};
+	auto template_list = template_map.find(name);
+	
+	if (template_list == template_map.end())
 	{
 		return;
 	}
+	
+	
+	change.before.push_back({*grid_template->GetSelectedRows().begin(), template_list->second[*grid_template->GetSelectedRows().begin()]}); // could cause issues if no rows are selected as that is first checked in ChangeRow
 
 	if (!ChangeRow(grid_template, step))
 	{
@@ -176,8 +192,10 @@ void cMain::OnTemplateChangeStepClicked(wxCommandEvent& event)
 	}
 
 	auto rowNum = *grid_template->GetSelectedRows().begin();
-
+	change.after.push_back({rowNum, step});
 	template_map[name][rowNum] = step;
+	stack.Push(change);
+	no_changes = false;
 }
 
 void cMain::OnTemplateDeleteStepClicked(wxCommandEvent& event)
@@ -190,82 +208,43 @@ void cMain::OnTemplateDeleteStepClicked(wxCommandEvent& event)
 	DeleteRow(grid_template, cmb_choose_template, template_map);
 }
 
-void cMain::TemplateMoveRow(wxGrid* grid, wxComboBox* cmb, bool up, map<string, vector<Step>>& map)
+void cMain::TemplateMoveRow(wxGrid* grid, wxComboBox* cmb, bool move_up, map<string, vector<Step>>& map)
 {
 	if (!grid->IsSelection() || !grid->GetSelectedRows().begin())
 	{
-		wxMessageBox("Please select row(s) to move", "Select row(s)");
+		wxMessageBox("Please select one or more rows to move", "Select row");
 	}
 
-	for (const auto& block : grid->GetSelectedRowBlocks())
+	string map_name = cmb->GetValue().ToStdString();
+	Command change{.template_name = map_name};
+	int move_by;
+	auto blocks = grid->GetSelectedRowBlocks();
+
+	{	// truncate 'move_by' to fit within the grid
+		move_by = move_up ? -1 : 1;
+		auto exceeed_top_row = blocks.front().GetTopRow() + move_by < 0;
+		auto exceeed_bottom_row = blocks.back().GetBottomRow() + move_by >= grid->GetNumberRows();
+
+		move_by = move_up ?
+			(exceeed_top_row ?
+				-blocks.front().GetTopRow() : move_by) :
+			(exceeed_bottom_row ?
+				grid->GetNumberRows() - blocks.back().GetBottomRow() - 1 : move_by);
+
+		if (move_by == 0) return;
+	}
+	auto& data_list = map[map_name];
+	for (const auto& block : blocks)
 	{
-		auto rowNum = block.GetTopRow();
-		auto rowCount = block.GetBottomRow() - rowNum + 1;
-
-		auto row = 0;
-		if (up)
+		for (int i = block.GetTopRow(); i <= block.GetBottomRow(); i++)
 		{
-			if (rowNum == 0)
-			{
-				continue;
-			}
-
-			row = rowNum - 1;
-
-		}
-		else
-		{
-			if ((rowNum + rowCount) == (grid->GetNumberRows()))
-			{
-				continue;
-			}
-
-			row = rowNum + rowCount + 1;
-			rowCount = 0;
-		}
-
-		grid->InsertRows(rowNum + rowCount);
-
-		GridTransfer(grid, row, grid, rowNum + rowCount);
-
-		BackgroundColorUpdate(grid, rowNum + rowCount, ToStepType(grid->GetCellValue(rowNum + rowCount, 0).ToStdString()));
-
-		grid->DeleteRows(row);
-
-		if (!map.empty())
-		{
-			std::string map_name = cmb->GetValue().ToStdString();
-			if (map.find(map_name) != map.end())
-			{
-				if (up)
-				{
-
-					auto it1 = map[map_name].begin();
-					it1 += row;
-
-					auto data = *it1;
-					map[map_name].erase(it1);
-
-					auto it2 = map[map_name].begin();
-					it2 += rowNum + rowCount - 1;
-					map[map_name].insert(it2, data);
-				}
-				else
-				{
-					auto it1 = map[map_name].begin();
-					it1 += row - 1;
-
-					auto it2 = map[map_name].begin();
-					it2 += rowNum;
-
-					auto data = *it1;
-					map[map_name].erase(it1, it1 + 1);
-					map[map_name].insert(it2, data);
-				}
-			}
+			change.before.push_back({i, data_list[i]});
+			change.after.push_back({i + move_by, data_list[i]});
 		}
 	}
 
+	UndoRedo(grid, data_list, StepLineToStepBlock(change.after), StepLineToStepBlock(change.before));
+	stack.Push(change);
 	no_changes = false;
 }
 
@@ -325,15 +304,18 @@ void cMain::OnTemplateAddToStepsListClicked(wxCommandEvent& event)
 	const int amount_off = spin_amount_offset->GetValue(),
 		amount_multiplier = spin_amount_multiplier->GetValue();
 
+	Command change{};
 	for (const auto row : rows_)
 	{
 		Step step = list[row];
 
 		TemplateAlterStep(step, dir, x_off, y_off, amount_off, amount_multiplier);
 
+		change.after.push_back({moveTo, step});
 		UpdateStepGrid(moveTo++, &step);
 	}
 
+	stack.Push(change);
 	no_changes = false;
 }
 

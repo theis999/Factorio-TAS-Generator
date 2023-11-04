@@ -40,6 +40,9 @@
 #include "../icon.xpm"
 #include "CommandStack.h"
 
+#include "Recipe.h"
+#include "Item.h"
+
 using std::string;
 using std::vector;
 using std::pair;
@@ -309,6 +312,8 @@ private:
 	map<string, vector<Step>> template_map;
 
 	// Undo and redo
+	void UndoRedo(wxGrid* grid, vector<Step>& date_list, vector<StepBlock> before, vector<StepBlock> after);
+	void UndoRedoHandleTemplate(Command command, vector<StepBlock> before, vector<StepBlock> after);
 	void OnUndoMenuSelected(wxCommandEvent& event);
 	void OnRedoMenuSelected(wxCommandEvent& event);
 	CommandStack stack;
@@ -320,12 +325,13 @@ private:
 	bool ChecksBeforeResetWindow();
 	bool CheckBeforeClose();
 
-	void MoveRow(wxGrid* grid, bool up = false);
+	// if by is possitive then moves the rows down, and negative moves rows up
+	Command MoveRows(wxGrid* grid, int by = 1);
 	void TemplateMoveRow(wxGrid* grid, wxComboBox* cmb, bool up, map<string, vector<Step>>& map);
 	bool DeleteRow(wxGrid* grid, wxComboBox* cmb, map<string, vector<Step>>& map);
 	bool ChangeRow(wxGrid* grid, Step step);
 
-	void BackgroundColorUpdate(wxGrid* grid, int row, StepType step);
+	void BackgroundColorUpdate(wxGrid* grid, int row, Step& step);
 
 	void UpdateMapWithNewSteps(wxGrid* grid, wxComboBox* cmb, map<string, vector<Step>>& map);
 	void UpdateTemplateGrid(vector<Step>& steps);
@@ -354,9 +360,9 @@ private:
 	int GenerateBuildingSnapShot(int end_row);
 	void PopulateStepGrid();
 
-	vector<tuple<int, Step>> AddStep(int row, Step step, bool auto_put = true);
-	vector< tuple<int, Step>> ChangeStep(int row, Step step);
-	vector< tuple<int, Step>> DeleteSteps(wxArrayInt steps, bool auto_confirm = false);
+	vector<StepLine> AddStep(int row, Step step, bool auto_put = true);
+	Command ChangeStep(int row, Step step);
+	Command DeleteSteps(wxArrayInt steps, bool auto_confirm = false);
 	void GridTransfer(wxGrid* from, const int& fromRow, wxGrid* to, const int& toRow);
 	GridEntry ExtractGridEntry(wxGrid* grid, const int& row);
 
@@ -373,11 +379,6 @@ private:
 	bool ValidateAllSteps();
 
 	vector<string> all_buildings;
-	vector<string> all_items;
-	vector<string> part_assembly_recipes;
-	vector<string> full_assembly_recipes;
-	vector<string> full_chemical_plant_recipes;
-	vector<string> all_recipes;
 	vector<Step> StepGridData;
 	vector<Building> BuildingsSnapShot;
 

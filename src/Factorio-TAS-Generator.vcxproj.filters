@@ -23,6 +23,12 @@
     <ClCompile Include="Structures\Step.cpp">
       <Filter>Structs</Filter>
     </ClCompile>
+    <ClCompile Include="Recipe.cpp">
+      <Filter>Structs</Filter>
+    </ClCompile>
+    <ClCompile Include="Item.cpp">
+      <Filter>Structs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cApp.h" />
@@ -77,6 +83,15 @@
       <Filter>Structs</Filter>
     </ClInclude>
     <ClInclude Include="Structures\StepType.h">
+      <Filter>Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="StepLine.h">
+      <Filter>Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="Recipe.h">
+      <Filter>Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="Item.h">
       <Filter>Structs</Filter>
     </ClInclude>
   </ItemGroup>

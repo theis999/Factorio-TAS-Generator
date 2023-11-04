@@ -45,12 +45,12 @@ bool ImportStepsPanel::update_segment()
 	return false;
 }
 
-bool ImportStepsPanel::extract_steps(wxString steps, vector<Step>& step_parameters, vector<Building> buildingSnapshot, int buildings_in_snap_shot)
+bool ImportStepsPanel::extract_steps(wxString steps_text, vector<Step>& steps, vector<Building> buildingSnapshot, int buildings_in_snap_shot)
 {
 	buildingsInSnapShot = buildings_in_snap_shot;
 	int counter = 0;
 	data = {};
-	data.str(steps.ToStdString());
+	data.str(steps_text.ToStdString());
 	while (update_segment())
 	{
 		counter++;
@@ -125,7 +125,7 @@ bool ImportStepsPanel::extract_steps(wxString steps, vector<Step>& step_paramete
 				break;
 		}
 
-		step_parameters.push_back(step);
+		steps.push_back(step);
 	}
 
 	return true;
@@ -138,7 +138,6 @@ void cMain::OnImportStepsIntoStepsIndexBtnClicked(wxCommandEvent& event)
 	auto row = rows.front();
 
 	import_steps_into_steps_ctrl->SetValue(row);
-	event.Skip();
 }
 
 void cMain::OnImportStepsIntoStepsIndexBtnRight(wxMouseEvent& event)
@@ -149,7 +148,6 @@ void cMain::OnImportStepsIntoStepsIndexBtnRight(wxMouseEvent& event)
 	auto totalRows = grid_steps->GetNumberRows();
 
 	import_steps_into_steps_ctrl->SetValue(row - totalRows);
-	event.Skip();
 }
 
 void cMain::OnImportStepsTextUpdate(wxCommandEvent& event)
@@ -180,7 +178,6 @@ void cMain::OnImportStepsTextUpdate(wxCommandEvent& event)
 		}
 		validateTemplateName();
 	}
-	event.Skip();
 }
 
 void cMain::OnImportStepsIntoStepsCtrl(wxSpinEvent& event)
@@ -202,7 +199,6 @@ void cMain::OnImportStepsIntoStepsCtrl(wxSpinEvent& event)
 		import_steps_into_steps_ctrl->SetBackgroundColour(wxColour("Red"));
 		import_steps_into_steps_btn->Enable(false);
 	}
-	event.Skip();
 }
 
 void cMain::OnImportStepsIntoStepsCtrlEnter(wxCommandEvent& event)
@@ -214,45 +210,36 @@ void cMain::OnImportStepsIntoStepsCtrlEnter(wxCommandEvent& event)
 void cMain::OnImportStepsIntoStepsBtnClick(wxCommandEvent& event)
 {
 	// validate steps
-	wxString steps = import_steps_text_import->GetValue();
-	vector<Step> step_parameters = {};
+	wxString steps_text = import_steps_text_import->GetValue();
+	vector<Step> steps = {};
 
 	// import steps
 	int row = import_steps_into_steps_ctrl->GetValue();
 	int rows = grid_steps->GetNumberRows();
 	int start = row >= 0 ? row : rows + row + 1;
 
-	if (!import_steps_panel->extract_steps(steps, step_parameters, BuildingsSnapShot, GenerateBuildingSnapShot(start))) return;
+	if (!import_steps_panel->extract_steps(steps_text, steps, BuildingsSnapShot, GenerateBuildingSnapShot(start))) return;
 
-	size_t steps_size = step_parameters.size();
+	grid_steps->InsertRows(start, steps.size());
 
-	grid_steps->InsertRows(start, steps_size);
+	Command change;
 
-	for (int i = 0; i < steps_size; i++)
+	for (int i = 0; i < steps.size(); i++)
 	{
-		GridEntry gridEntry = PrepareStepForGrid(&step_parameters[i]);
+		change.after.push_back({start + i, steps[i]});
+		GridEntry gridEntry = PrepareStepForGrid(&steps[i]);
 
 		PopulateGrid(grid_steps, start + i, &gridEntry);
 
-		BackgroundColorUpdate(grid_steps, start + i, step_parameters[i].type);
-
-		if (step_parameters[i].colour != wxNullColour)
-		{
-			wxColour colour = step_parameters[i].colour;
-			grid_steps->SetCellBackgroundColour(start + i, 1, colour);
-			grid_steps->SetCellBackgroundColour(start + i, 2, colour);
-			grid_steps->SetCellBackgroundColour(start + i, 3, colour);
-		}
+		BackgroundColorUpdate(grid_steps, start + i, steps[i]);
 	}
-	auto it1 = StepGridData.begin();
-	it1 += start;
-	StepGridData.insert(it1, step_parameters.begin(), step_parameters.end());
+
+	StepGridData.insert(StepGridData.begin() + start, steps.begin(), steps.end());
 
 	if (import_steps_clear_checkbox->IsChecked()) import_steps_text_import->Clear();
 
+	stack.Push(change);
 	no_changes = false;
-
-	event.Skip();
 }
 
 bool cMain::validateTemplateName()
@@ -286,7 +273,6 @@ bool cMain::validateTemplateName()
 void cMain::OnImportStepsIntoTemplateCtrlText(wxCommandEvent& event)
 {
 	validateTemplateName();
-	event.Skip();
 }
 
 void cMain::OnImportStepsIntoTemplateCtrlEnter(wxCommandEvent& event)
@@ -302,9 +288,8 @@ void cMain::OnImportStepsIntoTemplateCtrlEnter(wxCommandEvent& event)
 	}
 
 	// validate steps
-	wxString steps = import_steps_text_import->GetValue();
-	vector<Step> step_parameters = {};
-	if (!import_steps_panel->extract_steps(steps, step_parameters, BuildingsSnapShot, 0)) return;
+	vector<Step> steps = {};
+	if (!import_steps_panel->extract_steps(import_steps_text_import->GetValue(), steps, BuildingsSnapShot, 0)) return;
 
 	// create template
 	std::string name = import_steps_into_template_ctrl_validator.ToStdString();
@@ -315,8 +300,13 @@ void cMain::OnImportStepsIntoTemplateCtrlEnter(wxCommandEvent& event)
 	cmb_choose_template->SetValue(name);
 	cmb_choose_template->AutoComplete(template_choices);
 
-	auto a = template_map.insert(std::pair<std::string, std::vector<Step>>(name, step_parameters) );
-	for (int i = 0; i < step_parameters.size(); i++) template_map[name].push_back(step_parameters[i]);
+	Command change{.template_name = name};
+
+	auto a = template_map.insert(std::pair<std::string, std::vector<Step>>(name, steps) );
+	for (int i = 0; i < steps.size(); i++) 
+	{
+		change.after.push_back({i, steps[i]});
+	}
 
 	UpdateTemplateGrid(template_map[name]);
 
@@ -324,9 +314,9 @@ void cMain::OnImportStepsIntoTemplateCtrlEnter(wxCommandEvent& event)
 
 	import_steps_into_template_btn->Enable(false);
 	import_steps_into_template_ctrl->SetForegroundColour(wxColour("Red"));
-	no_changes = false;
 
-	event.Skip();
+	stack.Push(change);
+	no_changes = false;
 }
 
 void cMain::OnImportStepsIntoTemplateBtnClick(wxCommandEvent& event)
