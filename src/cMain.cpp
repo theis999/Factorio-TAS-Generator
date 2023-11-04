@@ -1419,18 +1419,22 @@ void cMain::Open(std::ifstream * file)
 	if (result->goal == goal_steelaxe_text)
 	{
 		menu_goals->GetMenuItems()[0]->Check();
+		rbtn_next->Disable();
 	}
 	else if (result->goal == goal_GOTLAP_text)
 	{
 		menu_goals->GetMenuItems()[1]->Check();
+		rbtn_next->Disable();
 	}
 	else if (result->goal == goal_any_percent_text || result->goal == goal_any_percent_text_old)
 	{
 		menu_goals->GetMenuItems()[2]->Check();
+		rbtn_next->Disable();
 	}
 	else if (result->goal == goal_debug_text)
 	{
 		menu_goals->GetMenuItems()[0]->Check();
+		rbtn_next->Disable();
 	}
 	else if (result->goal == scenario_supply_challenge_text)
 	{
