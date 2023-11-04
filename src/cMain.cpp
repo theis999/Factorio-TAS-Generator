@@ -403,7 +403,7 @@ void cMain::OnReorderReorderButtonClicked(wxCommandEvent& event)
 		step.step.OriginalY = step.step.Y;
 		step.step.Buildings = 1;
 		step.step.amount = step.step.type == e_rotate && step.step.amount != 3 ? 1 : step.step.amount ;
-		step.step.Modifiers.force = false;
+		step.step.Modifiers.no_order = false;
 	}
 	
 	// reorder the existing steps using the new order
