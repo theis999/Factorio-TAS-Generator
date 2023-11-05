@@ -375,6 +375,7 @@ void cMain::OnReorderReorderButtonClicked(wxCommandEvent& event)
 {
 	vector<ReorderStruct> list{};
 	if (!OnReorderTextValidate(list)) return;
+	Command change;
 	
 	// find scope in the current step list
 	int min = grid_steps->GetNumberRows(), max = 0;
@@ -389,6 +390,7 @@ void cMain::OnReorderReorderButtonClicked(wxCommandEvent& event)
 	for (int i = min; i <= max; i++) 
 	{
 		Step& step = StepGridData[i];
+		change.before.push_back({i, step});
 		for (int j = 0; j < step.Buildings; j++) // unroll multibuild
 		{
 			if (step.type == e_rotate && step.amount != 3)
@@ -436,6 +438,7 @@ void cMain::OnReorderReorderButtonClicked(wxCommandEvent& event)
 	for (int i = min; i < min + steplist.size(); i++)
 	{
 		Step& step = StepGridData[i];
+		change.after.push_back({i, step});
 		GridEntry gridEntry = PrepareStepForGrid(&step);
 		PopulateGrid(grid_steps, i, &gridEntry);
 		BackgroundColorUpdate(grid_steps, i, step);
@@ -443,6 +446,9 @@ void cMain::OnReorderReorderButtonClicked(wxCommandEvent& event)
 
 	if (reorder_text_input_clear_checkbox->GetValue())
 		reorder_text_input->SetValue("");
+
+	stack.Push(change);
+	no_changes = false;
 }
 void cMain::OnReorderLocatorButtonClicked(wxCommandEvent& event)
 {
