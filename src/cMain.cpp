@@ -28,10 +28,20 @@ cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSi
 		building_choices.Add(it->first);
 	}
 
-	for (auto& s : inventory_types_list)
-	{
-		take_from_choices.Add(s);
-	}
+	inventory_choices.Add(inventory_types.input);
+	inventory_choices.Add(inventory_types.output);
+	inventory_choices.Add(inventory_types.fuel);
+	inventory_choices.Add(inventory_types.modules);
+	inventory_choices.Add(inventory_types.chest);
+	inventory_choices.Add(inventory_types.wreck);
+	
+	equip_inventory_choices.Add(inventory_types.armor);
+	equip_inventory_choices.Add(inventory_types.ammo_1);
+	equip_inventory_choices.Add(inventory_types.ammo_2);
+	equip_inventory_choices.Add(inventory_types.ammo_3);
+	equip_inventory_choices.Add(inventory_types.weapon_1);
+	equip_inventory_choices.Add(inventory_types.weapon_2);
+	equip_inventory_choices.Add(inventory_types.weapon_3);
 
 	for (auto& s : tech_list)
 	{
@@ -75,6 +85,13 @@ cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSi
 	{
 		cmb_item->Append(item);
 		item_choices.Add(item);
+		auto i = Item::MapStringToItem(item);
+		if (i.category.IsCategory(Item::Category::c_ammo) || 
+			i.category.IsCategory(Item::Category::c_armor) ||
+			i.category.IsCategory(Item::Category::c_weapon))
+		{
+			equip_choices.Add(item);
+		}
 	}
 	cmb_item->SetValue(Item::names[1]);
 	cmb_item->AutoComplete(item_choices);
@@ -85,7 +102,7 @@ cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSi
 		cmb_from_into->Append(*it);
 	}
 	cmb_from_into->SetValue(*inventory_types_list.begin());
-	cmb_from_into->AutoComplete(take_from_choices);
+	cmb_from_into->AutoComplete(inventory_choices);
 
 	// set steps grid formatting
 	grid_steps->SetColFormatFloat(1, 4, 2);
@@ -232,11 +249,6 @@ void cMain::OnStepsGridCellChange(wxGridEvent& event)
 		Item type{};
 
 		switch (step.type) {
-		case e_recipe:
-			if (success = Recipe::MapStringToRecipeType(new_item, recipe.type))
-				step.Item = new_item; 
-			break;
-
 		case e_build: 
 			for (auto& item : all_buildings)
 			{
@@ -249,20 +261,18 @@ void cMain::OnStepsGridCellChange(wxGridEvent& event)
 			break;
 
 		[[likely]] case e_craft:
+		[[likely]] case e_recipe:
 		case e_cancel_crafting:
 			if (success = Recipe::MapStringToRecipeType(new_item, recipe.type))
 				step.Item = new_item;
 			break;
 
+		case e_equip:
 		case e_drop:
 		case e_filter:
-			if (success = Item::MapStringToItemType(new_string, type))
-				step.Item = new_item; 
-			break;
-
 		case e_throw:
-			if (success = Item::MapStringToItemType(new_string, type))
-				step.Item = new_item;
+			if (success = Item::MapStringToItem(new_string, type))
+				step.Item = new_item; 
 			break;
 
 		case e_tech:
@@ -288,6 +298,7 @@ void cMain::OnStepsGridCellChange(wxGridEvent& event)
 			break;
 		case e_put:
 		case e_take:
+		case e_equip:
 			try {
 				step.inventory = GetInventoryType(new_string.ToStdString());
 				success = true;
@@ -1940,6 +1951,9 @@ void cMain::UpdateParametersChangeType(wxCommandEvent& event, StepType step)
 		case e_shoot:
 			OnShootMenuSelected(event);
 			break;
+		case e_equip:
+			OnEquipMenuSelected(event);
+			break;
 		case e_throw:
 			OnThrowMenuSelected(event);
 			break;
@@ -1978,7 +1992,7 @@ void cMain::UpdateParameters(GridEntry* gridEntry, wxCommandEvent& event, bool c
 	if (parameters & amount) 
 		spin_amount->SetValue(
 			type == e_game_speed ? to_string(stoi(gridEntry->Amount.ToStdString())) :
-			gridEntry->Amount == "All" ? "0" : gridEntry->Amount.ToStdString()
+			gridEntry->Amount == "All" || gridEntry->Amount == "None" ? "0" : gridEntry->Amount.ToStdString()
 		);
 	if (parameters & item) cmb_item->SetValue(gridEntry->Item);
 	if (parameters & from_to) cmb_from_into->SetValue(gridEntry->BuildingOrientation);
@@ -2174,6 +2188,12 @@ GridEntry cMain::PrepareStepForGrid(Step* step)
 			gridEntry.Amount = step->AmountGrid();
 			break;
 
+		case e_equip:
+			gridEntry.Amount = step->AmountGrid();
+			gridEntry.Item = step->Item;
+			gridEntry.Inventory = inventory_types_list[step->inventory];
+			break;
+
 		case e_walk:
 		case e_launch:
 			gridEntry.X = std::to_string(step->X);
@@ -2358,6 +2378,7 @@ bool cMain::ValidateStep(const int& row, Step& step, bool validateBuildSteps)
 		case e_keep_walking:
 		case e_shoot:
 		case e_throw:
+		case e_equip:
 		case e_next:
 			return true;
 

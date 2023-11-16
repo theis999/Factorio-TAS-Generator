@@ -31,14 +31,9 @@ string Step::AmountLua()
 
 string Step::AmountGrid()
 {
-	if (type == e_game_speed)
-	{
-		return std::format("{}%", amount);
-	}
-	if (amount < 1)
-	{
-		return "All";
-	}
+	if (type == e_game_speed) return std::format("{}%", amount);
+	if (type == e_equip && amount < 1) return "None";
+	if (amount < 1) return "All";
 
 	return to_string(amount);
 }

@@ -53,6 +53,7 @@ const struct parameter_choices_struct
 	idle = amount | comment,
 	mining = point | amount | comment,
 	shoot = point | amount | comment,
+	equip = amount | item | from_to | comment,
 	_throw = point | item | comment;
 
 	//building interactions
@@ -99,6 +100,7 @@ const vector<int> listStepTypeToParameterChoices = {
 	parameter_choices.keep_walking, 
 	parameter_choices.keep_on_path, 
 	parameter_choices.keep_crafting, 
-	parameter_choices.shoot, 
+	parameter_choices.shoot,
+	parameter_choices.equip,
 	parameter_choices._throw
 };

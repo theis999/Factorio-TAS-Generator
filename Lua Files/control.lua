@@ -1250,6 +1250,114 @@ local function throw()
 	return false
 end
 
+--- Moves items between the characters main inventory and one of the ammo, weapon or the armor slot.
+local function equip()
+	if not player then return false end
+	local types = {
+		["Armor"] = {defines.inventory.character_armor, 1, false},
+		["Ammo 1"] = {defines.inventory.character_ammo, 1, false},
+		["Ammo 2"] = {defines.inventory.character_ammo, 2, false},
+		["Ammo 3"] = {defines.inventory.character_ammo, 3, false},
+		["Weapon 1"] = {defines.inventory.character_guns, 1, true},
+		["Weapon 2"] = {defines.inventory.character_guns, 2, true},
+		["Weapon 3"] = {defines.inventory.character_guns, 3, true},
+	}
+	local type = types[slot]
+	local inventory = player.get_inventory(type[1])
+	local main_inventory = player.get_main_inventory()
+	if not inventory or not main_inventory then return false end
+
+	if type[3] then player.character.selected_gun_index = type[2] end -- cycle to new slot
+
+	local main_count = main_inventory.get_item_count(item)
+
+	local stack = inventory[type[2]]
+	if not stack.valid then -- something is very wrong
+		Error("Inventory stack is invalid")
+		run = false
+		return false
+	elseif not stack.valid_for_read then -- slot is clear
+		if amount == -1 then
+			return true
+		end
+		if main_count < amount then
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - As the character does not hold enough in their inventory.", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			return false
+		end
+		local main_removed = main_inventory.remove({
+			name = item,
+			count = amount})
+		local c = stack.set_stack({ name = item, count = main_removed})
+		if not c then
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - Maybe the corresponding ammo/weapon slot is not clear.", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			main_inventory.insert({
+				name = item,
+				count = main_removed})
+			return false
+		end
+	elseif amount == -1 then -- clear this slot
+		local removed_stack_amount = stack.count + 0
+		local returned_stack_amount = main_inventory.insert(stack)
+		stack.clear()
+		
+		if removed_stack_amount > returned_stack_amount then
+			Error(string.format("Step: %s, Action: %s, Step: %d - Equip: More items removed from the target inventory than inserted into main inventory - maybe there wasn't room in the main inventory", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			run = false
+			return false
+		end
+	elseif stack.name ~= item then -- change slot item
+		if main_count < amount then
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - As the character does not hold enough in their inventory.", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			return false
+		end
+		local returned_stack_amount = main_inventory.insert( stack )
+		if stack.count > returned_stack_amount then
+			Error(string.format("Step: %s, Action: %s, Step: %d - Equip: More items removed from the target inventory than inserted into main inventory - maybe there wasn't room in the main inventory", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			run = false
+			return false
+		end
+		stack.clear()
+		local main_removed = main_inventory.remove({
+			name = item,
+			count = amount})
+		local c = stack.set_stack({ name = item, count = main_removed})
+		if not c then
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - Maybe the corresponding ammo/weapon slot is not clear.", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			main_inventory.insert({
+				name = item,
+				count = main_removed})
+			return false
+		end
+	
+	elseif stack.count < amount then -- add more items to the slot
+		if main_count - stack.count < amount then
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - As the character does not hold enough in their inventory.", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			return false
+		end
+		local main_removed = main_inventory.remove({
+			name = item,
+			count = amount - stack.count})
+		local c = stack.transfer_stack({ name = item, count = main_removed})
+		if not c then
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - Unknown error.", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			return false
+		end
+	elseif stack.count > amount then -- remove items from the slot
+		local main_inserted = main_inventory.insert({
+			name = item,
+			count = stack.count - amount
+		})
+		stack.clear()
+		local c = stack.set_stack({ name = item, count = amount})
+		if not c then
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - Unknown error.", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			return false
+		end
+	end
+
+	return true
+end
+
 -- Routing function to perform one of the many available steps
 -- True: Indicates the calling function should advance the step. 
 -- False: Indicates the calling function should not advance step.
@@ -1394,7 +1502,15 @@ local function doStep(current_step)
 		target_position = current_step[3]
 		item = current_step[4]
 		return throw()
-		
+
+	elseif current_step[2] == "equip" then
+		task_category = "equip"
+        task = current_step[1]
+		amount = current_step[3]
+		item = current_step[4]
+		slot = current_step[5]
+		return equip()
+
 	end
 end
 

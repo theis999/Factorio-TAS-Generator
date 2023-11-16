@@ -91,6 +91,7 @@ protected:
 	void OnMineMenuSelected(wxCommandEvent& event);
 	void OnThrowMenuSelected(wxCommandEvent& event);
 	void OnShootMenuSelected(wxCommandEvent& event);
+	void OnEquipMenuSelected(wxCommandEvent& event);
 
 	void OnTakeMenuSelected(wxCommandEvent& event);
 	void OnPutMenuSelected(wxCommandEvent& event);
@@ -152,6 +153,7 @@ protected:
 	void OnLimitChosen(wxCommandEvent& event);
 	void OnIdleChosen(wxCommandEvent& event);
 	void OnShootChosen(wxCommandEvent& event);
+	void OnEquipChosen(wxCommandEvent& event);
 	void OnThrowChosen(wxCommandEvent& event);
 	void OnPickUpChosen(wxCommandEvent& event);
 	void OnDropChosen(wxCommandEvent& event);
@@ -298,7 +300,9 @@ private:
 	
 	// Arrays used to populate combo boxes
 	wxArrayString item_choices;
-	wxArrayString take_from_choices;
+	wxArrayString equip_choices;
+	wxArrayString inventory_choices, // standard inventory choices
+		equip_inventory_choices; // specific inventory choices for equip
 	wxArrayString tech_choices;
 	wxArrayString building_orientation_choices;
 	wxArrayString direction_to_build_choices;
@@ -385,13 +389,14 @@ private:
 	// holds the current state of some gui elements
 	struct
 	{
-		wxArrayString* cmb_item;
+		map<wxWindowID, wxArrayString*> cmb_list;
 		const wxString* label_item;
 		const wxString* label_from_into;
 		map<wxArrayString*, wxString> map_last_item;
-	}current; 
+	}current;
 
 	void UpdateCmbItem(wxArrayString* new_list);
+	void UpdateCmb(wxComboBox* control, wxArrayString* new_list);
 	void UpdateLabelItem(const wxString* new_text);
 	void UpdateLabelFromInto(const wxString* new_text);
 };

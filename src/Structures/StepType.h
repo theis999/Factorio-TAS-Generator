@@ -39,7 +39,8 @@ enum StepType
 	e_keep_walking, 
 	e_keep_on_path, 
 	e_keep_crafting,
-	e_shoot, 
+	e_shoot,
+	e_equip,
 	e_throw
 };
 
@@ -71,7 +72,8 @@ static const vector<string> StepNames = {
 	"Keep walking", 
 	"Keep on path", 
 	"Keep crafting",
-	"Shoot", 
+	"Shoot",
+	"Equip",
 	"Throw"
 };
 
@@ -104,6 +106,7 @@ static const unordered_map<string, StepType> MapStepNameToStepType = {
 	{"Keep on path", e_keep_on_path}, 
 	{"Keep crafting", e_keep_crafting},
 	{"Shoot", e_shoot},
+	{"Equip", e_equip},
 	{"Throw", e_throw},
 
 	//lowercase
@@ -134,6 +137,7 @@ static const unordered_map<string, StepType> MapStepNameToStepType = {
 	{"keep on path", e_keep_on_path},
 	{"keep crafting", e_keep_crafting},
 	{"shoot", e_shoot},
+	{"equip", e_equip},
 	{"throw", e_throw}
 };
 
@@ -165,6 +169,7 @@ static struct ModifierTypeSets{
 		e_tech,
 		e_drop,
 		e_cancel_crafting,
+		e_equip,
 	};
 	set<StepType> cancel{
 		e_tech,
@@ -174,11 +179,36 @@ static struct ModifierTypeSets{
 		e_recipe,
 		e_craft,
 	};
-	set<StepType> skip{
-		//all
-		e_stop, e_build, e_craft, e_game_speed, e_pause, e_save, e_recipe, e_limit,
-		e_filter, e_rotate, e_priority, e_put, e_take, e_mine, e_launch, e_next, e_walk, e_tech, e_drop, e_pick_up, e_idle, e_cancel_crafting,
-		e_never_idle, e_keep_walking, e_keep_on_path, e_keep_crafting
+	set<StepType> skip{ //all		
+		e_stop,
+		e_build,
+		e_craft,
+		e_game_speed,
+		e_pause,
+		e_save,
+		e_recipe,
+		e_limit,
+		e_filter,
+		e_rotate,
+		e_priority,
+		e_put,
+		e_take,
+		e_mine,
+		e_launch,
+		e_next,
+		e_walk,
+		e_tech,
+		e_drop,
+		e_pick_up,
+		e_idle,
+		e_cancel_crafting,
+		e_never_idle,
+		e_keep_walking,
+		e_keep_on_path,
+		e_keep_crafting,
+		e_shoot,
+		e_equip,
+		e_throw
 	};
 	set<StepType> force{
 		//character steps
