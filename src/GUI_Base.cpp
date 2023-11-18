@@ -96,6 +96,10 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	shortcut_shoot = new wxMenuItem( menu_steptypes, wxID_ANY, wxString( wxT("Shoot") ) , wxEmptyString, wxITEM_NORMAL );
 	menu_steptypes->Append( shortcut_shoot );
 
+	wxMenuItem* shortcut_equip;
+	shortcut_equip = new wxMenuItem( menu_steptypes, wxID_ANY, wxString( wxT("Equip") ) , wxEmptyString, wxITEM_NORMAL );
+	menu_steptypes->Append( shortcut_equip );
+
 	menu_steptypes->AppendSeparator();
 
 	wxMenuItem* shortcut_take;
@@ -662,6 +666,17 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 
 	fgSizer4->Add( type_sizer_Shoot, 1, wxEXPAND, 5 );
+
+	wxBoxSizer* type_sizer_Equip;
+	type_sizer_Equip = new wxBoxSizer( wxVERTICAL );
+
+	rbtn_equip = new wxRadioButton( character_panel, wxID_ANY, wxT("Equip"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_equip->SetToolTip( wxT("Makes the character equip a weapon, ammo or armor.\n\nDrawing items from the characters main inventory, and potentially returning them there too.\n\nThis is a set typed action, so if you Equip 3 firearm magazine into a slot where there are 5 firearm magazine items, then it will return 2.\n") );
+
+	type_sizer_Equip->Add( rbtn_equip, 0, wxALL, 5 );
+
+
+	fgSizer4->Add( type_sizer_Equip, 1, wxEXPAND, 5 );
 
 	rbtn_character_panel_hidden = new wxRadioButton( character_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
 	rbtn_character_panel_hidden->SetValue( true );
@@ -1670,6 +1685,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMineMenuSelected ), this, shortcut_mine->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnThrowMenuSelected ), this, shortcut_throw->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnShootMenuSelected ), this, shortcut_shoot->GetId());
+	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnEquipMenuSelected ), this, shortcut_equip->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnTakeMenuSelected ), this, shortcut_take->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnPutMenuSelected ), this, shortcut_put->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnBuildMenuSelected ), this, shortcut_build->GetId());
@@ -1725,6 +1741,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	rbtn_mine->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnMineChosen ), NULL, this );
 	rbtn_throw->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnThrowChosen ), NULL, this );
 	rbtn_shoot->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnShootChosen ), NULL, this );
+	rbtn_equip->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnEquipChosen ), NULL, this );
 	rbtn_take->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnTakeChosen ), NULL, this );
 	rbtn_put->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnPutChosen ), NULL, this );
 	rbtn_build->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnBuildChosen ), NULL, this );
@@ -1825,6 +1842,7 @@ GUI_Base::~GUI_Base()
 	rbtn_mine->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnMineChosen ), NULL, this );
 	rbtn_throw->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnThrowChosen ), NULL, this );
 	rbtn_shoot->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnShootChosen ), NULL, this );
+	rbtn_equip->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnEquipChosen ), NULL, this );
 	rbtn_take->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnTakeChosen ), NULL, this );
 	rbtn_put->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnPutChosen ), NULL, this );
 	rbtn_build->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnBuildChosen ), NULL, this );

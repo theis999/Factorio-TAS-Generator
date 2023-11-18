@@ -143,6 +143,14 @@ enum InventoryType
 	Modules,
 	Chest,
 	Wreck,
+
+	Armor,
+	Ammo_1,
+	Ammo_2,
+	Ammo_3,
+	Weapon_1,
+	Weapon_2,
+	Weapon_3,
 };
 
 /// <summary>
@@ -156,6 +164,14 @@ static const struct
 	string modules = "Modules";
 	string chest = "Chest";
 	string wreck = "Wreck";
+
+	string armor = "Armor";
+	string ammo_1 = "Ammo 1";
+	string ammo_2 = "Ammo 2";
+	string ammo_3 = "Ammo 3";
+	string weapon_1 = "Weapon 1";
+	string weapon_2 = "Weapon 2";
+	string weapon_3 = "Weapon 3";
 } inventory_types;
 
 static const vector<string> inventory_types_list
@@ -165,14 +181,22 @@ static const vector<string> inventory_types_list
 	inventory_types.fuel,
 	inventory_types.modules,
 	inventory_types.chest,
-	inventory_types.wreck
+	inventory_types.wreck,
+
+	inventory_types.armor,
+	inventory_types.ammo_1,
+	inventory_types.ammo_2,
+	inventory_types.ammo_3,
+	inventory_types.weapon_1,
+	inventory_types.weapon_2,
+	inventory_types.weapon_3,
 };
 
 static inline InventoryType GetInventoryType(string inventory_type_string)
 {
 	for (int i = 0; i < inventory_types_list.size(); i++)
 		if (inventory_type_string == inventory_types_list[i]) return (InventoryType)i;
-	throw "unknown inventory_type";
+	throw "unknown InventoryType";
 }
 
 static inline const string GetInventoryTypeForEntity(InventoryType type, string entity)

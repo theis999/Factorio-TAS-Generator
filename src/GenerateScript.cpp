@@ -6,6 +6,7 @@
 #include <ctime>
 
 #include "TAS save file/TasFileConstants.h"
+#include "Item.h"
 
 GenerateScript::GenerateScript(wxGrid* grid_steps) : grid_steps(grid_steps)
 {
@@ -302,7 +303,6 @@ void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progre
 				break;
 
 			case e_priority:
-
 				if (steps[i].BuildingIndex == 0)
 				{
 					UnexpectedError(dialog_progress_bar, i);
@@ -387,6 +387,9 @@ void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progre
 				break;
 			case e_throw:
 				_throw(currentStep, x_cord, y_cord, item, comment);
+				break;
+			case e_equip:
+				equip(currentStep, amount, item, steps[i].inventory, comment);
 				break;
 		}
 	}
@@ -507,7 +510,12 @@ string GenerateScript::convert_string(string input)
 /// </summary>
 string GenerateScript::check_item_name(string item)
 {
-	if (auto search = map_translation.find(item); search != map_translation.end())
+	Item _item;
+	if (Item::MapStringToItem(item, _item))
+	{
+		return Item::itemtype_to_luaname[_item.type];
+	}
+	else if (auto search = map_translation.find(item); search != map_translation.end())
 	{
 		return item = search->second;
 	}
@@ -986,6 +994,12 @@ void GenerateScript::shoot(string step, string x_cord, string y_cord, string amo
 void GenerateScript::_throw(string step, string x_cord, string y_cord, string item, string comment)
 {
 	step_list += StepSignature(step, "1", "\"throw\", {" + x_cord + ", " + y_cord + "}, \"" + item + "\"", comment);
+	total_steps += 1;
+}
+
+void GenerateScript::equip(string step, string amount, string item, InventoryType inventory, string comment)
+{
+	step_list += StepSignature(step, "1", "\"equip\", " + amount + ", \"" + check_item_name(item) + "\", \"" + inventory_types_list[inventory] + "\"", comment);
 	total_steps += 1;
 }
 

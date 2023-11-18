@@ -108,6 +108,7 @@ class GUI_Base : public wxFrame
 		wxRadioButton* rbtn_mine;
 		wxRadioButton* rbtn_throw;
 		wxRadioButton* rbtn_shoot;
+		wxRadioButton* rbtn_equip;
 		wxRadioButton* rbtn_character_panel_hidden;
 		wxPanel* building_panel;
 		wxRadioButton* rbtn_take;
@@ -233,6 +234,7 @@ class GUI_Base : public wxFrame
 		virtual void OnMineMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnThrowMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnShootMenuSelected( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnEquipMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnTakeMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnPutMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnBuildMenuSelected( wxCommandEvent& event ) { event.Skip(); }
@@ -288,6 +290,7 @@ class GUI_Base : public wxFrame
 		virtual void OnMineChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnThrowChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnShootChosen( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnEquipChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnTakeChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnPutChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnBuildChosen( wxCommandEvent& event ) { event.Skip(); }

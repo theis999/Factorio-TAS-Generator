@@ -244,6 +244,10 @@ Step OpenTas::ReadStep(const size_t segment_size, int& buildingsInSnapShot, std:
 			if (buildingsInSnapShot > -1) BuildingExists(buildingSnapshot, buildingsInSnapShot, step);
 			break;
 
+		case e_equip:
+			step.inventory = GetInventoryType(step_segments[5]);
+			break;
+
 		case e_never_idle:
 			if (buildingsInSnapShot > -1) return_data.warnings_states_counters.never_idle++;
 			break;
