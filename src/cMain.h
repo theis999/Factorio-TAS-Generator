@@ -301,6 +301,7 @@ private:
 	// Arrays used to populate combo boxes
 	wxArrayString item_choices;
 	wxArrayString equip_choices;
+	wxArrayString throw_choices;
 	wxArrayString inventory_choices, // standard inventory choices
 		equip_inventory_choices; // specific inventory choices for equip
 	wxArrayString tech_choices;

@@ -92,6 +92,10 @@ cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSi
 		{
 			equip_choices.Add(item);
 		}
+		if (i.category.IsCategory(Item::Category::c_capsule))
+		{
+			throw_choices.Add(item);
+		}
 	}
 	cmb_item->SetValue(Item::names[1]);
 	cmb_item->AutoComplete(item_choices);
