@@ -18,6 +18,129 @@ using std::map;
 /// </summary>
 struct Item
 {
+	/* 
+	* Lua import script
+	game.write_file(file,"")
+
+    --[[
+    game.write_file(file, "\nenum ItemType\n{\n", true)
+    for _, prototype in pairs(game.item_prototypes) do
+        if not prototype.flags or not prototype.flags["hidden"] then
+            game.write_file(file, string.format("\t%s,\n", prototype.name:gsub("-", "_")),true)
+        end
+    end
+    game.write_file(file, "};\n", true)--]]
+
+    --[[
+    game.write_file(file, "\nstatic inline const vector<Category> map_itemtype_to_category = {\n", true)
+    for _, prototype in pairs(game.item_prototypes) do
+        if not prototype.flags or not prototype.flags["hidden"] then
+            local cat = prototype.type == "item-with-entity-data" and "c_vehicle" or
+                prototype.place_result and "c_building" or
+                prototype.place_as_tile_result and "c_tile" or
+                "c_item"
+            cat = "Category::"..cat
+            local r,i = false, false
+            for __, recipe in pairs(game.recipe_prototypes) do
+                if not i then
+                    for ___, ingre in pairs(recipe.ingredients) do
+                        if ingre.name == prototype.name then
+                            
+                            i = true
+                            break
+                        end
+                    end
+                end
+                if not r then 
+                    for ___, prod in pairs(recipe.products) do
+                        if prod.name == prototype.name then
+                            
+                            r = true
+                            break
+                        end
+                    end
+                end
+                if r and i then break end
+            end
+            if i then cat = cat .. " | Category::c_ingredient" end
+            if r then cat = cat .. " | Category::c_product" end
+
+            if prototype.type == "module" then
+                cat = cat .. " | Category::c_module"
+            end
+
+            if prototype.fuel_category then
+                cat = cat .. " | Category::c_fuel"
+            end
+
+            if prototype.subgroup.name == "science-pack" then
+                cat = cat .. " | Category::c_sciencepack"
+            end
+
+            if prototype.type == "capsule" then
+                cat = cat .. " | Category::c_capsule"
+            end
+
+            if prototype.type == "ammo" then
+                cat = cat .. " | Category::c_ammo"
+            end
+
+            if prototype.type == "gun" then
+                cat = cat .. " | Category::c_weapon"
+            end
+
+            if prototype.type == "armor" then
+                cat = cat .. " | Category::c_armor"
+            end
+
+            if prototype.name == "repair-pack" then
+                cat = cat .. " | Category::c_repairpack"
+            end
+
+            game.write_file(file, string.format("\t%s,\n", cat),true)
+        end
+    end
+    game.write_file(file, "};\n", true) --]]
+
+
+    --[[
+    game.write_file(file, "\nstatic inline const vector<string> names = {\n", true)
+    for _, prototype in pairs(game.item_prototypes) do
+        if not prototype.flags or not prototype.flags["hidden"] then
+            game.write_file(file, string.format("\t\"", prototype.name),true)
+            game.write_file(file, prototype.localised_name,true)
+            game.write_file(file, string.format("\",\n", prototype.name),true)
+        end
+    end
+    game.write_file(file, "};\n", true) --]]
+
+    --[[
+    game.write_file(file, "\nstatic inline const vector<string> itemtype_to_luaname{\n", true)
+    for _, prototype in pairs(game.item_prototypes) do
+        if not prototype.flags or not prototype.flags["hidden"] then
+            game.write_file(file, string.format("\t\"%s\",\n", prototype.name),true)
+        end
+    end
+    game.write_file(file, "};\n", true) --]]
+
+    --
+    game.write_file(file, "\nstatic inline const map<string, ItemType> map_itemname_to_itemtype = {\n", true)
+    for _, prototype in pairs(game.item_prototypes) do
+        if not prototype.flags or not prototype.flags["hidden"] then
+            game.write_file(file, string.format("\t{names[%s], %s},\n", prototype.name:gsub("-", "_"), prototype.name:gsub("-", "_")),true)
+        end
+    end
+
+    for _, prototype in pairs(game.item_prototypes) do
+        if not prototype.flags or not prototype.flags["hidden"] then
+            game.write_file(file, string.format("\t{to_lower(names[%s]), %s},\n", prototype.name:gsub("-", "_"), prototype.name:gsub("-", "_")),true)
+        end
+    end
+
+    game.write_file(file, "};\n", true)--]]
+	
+	*/
+
 	/// <summary> Enumeration of all items, matching vector:names. </summary>
 	enum ItemType
 	{
@@ -59,6 +182,7 @@ struct Item
 		car,
 		tank,
 		spidertron,
+		spidertron_remote,
 		logistic_robot,
 		construction_robot,
 		logistic_chest_active_provider,
@@ -81,7 +205,12 @@ struct Item
 		refined_concrete,
 		refined_hazard_concrete,
 		landfill,
+		cliff_explosives,
 		repair_pack,
+		blueprint,
+		deconstruction_planner,
+		upgrade_planner,
+		blueprint_book,
 		boiler,
 		steam_engine,
 		solar_panel,
@@ -193,6 +322,9 @@ struct Item
 		destroyer_capsule,
 		light_armor,
 		heavy_armor,
+		modular_armor,
+		power_armor,
+		power_armor_mk2,
 		solar_panel_equipment,
 		fusion_reactor_equipment,
 		battery_equipment,
@@ -216,7 +348,7 @@ struct Item
 		artillery_targeting_remote,
 		radar,
 	} type;
-	
+
 	// Categorisation of items. 
 	// An item can only fit into 1 of [building, tile, vehicle & item].
 	// It is possible an item is in multiple other categories.
@@ -291,6 +423,7 @@ struct Item
 		Category::c_vehicle | Category::c_product,
 		Category::c_vehicle | Category::c_product,
 		Category::c_vehicle | Category::c_product,
+		Category::c_item | Category::c_product,
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_product,
@@ -313,7 +446,12 @@ struct Item
 		Category::c_tile | Category::c_ingredient | Category::c_product,
 		Category::c_tile | Category::c_product,
 		Category::c_tile | Category::c_product,
+		Category::c_item | Category::c_product | Category::c_capsule,
 		Category::c_item | Category::c_product | Category::c_repairpack,
+		Category::c_item,
+		Category::c_item,
+		Category::c_item,
+		Category::c_item,
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_ingredient | Category::c_product,
@@ -337,30 +475,27 @@ struct Item
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_product,
-		Category::c_item | Category::c_module | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_module | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_module | Category::c_product,
-		Category::c_item | Category::c_module | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_module | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_module | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_module | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_module | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_module | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_module,
+		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_module,
+		Category::c_item | Category::c_product | Category::c_module,
+		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_module,
+		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_module,
+		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_module,
+		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_module,
+		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_module,
+		Category::c_item | Category::c_product | Category::c_module,
 		Category::c_building | Category::c_product,
 		Category::c_item | Category::c_product,
-		Category::c_item | Category::c_fuel | Category::c_ingredient,
-		Category::c_item | Category::c_fuel | Category::c_ingredient,
+		Category::c_item | Category::c_ingredient | Category::c_fuel,
+		Category::c_item | Category::c_ingredient | Category::c_fuel,
 		Category::c_item | Category::c_ingredient,
 		Category::c_item | Category::c_ingredient,
 		Category::c_item | Category::c_ingredient,
 		Category::c_item | Category::c_ingredient,
-		Category::c_item | Category::c_capsule | Category::c_ingredient,
+		Category::c_item | Category::c_ingredient | Category::c_capsule,
 		Category::c_item | Category::c_ingredient | Category::c_product,
 		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_fuel | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_fuel,
 		Category::c_item | Category::c_ingredient | Category::c_product,
 		Category::c_item | Category::c_ingredient | Category::c_product,
 		Category::c_item | Category::c_ingredient | Category::c_product,
@@ -382,72 +517,78 @@ struct Item
 		Category::c_item | Category::c_ingredient | Category::c_product,
 		Category::c_item | Category::c_ingredient | Category::c_product,
 		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_fuel | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_fuel | Category::c_product,
 		Category::c_item | Category::c_ingredient | Category::c_product,
 		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_fuel,
+		Category::c_item | Category::c_product | Category::c_fuel,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_product | Category::c_fuel,
 		Category::c_item | Category::c_ingredient,
-		Category::c_item | Category::c_sciencepack | Category::c_product,
-		Category::c_item | Category::c_sciencepack | Category::c_product,
-		Category::c_item | Category::c_sciencepack | Category::c_product,
-		Category::c_item | Category::c_sciencepack | Category::c_product,
-		Category::c_item | Category::c_sciencepack | Category::c_product,
-		Category::c_item | Category::c_sciencepack | Category::c_product,
+		Category::c_item | Category::c_product | Category::c_sciencepack,
+		Category::c_item | Category::c_product | Category::c_sciencepack,
+		Category::c_item | Category::c_product | Category::c_sciencepack,
+		Category::c_item | Category::c_product | Category::c_sciencepack,
+		Category::c_item | Category::c_product | Category::c_sciencepack,
+		Category::c_item | Category::c_product | Category::c_sciencepack,
 		Category::c_item | Category::c_sciencepack,
-		Category::c_item | Category::c_weapon | Category::c_product,
-		Category::c_item | Category::c_weapon | Category::c_product,
-		Category::c_item | Category::c_weapon | Category::c_product,
-		Category::c_item | Category::c_weapon | Category::c_product,
-		Category::c_item | Category::c_weapon | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_weapon | Category::c_product,
-		Category::c_building | Category::c_weapon | Category::c_product,
-		Category::c_item | Category::c_ammo | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ammo | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ammo | Category::c_product,
-		Category::c_item | Category::c_ammo | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ammo | Category::c_product,
-		Category::c_item | Category::c_ammo | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ammo | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ammo | Category::c_product,
-		Category::c_item | Category::c_ammo | Category::c_product,
-		Category::c_item | Category::c_ammo | Category::c_product,
-		Category::c_item | Category::c_ammo | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ammo | Category::c_product,
-		Category::c_item | Category::c_ammo | Category::c_product,
-		Category::c_item | Category::c_ammo | Category::c_product,
-		Category::c_item | Category::c_capsule | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_capsule | Category::c_product,
-		Category::c_item | Category::c_capsule | Category::c_product,
-		Category::c_item | Category::c_capsule | Category::c_product,
-		Category::c_item | Category::c_capsule | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_capsule | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_capsule | Category::c_product,
-		Category::c_item | Category::c_armor | Category::c_product,
-		Category::c_item | Category::c_armor | Category::c_product,
-		Category::c_item | Category::c_product | Category::c_equipment,
-		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_equipment,
-		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_equipment,
-		Category::c_item | Category::c_product | Category::c_equipment,
-		Category::c_item | Category::c_product | Category::c_equipment,
-		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_equipment,
-		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_equipment,
-		Category::c_item | Category::c_product | Category::c_equipment,
-		Category::c_item | Category::c_product | Category::c_equipment,
-		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_equipment,
-		Category::c_item | Category::c_product | Category::c_equipment,
-		Category::c_item | Category::c_product | Category::c_equipment,
-		Category::c_item | Category::c_product | Category::c_equipment,
-		Category::c_item | Category::c_capsule | Category::c_product | Category::c_equipment,
+		Category::c_item | Category::c_product | Category::c_weapon,
+		Category::c_item | Category::c_product | Category::c_weapon,
+		Category::c_item | Category::c_product | Category::c_weapon,
+		Category::c_item | Category::c_product | Category::c_weapon,
+		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_weapon,
+		Category::c_item | Category::c_product | Category::c_weapon,
+		Category::c_building | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_ammo,
+		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_ammo,
+		Category::c_item | Category::c_product | Category::c_ammo,
+		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_ammo,
+		Category::c_item | Category::c_product | Category::c_ammo,
+		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_ammo,
+		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_ammo,
+		Category::c_item | Category::c_product | Category::c_ammo,
+		Category::c_item | Category::c_product | Category::c_ammo,
+		Category::c_item | Category::c_product | Category::c_ammo,
+		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_ammo,
+		Category::c_item | Category::c_product | Category::c_ammo,
+		Category::c_item | Category::c_product | Category::c_ammo,
+		Category::c_item | Category::c_product | Category::c_ammo,
+		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_capsule,
+		Category::c_item | Category::c_product | Category::c_capsule,
+		Category::c_item | Category::c_product | Category::c_capsule,
+		Category::c_item | Category::c_product | Category::c_capsule,
+		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_capsule,
+		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_capsule,
+		Category::c_item | Category::c_product | Category::c_capsule,
+		Category::c_item | Category::c_product | Category::c_armor,
+		Category::c_item | Category::c_product | Category::c_armor,
+		Category::c_item | Category::c_product | Category::c_armor,
+		Category::c_item | Category::c_product | Category::c_armor,
+		Category::c_item | Category::c_product | Category::c_armor,
+		Category::c_item | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_product,
+		Category::c_item | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_product,
+		Category::c_item | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_product,
+		Category::c_item | Category::c_product,
+		Category::c_item | Category::c_product,
+		Category::c_item | Category::c_product | Category::c_capsule,
 		Category::c_building | Category::c_ingredient | Category::c_product,
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_ingredient | Category::c_product,
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_product,
-		Category::c_item | Category::c_capsule | Category::c_product,
+		Category::c_item | Category::c_product | Category::c_capsule,
 		Category::c_building | Category::c_ingredient | Category::c_product,
-};
+	};
 
 	Item();
 	Item(int);
@@ -501,6 +642,7 @@ struct Item
 		"Car",
 		"Tank",
 		"Spidertron",
+		"Spidertron remote",
 		"Logistic robot",
 		"Construction robot",
 		"Active provider chest",
@@ -523,7 +665,12 @@ struct Item
 		"Refined concrete",
 		"Refined hazard concrete",
 		"Landfill",
+		"Cliff explosives",
 		"Repair pack",
+		"Blueprint",
+		"Deconstruction planner",
+		"Upgrade planner",
+		"Blueprint book",
 		"Boiler",
 		"Steam engine",
 		"Solar panel",
@@ -635,6 +782,9 @@ struct Item
 		"Destroyer capsule",
 		"Light armor",
 		"Heavy armor",
+		"Modular armor",
+		"Power armor",
+		"Power armor MK2",
 		"Portable solar panel",
 		"Portable fusion reactor",
 		"Personal battery",
@@ -698,6 +848,7 @@ struct Item
 		"car",
 		"tank",
 		"spidertron",
+		"spidertron-remote",
 		"logistic-robot",
 		"construction-robot",
 		"logistic-chest-active-provider",
@@ -720,7 +871,12 @@ struct Item
 		"refined-concrete",
 		"refined-hazard-concrete",
 		"landfill",
+		"cliff-explosives",
 		"repair-pack",
+		"blueprint",
+		"deconstruction-planner",
+		"upgrade-planner",
+		"blueprint-book",
 		"boiler",
 		"steam-engine",
 		"solar-panel",
@@ -832,6 +988,9 @@ struct Item
 		"destroyer-capsule",
 		"light-armor",
 		"heavy-armor",
+		"modular-armor",
+		"power-armor",
+		"power-armor-mk2",
 		"solar-panel-equipment",
 		"fusion-reactor-equipment",
 		"battery-equipment",
@@ -856,7 +1015,7 @@ struct Item
 		"radar",
 	};
 
-	static inline const map<string, ItemType> map_itemname_to_itemtype{
+	static inline const map<string, ItemType> map_itemname_to_itemtype = {
 		{names[wooden_chest], wooden_chest},
 		{names[iron_chest], iron_chest},
 		{names[steel_chest], steel_chest},
@@ -895,6 +1054,7 @@ struct Item
 		{names[car], car},
 		{names[tank], tank},
 		{names[spidertron], spidertron},
+		{names[spidertron_remote], spidertron_remote},
 		{names[logistic_robot], logistic_robot},
 		{names[construction_robot], construction_robot},
 		{names[logistic_chest_active_provider], logistic_chest_active_provider},
@@ -917,7 +1077,12 @@ struct Item
 		{names[refined_concrete], refined_concrete},
 		{names[refined_hazard_concrete], refined_hazard_concrete},
 		{names[landfill], landfill},
+		{names[cliff_explosives], cliff_explosives},
 		{names[repair_pack], repair_pack},
+		{names[blueprint], blueprint},
+		{names[deconstruction_planner], deconstruction_planner},
+		{names[upgrade_planner], upgrade_planner},
+		{names[blueprint_book], blueprint_book},
 		{names[boiler], boiler},
 		{names[steam_engine], steam_engine},
 		{names[solar_panel], solar_panel},
@@ -1029,6 +1194,9 @@ struct Item
 		{names[destroyer_capsule], destroyer_capsule},
 		{names[light_armor], light_armor},
 		{names[heavy_armor], heavy_armor},
+		{names[modular_armor], modular_armor},
+		{names[power_armor], power_armor},
+		{names[power_armor_mk2], power_armor_mk2},
 		{names[solar_panel_equipment], solar_panel_equipment},
 		{names[fusion_reactor_equipment], fusion_reactor_equipment},
 		{names[battery_equipment], battery_equipment},
@@ -1051,7 +1219,6 @@ struct Item
 		{names[artillery_turret], artillery_turret},
 		{names[artillery_targeting_remote], artillery_targeting_remote},
 		{names[radar], radar},
-
 		{to_lower(names[wooden_chest]), wooden_chest},
 		{to_lower(names[iron_chest]), iron_chest},
 		{to_lower(names[steel_chest]), steel_chest},
@@ -1090,6 +1257,7 @@ struct Item
 		{to_lower(names[car]), car},
 		{to_lower(names[tank]), tank},
 		{to_lower(names[spidertron]), spidertron},
+		{to_lower(names[spidertron_remote]), spidertron_remote},
 		{to_lower(names[logistic_robot]), logistic_robot},
 		{to_lower(names[construction_robot]), construction_robot},
 		{to_lower(names[logistic_chest_active_provider]), logistic_chest_active_provider},
@@ -1112,7 +1280,12 @@ struct Item
 		{to_lower(names[refined_concrete]), refined_concrete},
 		{to_lower(names[refined_hazard_concrete]), refined_hazard_concrete},
 		{to_lower(names[landfill]), landfill},
+		{to_lower(names[cliff_explosives]), cliff_explosives},
 		{to_lower(names[repair_pack]), repair_pack},
+		{to_lower(names[blueprint]), blueprint},
+		{to_lower(names[deconstruction_planner]), deconstruction_planner},
+		{to_lower(names[upgrade_planner]), upgrade_planner},
+		{to_lower(names[blueprint_book]), blueprint_book},
 		{to_lower(names[boiler]), boiler},
 		{to_lower(names[steam_engine]), steam_engine},
 		{to_lower(names[solar_panel]), solar_panel},
@@ -1224,6 +1397,9 @@ struct Item
 		{to_lower(names[destroyer_capsule]), destroyer_capsule},
 		{to_lower(names[light_armor]), light_armor},
 		{to_lower(names[heavy_armor]), heavy_armor},
+		{to_lower(names[modular_armor]), modular_armor},
+		{to_lower(names[power_armor]), power_armor},
+		{to_lower(names[power_armor_mk2]), power_armor_mk2},
 		{to_lower(names[solar_panel_equipment]), solar_panel_equipment},
 		{to_lower(names[fusion_reactor_equipment]), fusion_reactor_equipment},
 		{to_lower(names[battery_equipment]), battery_equipment},

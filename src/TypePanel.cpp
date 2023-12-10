@@ -478,6 +478,8 @@ void cMain::OnThrowChosen(wxCommandEvent& event)
 	type_panel->SetType(rbtn_throw);
 	setup_paramters(parameter_choices._throw);
 	SetupModifiers(e_throw);
+
+	UpdateCmbItem(&throw_choices);
 }
 
 void cMain::OnPickUpChosen(wxCommandEvent& event)

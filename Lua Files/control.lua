@@ -1192,7 +1192,7 @@ local function shoot()
 	global.tas_shooting_amount = global.tas_shooting_amount or amount
 	---@cast player LuaPlayer
 	player.update_selected_entity(target_position)
-	local can_shoot = player.character.can_shoot(player.selected, target_position)
+	local can_shoot = not player.selected or player.character.can_shoot(player.selected, target_position)
 	if can_shoot then
 		player.shooting_state = {state = defines.shooting.shooting_selected, position = target_position}
 		global.tas_shooting_amount = global.tas_shooting_amount - 1
@@ -1220,21 +1220,25 @@ local function throw()
 			return false
 		end
 
+		local fish = false
 		local prototype = stack.prototype
 		if not prototype.capsule_action then 
 			Warning(string.format("Step: %s, Action: %s, Step: %d - throw: [item=%s] is not a throwable type", task[1], task[2], step, item ))
 		end
-		if prototype.capsule_action.type ~= "throw" then 
+		if prototype.capsule_action.type == "throw" then 
+			local dist = math.sqrt(
+				math.abs(player.position.x - target_position[1])^2 + math.abs(player.position.y - target_position[2])^2
+			)
+			local can_reach = prototype.capsule_action.attack_parameters.range > dist and dist > prototype.capsule_action.attack_parameters.min_range
+			if not can_reach then
+				Warning(string.format("Step: %s, Action: %s, Step: %d - throw: [item=%s] target is out of range", task[1], task[2], step, item ))
+				return false
+			end
+		elseif prototype.capsule_action.type == "use-on-self" then
+			fish = true
+		else
 			Warning(string.format("Step: %s, Action: %s, Step: %d - throw: [item=%s] is not a throwable type", task[1], task[2], step, item ))
-		end
-		local dist = math.sqrt(
-			math.abs(player.position.x - target_position[1])^2 + math.abs(player.position.y - target_position[2])^2
-		)
-		local can_reach = prototype.capsule_action.attack_parameters.range > dist and dist > prototype.capsule_action.attack_parameters.min_range
-		if not can_reach then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - throw: [item=%s] target is out of range", task[1], task[2], step, item ))
-			return false
-		end
+		end	
 
 		global.tas_throw_cooldown = global.tas_throw_cooldown or 0
 		if game.tick < global.tas_throw_cooldown then
@@ -1245,7 +1249,7 @@ local function throw()
 		global.tas_throw_cooldown = game.tick + prototype.capsule_action.attack_parameters.cooldown
 		local created_entities = stack.use_capsule(player.character, target_position)
 		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Throw: [item=%s]", task[1], task[2], step, item ))
-		return created_entities and #created_entities > 0
+		return fish or (created_entities and #created_entities > 0)
 	end
 	return false
 end
