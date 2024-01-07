@@ -3,6 +3,7 @@
 #include "cMain.h"
 #include "ShortcutChanger.h"
 #include "SteptypeColour.h"
+#include "Technology.h"
 
 cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSize(1840, 950))
 {
@@ -43,7 +44,7 @@ cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSi
 	equip_inventory_choices.Add(inventory_types.weapon_2);
 	equip_inventory_choices.Add(inventory_types.weapon_3);
 
-	for (auto& s : tech_list)
+	for (auto& s : Technology::TechnologyNames)
 	{
 		tech_choices.Add(s);
 	}
@@ -280,7 +281,7 @@ void cMain::OnStepsGridCellChange(wxGridEvent& event)
 			break;
 
 		case e_tech:
-			for (auto& item : tech_list)
+			for (auto& item : Technology::TechnologyNames)
 			{
 				if (new_item == item)
 				{
@@ -2532,7 +2533,8 @@ bool cMain::IsValidPutTakeStep(Step& step)
 
 bool cMain::IsValidTechnologyStep(Step& step)
 {
-	if (!check_input(step.Item, tech_list))
+	Technology t{};
+	if (!Technology::MapStringToTech(step.Item, t))
 	{
 		wxMessageBox("The tech is not valid - please try again", "Please use the tech dropdown menu");
 		return false;

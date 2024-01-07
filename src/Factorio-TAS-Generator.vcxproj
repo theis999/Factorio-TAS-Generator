@@ -185,6 +185,7 @@
     <ClCompile Include="Structures\Step.cpp" />
     <ClCompile Include="TAS save file\OpenTas.cpp" />
     <ClCompile Include="TAS save file\SaveTas.cpp" />
+    <ClCompile Include="Technology.cpp" />
     <ClCompile Include="TemplatePage.cpp" />
     <ClCompile Include="TypePanel.cpp" />
     <ClCompile Include="WalkPanel.cpp" />
@@ -222,6 +223,7 @@
     <ClInclude Include="TAS save file\OpenTas.h" />
     <ClInclude Include="TAS save file\SaveTas.h" />
     <ClInclude Include="TAS save file\TasFileConstants.h" />
+    <ClInclude Include="Technology.h" />
     <ClInclude Include="TypePanel.h" />
   </ItemGroup>
   <ItemGroup>

@@ -29,6 +29,9 @@
     <ClCompile Include="Item.cpp">
       <Filter>Structs</Filter>
     </ClCompile>
+    <ClCompile Include="Technology.cpp">
+      <Filter>Structs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cApp.h" />
@@ -92,6 +95,9 @@
       <Filter>Structs</Filter>
     </ClInclude>
     <ClInclude Include="Item.h">
+      <Filter>Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="Technology.h">
       <Filter>Structs</Filter>
     </ClInclude>
   </ItemGroup>
