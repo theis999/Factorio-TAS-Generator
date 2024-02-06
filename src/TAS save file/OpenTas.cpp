@@ -213,7 +213,7 @@ Step OpenTas::ReadStep(const size_t segment_size, int& buildingsInSnapShot, std:
 	switch (step.type)
 	{
 		case e_build:
-			step.BuildingIndex = BuildingNameToType[step.Item];
+			step.BuildingIndex = Building(step.X, step.Y, Building::Map_BuildingName_to_BuildingType[step.Item], step.orientation);
 			if (buildingsInSnapShot > -1) buildingsInSnapShot = ProcessBuildStep(buildingSnapshot, buildingsInSnapShot, step);
 			break;
 

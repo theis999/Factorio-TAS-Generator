@@ -1,6 +1,5 @@
 #include "Step.h"
 
-#include "../Data/BuildingNames.h"
 #include "ParameterChoices.h"
 
 #include <format>
@@ -109,7 +108,7 @@ bool Step::operator==(const Building& toCompare)
 	if (toCompare.X == X && toCompare.Y == Y)
 	{
 		BuildingIndex = toCompare.type;
-		orientation = toCompare.OrientationEnum;
+		orientation = toCompare.orientation;
 		return true;
 	}
 

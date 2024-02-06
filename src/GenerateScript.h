@@ -15,7 +15,6 @@
 #include "Structures\Step.h"
 #include "Structures\StepType.h"
 
-#include "Data\BuildingNames.h"
 #include "Data\Inventory.h"
 #include "Data\utils.h"
 

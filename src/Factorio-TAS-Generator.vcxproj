@@ -181,7 +181,9 @@
     <ClCompile Include="Shared functions\StringFunctions.cpp" />
     <ClCompile Include="ShortcutChanger.cpp" />
     <ClCompile Include="SearchUtil.cpp" />
+    <ClCompile Include="StdUtil.cpp" />
     <ClCompile Include="SteptypeColour.cpp" />
+    <ClCompile Include="Structures\Building.cpp" />
     <ClCompile Include="Structures\Step.cpp" />
     <ClCompile Include="TAS save file\OpenTas.cpp" />
     <ClCompile Include="TAS save file\SaveTas.cpp" />
@@ -194,7 +196,6 @@
     <ClInclude Include="cApp.h" />
     <ClInclude Include="cMain.h" />
     <ClInclude Include="CommandStack.h" />
-    <ClInclude Include="Data\BuildingNames.h" />
     <ClInclude Include="Data\Inventory.h" />
     <ClInclude Include="Data\utils.h" />
     <ClInclude Include="GenerateScript.h" />
@@ -210,6 +211,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="DialogProgressBar.h" />
     <ClInclude Include="Settings.h" />
+    <ClInclude Include="StdUtil.h" />
     <ClInclude Include="StepLine.h" />
     <ClInclude Include="SteptypeColour.h" />
     <ClInclude Include="Structures\Building.h" />

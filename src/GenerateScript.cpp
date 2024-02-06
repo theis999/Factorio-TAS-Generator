@@ -200,7 +200,7 @@ void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progre
 					amount = "1000";
 				}
 
-				if (steps[i].BuildingIndex == 0)
+				if (steps[i].BuildingIndex.has_value() == false)
 				{
 					mining(currentStep, x_cord, y_cord, amount, "", "", false, comment);
 					break;
@@ -213,7 +213,7 @@ void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progre
 				break;
 
 			case e_rotate:
-				if (steps[i].BuildingIndex == 0)
+				if (steps[i].BuildingIndex.has_value() == false)
 				{
 					UnexpectedError(dialog_progress_bar, i);
 					return;
@@ -274,7 +274,7 @@ void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progre
 				break;
 
 			case e_recipe:
-				if (steps[i].BuildingIndex == 0)
+				if (steps[i].BuildingIndex.has_value() == false)
 				{
 					return;
 				}
@@ -303,7 +303,7 @@ void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progre
 				break;
 
 			case e_priority:
-				if (steps[i].BuildingIndex == 0)
+				if (steps[i].BuildingIndex.has_value() == false)
 				{
 					UnexpectedError(dialog_progress_bar, i);
 					return;
@@ -315,7 +315,7 @@ void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progre
 				break;
 
 			case e_filter:
-				if (steps[i].BuildingIndex == 0)
+				if (steps[i].BuildingIndex.has_value() == false)
 				{
 					UnexpectedError(dialog_progress_bar, i);
 					return;
@@ -465,7 +465,7 @@ void GenerateScript::SetBuildingAndOrientation(Step* step)
 		return;
 	}
 
-	building = FindBuildingName(step->BuildingIndex);
+	building = step->BuildingIndex.value().Name();
 	build_orientation = orientation_list[step->orientation];
 }
 

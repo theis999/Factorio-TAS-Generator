@@ -14,12 +14,10 @@
     <ClCompile Include="ImportStepsPanel.cpp" />
     <ClCompile Include="CommandStack.cpp" />
     <ClCompile Include="SteptypeColour.cpp" />
-    <ClCompile Include="Shared functions\Functions.cpp" />
     <ClCompile Include="TAS save file\OpenTas.cpp" />
     <ClCompile Include="TAS save file\SaveTas.cpp" />
     <ClCompile Include="TemplatePage.cpp" />
     <ClCompile Include="WalkPanel.cpp" />
-    <ClCompile Include="Shared functions\StringFunctions.cpp" />
     <ClCompile Include="Structures\Step.cpp">
       <Filter>Structs</Filter>
     </ClCompile>
@@ -31,6 +29,18 @@
     </ClCompile>
     <ClCompile Include="Technology.cpp">
       <Filter>Structs</Filter>
+    </ClCompile>
+    <ClCompile Include="Structures\Building.cpp">
+      <Filter>Structs</Filter>
+    </ClCompile>
+    <ClCompile Include="Shared functions\Functions.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="Shared functions\StringFunctions.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="StdUtil.cpp">
+      <Filter>util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -55,16 +65,10 @@
     <ClInclude Include="CommandStack.h" />
     <ClInclude Include="SteptypeColour.h" />
     <ClInclude Include="Data\utils.h" />
-    <ClInclude Include="Shared functions\Functions.h" />
-    <ClInclude Include="Structures\StepModifiers.h" />
     <ClInclude Include="TAS save file\OpenTas.h" />
     <ClInclude Include="TAS save file\SaveTas.h" />
     <ClInclude Include="TAS save file\TasFileConstants.h" />
-    <ClInclude Include="Shared functions\StringFunctions.h" />
     <ClInclude Include="Structures\Building.h">
-      <Filter>Structs</Filter>
-    </ClInclude>
-    <ClInclude Include="Data\BuildingNames.h">
       <Filter>Structs</Filter>
     </ClInclude>
     <ClInclude Include="Structures\Priority.h">
@@ -99,6 +103,16 @@
     </ClInclude>
     <ClInclude Include="Technology.h">
       <Filter>Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="Shared functions\Functions.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="Shared functions\StringFunctions.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="Structures\StepModifiers.h" />
+    <ClInclude Include="StdUtil.h">
+      <Filter>util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -148,6 +162,9 @@
     </Filter>
     <Filter Include="lua\scenarios\supply">
       <UniqueIdentifier>{2c5131ec-9cdd-46cc-b704-4a8bd6e0ecbd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="util">
+      <UniqueIdentifier>{2936a506-84da-4584-91d6-54287c7753f6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

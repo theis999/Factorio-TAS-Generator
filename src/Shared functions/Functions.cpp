@@ -122,19 +122,6 @@ bool starts_with_ignore_case_anyword(const wxString& base, const wxString& start
 	return false;
 }
 
-bool is_number(const std::string& str)
-{
-	for (auto s : str)
-	{
-		if (!std::isdigit(s))
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
-
 vector<string> get_keys(map<string, vector<Step>> map)
 {
 	vector<string> keys;
@@ -150,8 +137,8 @@ int ProcessBuildStep(vector<Building>& buildings, int buildingsInSnapShot, Step&
 {
 	buildings[buildingsInSnapShot].X = step.X;
 	buildings[buildingsInSnapShot].Y = step.Y;
-	buildings[buildingsInSnapShot].type = step.BuildingIndex;
-	buildings[buildingsInSnapShot].OrientationEnum = step.orientation;
+	buildings[buildingsInSnapShot].type = (Building::BuildingType) step.BuildingIndex.value().type;
+	buildings[buildingsInSnapShot].orientation = step.orientation;
 	buildingsInSnapShot++;
 
 	if (step.Buildings == 1)
@@ -165,8 +152,8 @@ int ProcessBuildStep(vector<Building>& buildings, int buildingsInSnapShot, Step&
 		
 		buildings[buildingsInSnapShot].X = step.X;
 		buildings[buildingsInSnapShot].Y = step.Y;
-		buildings[buildingsInSnapShot].type = step.BuildingIndex;
-		buildings[buildingsInSnapShot].OrientationEnum = step.orientation;
+		buildings[buildingsInSnapShot].type = (Building::BuildingType)step.BuildingIndex.value().type;
+		buildings[buildingsInSnapShot].orientation = step.orientation;
 		buildingsInSnapShot++;
 	}
 
@@ -206,10 +193,11 @@ bool BuildingExists(vector<Building>& buildings, int buildingsInSnapShot, Step& 
 			{
 				if (buildingsFound == 0)
 				{
-					firstOrientation = buildings[j].OrientationEnum;
+					firstOrientation = buildings[j].orientation;
 				}
 
 				buildingsFound++;
+				step.BuildingIndex = buildings[j];
 				break;
 			}
 		}
@@ -225,6 +213,7 @@ bool BuildingExists(vector<Building>& buildings, int buildingsInSnapShot, Step& 
 	}
 
 	step.Reset();
+	step.BuildingIndex = {};
 	return false;
 }
 

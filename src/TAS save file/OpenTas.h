@@ -14,7 +14,6 @@
 
 #include "..\Structures\Step.h"
 
-#include "..\Data\BuildingNames.h"
 #include "..\Data\utils.h"
 
 #include "..\DialogProgressBar.h"
