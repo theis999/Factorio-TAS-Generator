@@ -3,7 +3,6 @@
 
 #include "Shared functions\Functions.h"
 
-#include "Data\BuildingNames.h"
 #include "Data\utils.h"
 
 using std::string;
@@ -91,7 +90,7 @@ bool ImportStepsPanel::extract_steps(wxString steps_text, vector<Step>& steps, v
 		switch (step.type )
 		{
 			[[likely]] case e_build:
-				step.BuildingIndex = BuildingNameToType[step.Item];
+				step.BuildingIndex = Building::Map_BuildingName_to_BuildingType[step.Item];
 				buildingsInSnapShot = ProcessBuildStep(buildingSnapshot, buildingsInSnapShot, step);
 				break;
 

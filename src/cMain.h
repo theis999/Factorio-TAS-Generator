@@ -22,7 +22,6 @@
 
 #include "Data\utils.h"
 #include "Data\Inventory.h"
-#include "Data\BuildingNames.h"
 
 #include "Structures\Building.h"
 #include "Structures\ParameterChoices.h"

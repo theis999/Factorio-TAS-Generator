@@ -3,6 +3,7 @@
 #include "cMain.h"
 #include "ShortcutChanger.h"
 #include "SteptypeColour.h"
+#include "Technology.h"
 
 cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSize(1840, 950))
 {
@@ -43,7 +44,7 @@ cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSi
 	equip_inventory_choices.Add(inventory_types.weapon_2);
 	equip_inventory_choices.Add(inventory_types.weapon_3);
 
-	for (auto& s : tech_list)
+	for (auto& s : Technology::TechnologyNames)
 	{
 		tech_choices.Add(s);
 	}
@@ -280,7 +281,7 @@ void cMain::OnStepsGridCellChange(wxGridEvent& event)
 			break;
 
 		case e_tech:
-			for (auto& item : tech_list)
+			for (auto& item : Technology::TechnologyNames)
 			{
 				if (new_item == item)
 				{
@@ -298,7 +299,7 @@ void cMain::OnStepsGridCellChange(wxGridEvent& event)
 		switch (step.type)
 		{
 		case e_build:
-			success = MapStringToOrientation(new_string, step.orientation);
+			success = MapStringToOrientation(new_string.ToStdString(), step.orientation);
 			break;
 		case e_put:
 		case e_take:
@@ -318,7 +319,7 @@ void cMain::OnStepsGridCellChange(wxGridEvent& event)
 		break;
 		
 	case 7:
-		success = MapStringToOrientation(new_string, step.Direction);
+		success = MapStringToOrientation(new_string.ToStdString(), step.Direction);
 		break;
 
 	case 8:
@@ -803,7 +804,7 @@ vector<StepLine> cMain::AddStep(int row, Step step, bool auto_put)
 			return returnValue;
 
 		case e_build:
-			step.BuildingIndex = BuildingNameToType[step.Item];
+			step.BuildingIndex = Building::Map_BuildingName_to_BuildingType[step.Item];
 
 			UpdateStepGrid(row , &step);
 			returnValue.push_back({row, step});
@@ -940,7 +941,7 @@ Command cMain::ChangeStep(int row, Step step)
 	
 	if (step.type == e_build)
 	{
-		step.BuildingIndex = BuildingNameToType[step.Item];
+		step.BuildingIndex = Building::Map_BuildingName_to_BuildingType[step.Item];
 	}
 	else if (step.type != StepGridData[row].type)
 	{
@@ -2104,8 +2105,8 @@ Step cMain::ExtractStep()
 	step.amount = ExtractAmount();
 	step.Item = Capitalize(cmb_item->GetValue(), true);
 	step.inventory = GetInventoryType(Capitalize(cmb_from_into->GetValue()));
-	step.orientation = MapStringToOrientation(cmb_building_orientation->GetValue());
-	step.Direction = MapStringToOrientation(cmb_direction_to_build->GetValue());
+	step.orientation = MapStringToOrientation(cmb_building_orientation->GetValue().ToStdString());
+	step.Direction = MapStringToOrientation(cmb_direction_to_build->GetValue().ToStdString());
 	step.Size = spin_building_size->GetValue();
 	step.Buildings = spin_building_amount->GetValue();
 	step.priority.input = (Priority::Type) radio_input->GetSelection();
@@ -2205,9 +2206,9 @@ GridEntry cMain::PrepareStepForGrid(Step* step)
 			break;
 
 		case e_mine:
-			if (step->BuildingIndex != 0)
+			if (step->BuildingIndex.has_value())
 			{
-				gridEntry.Item = FindBuildingName(step->BuildingIndex);
+				gridEntry.Item = step->BuildingIndex.value().Name();
 				step->Item = gridEntry.Item;
 			}
 
@@ -2221,7 +2222,7 @@ GridEntry cMain::PrepareStepForGrid(Step* step)
 			gridEntry.X = std::to_string(step->X);
 			gridEntry.Y = std::to_string(step->Y);
 			gridEntry.Amount = step->AmountGrid();
-			gridEntry.Item = FindBuildingName(step->BuildingIndex);
+			gridEntry.Item = step->BuildingIndex.value().Name();
 			gridEntry.DirectionToBuild = orientation_list[step->Direction];
 			gridEntry.BuildingSize = std::to_string(step->Size);
 			gridEntry.AmountOfBuildings = std::to_string(step->Buildings);
@@ -2464,45 +2465,47 @@ bool cMain::IsValidRecipeStep(Step& step)
 {
 	Recipe recipe = Recipes[Recipe::MapStringToRecipeType(step.Item)];
 
-	switch (step.BuildingIndex)
+	switch (step.BuildingIndex.value().type)
 	{
-		case AssemblingMachine1:
+		[[likely]] case Building::assembling_machine_1:
 			if (recipe.IsMadeBy(CRAFTING::AssemblingMachine1)) return true;
 
 			wxMessageBox("The item chosen is not a valid recipe for an assembling machine 1", "Item chosen is not valid");
 			return false;
 
-		case AssemblingMachine2:
+		[[likely]] case Building::assembling_machine_2:
 			if (recipe.IsMadeBy(CRAFTING::AssemblingMachine2)) return true;
-		case AssemblingMachine3:
+		case Building::assembling_machine_3:
 			if (recipe.IsMadeBy(CRAFTING::AssemblingMachine3)) return true;
 
 			wxMessageBox("The item chosen is not a valid recipe for an assembling machine", "Item chosen is not valid");
 			return false;
 
-		case OilRefinery:
+		case Building::oil_refinery:
 			if (recipe.IsMadeBy(CRAFTING::OilRefinery)) return true;
 
 			wxMessageBox("The item chosen is not a valid recipe for an oil refinery", "Item chosen is not valid");
 			return false;
 
-		case ChemicalPlant:
+		case Building::chemical_plant:
 			if (recipe.IsMadeBy(CRAFTING::ChemicalPlant)) return true;
 
 			wxMessageBox("The item chosen is not a valid recipe for a chemical plant", "Item chosen is not valid");
 			return false;
 
-		case Centrifuge:
+		[[unlikely]] case Building::centrifuge:
 			if (recipe.IsMadeBy(CRAFTING::Centrifuge)) return true;
 
 			wxMessageBox("The item chosen is not a valid recipe for a centrifuge", "Item chosen is not valid");
 			return false;
 
-		case StoneFurnace:
+		[[likely]] case Building::stone_furnace:
 			if (recipe.IsMadeBy(CRAFTING::StoneFurnace)) return true;
-		case SteelFurnace:
+			[[fallthrough]];
+		[[likely]] case Building::steel_furnace:
 			if (recipe.IsMadeBy(CRAFTING::SteelFurnace)) return true;
-		case ElectricFurnace:
+			[[fallthrough]];
+		[[unlikely]] case Building::electric_furnace:
 			if (recipe.IsMadeBy(CRAFTING::ElectricFurnace)) return true;
 
 			wxMessageBox("The item chosen is not a valid recipe for a furnace", "Item chosen is not valid");
@@ -2532,7 +2535,8 @@ bool cMain::IsValidPutTakeStep(Step& step)
 
 bool cMain::IsValidTechnologyStep(Step& step)
 {
-	if (!check_input(step.Item, tech_list))
+	Technology t{};
+	if (!Technology::MapStringToTech(step.Item, t))
 	{
 		wxMessageBox("The tech is not valid - please try again", "Please use the tech dropdown menu");
 		return false;
@@ -2550,7 +2554,7 @@ bool cMain::CheckTakePut(Step& step)
 		return true;
 	}
 
-	string building = FindBuildingName(step.BuildingIndex);
+	string building = step.BuildingIndex.value().Name();
 	if (check_input(building, chest_list))
 	{
 		step.inventory = Chest;
@@ -2642,7 +2646,7 @@ bool cMain::CheckTakePut(Step& step)
 
 bool cMain::ExtraBuildingChecks(Step& step)
 {
-	auto buildingName = FindBuildingName(step.BuildingIndex);
+	auto buildingName = step.BuildingIndex.value().Name();
 
 	switch (step.type)
 	{
@@ -2689,7 +2693,7 @@ bool cMain::ValidateAllSteps()
 		switch (step.type)
 		{
 			case e_build:
-				step.BuildingIndex = BuildingNameToType.find(step.Item)->second;
+				step.BuildingIndex = Building(step.X, step.Y, Building::Map_BuildingName_to_BuildingType[step.Item], step.orientation);
 				buildingsInSnapShot = ProcessBuildStep(BuildingsSnapShot, buildingsInSnapShot, step);
 				break;
 

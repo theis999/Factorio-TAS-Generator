@@ -8,6 +8,8 @@
 #include <vector>
 #include <map>
 
+#include "..\StdUtil.h"
+
 #include "..\Structures\Building.h"
 #include "..\Structures\GridEntry.h"
 #include "..\Structures\Step.h"
@@ -29,8 +31,6 @@ bool starts_with_ignore_case(const wxString& base, const wxString& start);
 bool starts_with_ignore_case_anyword(const wxString& base, const wxString& start);
 
 void find_coordinates(string& x_cord, string& y_cord, string& direction, string& building_size);
-
-bool is_number(const string& s);
 
 vector<string> get_keys(map<string, vector<Step>> map);
 

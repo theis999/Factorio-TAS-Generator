@@ -9,3 +9,16 @@ string to_lower(const string str)
 		r_str[i] = tolower(str[i]);
 	return r_str;
 }
+
+bool is_number(const std::string& str)
+{
+	for (auto s : str)
+	{
+		if (!std::isdigit(s))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
