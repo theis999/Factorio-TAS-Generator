@@ -1149,22 +1149,11 @@ void cMain::OnMoveDownFiveClicked(wxMouseEvent& event)
 	event.Skip();
 }
 
-void cMain::OnStepsGridDoubleLeftClick(wxGridEvent& event)
+void cMain::OnStepsGridRightClick(wxGridEvent& event)
 {
 	auto gridEntry = ExtractGridEntry(grid_steps, event.GetRow());
 
 	UpdateParameters(&gridEntry, event);
-
-	event.Skip();
-}
-
-void cMain::OnStepsGridDoubleRightClick(wxGridEvent& event)
-{
-	auto gridEntry = ExtractGridEntry(grid_steps, event.GetRow());
-
-	UpdateParameters(&gridEntry, event, false);
-
-	event.Skip();
 }
 
 void cMain::OnStepsGridRangeSelect(wxGridRangeSelectEvent& event)
@@ -1552,7 +1541,7 @@ void cMain::Open(std::ifstream * file)
 		if (row_count > 0 && first_row_index < row_count)
 		{
 			wxGridEvent mock_event = wxGridEvent(0, wxEVT_GRID_CELL_LEFT_DCLICK, 0, first_row_index);
-			OnStepsGridDoubleLeftClick(mock_event); // load first row into detail panel
+			OnStepsGridRightClick(mock_event); // load first row into detail panel
 			grid_steps->GoToCell(row_count-1, 0);
 			grid_steps->GoToCell(first_row_index - (first_row_index > 4 ? 3 : 0), 0); // move the grid to first selected row
 

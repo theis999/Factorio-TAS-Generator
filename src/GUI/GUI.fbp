@@ -10263,12 +10263,10 @@
                                             <property name="window_name"></property>
                                             <property name="window_style"></property>
                                             <event name="OnGridCellChange">OnStepsGridCellChange</event>
-                                            <event name="OnGridCellLeftDClick">OnStepsGridDoubleLeftClick</event>
-                                            <event name="OnGridCellRightDClick">OnStepsGridDoubleRightClick</event>
+                                            <event name="OnGridCellRightClick">OnStepsGridRightClick</event>
                                             <event name="OnGridEditorHidden">OnStepsGridEditorHidden</event>
                                             <event name="OnGridEditorShown">OnStepsGridEditorShown</event>
-                                            <event name="OnGridLabelLeftDClick">OnStepsGridDoubleLeftClick</event>
-                                            <event name="OnGridLabelRightDClick">OnStepsGridDoubleRightClick</event>
+                                            <event name="OnGridLabelRightClick">OnStepsGridRightClick</event>
                                             <event name="OnGridRangeSelect">OnStepsGridRangeSelect</event>
                                         </object>
                                     </object>

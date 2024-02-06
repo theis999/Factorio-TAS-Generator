@@ -201,8 +201,7 @@ protected:
 	void OnMoveUpFiveClicked(wxMouseEvent& event);
 	void OnMoveDownFiveClicked(wxMouseEvent& event);
 
-	void OnStepsGridDoubleLeftClick(wxGridEvent& event);
-	void OnStepsGridDoubleRightClick(wxGridEvent& event);
+	void OnStepsGridRightClick(wxGridEvent& event);
 	void OnStepsGridRangeSelect(wxGridRangeSelectEvent& event);
 	void OnStepColourPickerColourChanged(wxColourPickerEvent& event);
 	void HandleSplitOrMergeToggle(wxArrayInt& rows);
