@@ -815,7 +815,7 @@ vector<StepLine> cMain::AddStep(int row, Step step, bool auto_put)
 			step.amount = 1;
 			if (auto_put)
 			{
-				if (check_furnace->IsChecked() && (to_check == struct_auto_put_furnace_list.stone || to_check == struct_auto_put_furnace_list.steel))
+				if (auto_put_furnace->IsChecked() && (to_check == struct_auto_put_furnace_list.stone || to_check == struct_auto_put_furnace_list.steel))
 				{
 					step.Item = struct_fuel_list.coal;
 					step.inventory = Fuel;
@@ -825,7 +825,7 @@ vector<StepLine> cMain::AddStep(int row, Step step, bool auto_put)
 					return returnValue;
 				}
 
-				if (check_burner->IsChecked() && (to_check == struct_auto_put_burner_list.burner_mining_drill || to_check == struct_auto_put_burner_list.burner_inserter || to_check == struct_auto_put_burner_list.boiler))
+				if (auto_put_burner->IsChecked() && (to_check == struct_auto_put_burner_list.burner_mining_drill || to_check == struct_auto_put_burner_list.burner_inserter || to_check == struct_auto_put_burner_list.boiler))
 				{
 					step.Item = struct_fuel_list.coal;
 					step.inventory = Fuel;
@@ -835,7 +835,7 @@ vector<StepLine> cMain::AddStep(int row, Step step, bool auto_put)
 					return returnValue;
 				}
 
-				if (check_lab->IsChecked() && to_check == struct_science_list.lab)
+				if (auto_put_lab->IsChecked() && to_check == struct_science_list.lab)
 				{
 					step.Item = "Automation science pack";
 					step.inventory = Input;
@@ -859,7 +859,7 @@ vector<StepLine> cMain::AddStep(int row, Step step, bool auto_put)
 
 			Recipe recipe = Recipes[Recipe::MapStringToRecipeType(step.Item)];
 
-			if (auto_put && 0 < multiplier && check_recipe->IsChecked())
+			if (auto_put && 0 < multiplier && auto_put_recipe->IsChecked())
 			{
 				for (auto& ingredient : recipe.GetItemIngredients())
 				{
@@ -1482,10 +1482,10 @@ void cMain::Open(std::ifstream * file)
 	menu_auto_close->GetMenuItems()[3]->Check(result->auto_close.save_as);
 	auto_close_save_as = result->auto_close.save_as;
 
-	check_furnace->SetValue(result->auto_put.furnace);
-	check_burner->SetValue(result->auto_put.burner);
-	check_lab->SetValue(result->auto_put.lab);
-	check_recipe->SetValue(result->auto_put.recipe);
+	auto_put_furnace->Check(result->auto_put.furnace);
+	auto_put_burner->Check(result->auto_put.burner);
+	auto_put_lab->Check(result->auto_put.lab);
+	auto_put_recipe->Check(result->auto_put.recipe);
 
 	PopulateStepGrid();
 
@@ -2013,10 +2013,10 @@ bool cMain::Save(string filename, bool save_as, bool set_last_location)
 		menu_auto_close->GetMenuItems()[1]->IsChecked(),
 		menu_auto_close->GetMenuItems()[2]->IsChecked(),
 		menu_auto_close->GetMenuItems()[3]->IsChecked(),
-		check_furnace->IsChecked(),
-		check_burner->IsChecked(),
-		check_lab->IsChecked(),
-		check_recipe->IsChecked(),
+		auto_put_furnace->IsChecked(),
+		auto_put_burner->IsChecked(),
+		auto_put_lab->IsChecked(),
+		auto_put_recipe->IsChecked(),
 		auto_close_save_as,
 		auto_close_save,
 	};
