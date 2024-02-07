@@ -20,22 +20,22 @@
 #include <wx/font.h>
 #include <wx/colour.h>
 #include <wx/settings.h>
+#include <wx/radiobut.h>
+#include <wx/sizer.h>
+#include <wx/panel.h>
 #include <wx/stattext.h>
 #include <wx/spinctrl.h>
-#include <wx/sizer.h>
 #include <wx/textctrl.h>
 #include <wx/combobox.h>
 #include <wx/radiobox.h>
-#include <wx/panel.h>
-#include <wx/radiobut.h>
 #include <wx/checkbox.h>
 #include <wx/button.h>
-#include <wx/statline.h>
-#include <wx/choice.h>
-#include <wx/grid.h>
+#include <wx/valtext.h>
 #include <wx/srchctrl.h>
 #include <wx/clrpicker.h>
-#include <wx/valtext.h>
+#include <wx/grid.h>
+#include <wx/statline.h>
+#include <wx/choice.h>
 #include <wx/aui/auibook.h>
 #include <wx/frame.h>
 #include <wx/aui/aui.h>
@@ -67,35 +67,11 @@ class GUI_Base : public wxFrame
 		wxMenuItem* logging_tech;
 		wxMenuItem* logging_comment;
 		wxMenu* menu_auto_close;
+		wxMenu* menu_auto_put;
 		wxMenu* menu_other;
 		wxMenuItem* legacy_mining;
 		wxMenuItem* intermediate_walk_towards;
 		wxMenuItem* no_intermediate_walk;
-		wxPanel* detail_panel;
-		wxStaticText* label_x_cord;
-		wxSpinCtrlDouble* spin_x;
-		wxStaticText* label_y_cord;
-		wxSpinCtrlDouble* spin_y;
-		wxStaticText* label_amount;
-		wxSpinCtrl* spin_amount;
-		wxStaticText* label_comment;
-		wxTextCtrl* txt_comment;
-		wxStaticText* label_item;
-		wxComboBox* cmb_item;
-		wxStaticText* label_from_into;
-		wxComboBox* cmb_from_into;
-		wxStaticText* label_input;
-		wxRadioBox* radio_input;
-		wxStaticText* label_output;
-		wxRadioBox* radio_output;
-		wxStaticText* label_building_orientation;
-		wxComboBox* cmb_building_orientation;
-		wxStaticText* label_direction_to_build;
-		wxComboBox* cmb_direction_to_build;
-		wxStaticText* label_building_size;
-		wxSpinCtrl* spin_building_size;
-		wxStaticText* label_amount_of_buildings;
-		wxSpinCtrl* spin_building_amount;
 		TypePanel* type_panel;
 		wxPanel* character_panel;
 		wxRadioButton* rbtn_walk;
@@ -132,11 +108,36 @@ class GUI_Base : public wxFrame
 		wxRadioButton* rbtn_keep_on_path;
 		wxRadioButton* rbtn_keep_crafting;
 		wxRadioButton* rbtn_game_panel_hidden;
-		wxPanel* auto_put_panel;
-		wxCheckBox* check_furnace;
-		wxCheckBox* check_burner;
-		wxCheckBox* check_lab;
-		wxCheckBox* check_recipe;
+		wxPanel* vehicle_panel;
+		wxRadioButton* rbtn_enter_exit;
+		wxRadioButton* rbtn_drive;
+		wxRadioButton* rbtn_send;
+		wxRadioButton* rbtn_vehicle_panel_hidden;
+		wxPanel* detail_panel;
+		wxStaticText* label_x_cord;
+		wxSpinCtrlDouble* spin_x;
+		wxStaticText* label_y_cord;
+		wxSpinCtrlDouble* spin_y;
+		wxStaticText* label_amount;
+		wxSpinCtrl* spin_amount;
+		wxStaticText* label_comment;
+		wxTextCtrl* txt_comment;
+		wxStaticText* label_item;
+		wxComboBox* cmb_item;
+		wxStaticText* label_from_into;
+		wxComboBox* cmb_from_into;
+		wxStaticText* label_input;
+		wxRadioBox* radio_input;
+		wxStaticText* label_output;
+		wxRadioBox* radio_output;
+		wxStaticText* label_building_orientation;
+		wxComboBox* cmb_building_orientation;
+		wxStaticText* label_direction_to_build;
+		wxComboBox* cmb_direction_to_build;
+		wxStaticText* label_building_size;
+		wxSpinCtrl* spin_building_size;
+		wxStaticText* label_amount_of_buildings;
+		wxSpinCtrl* spin_building_amount;
 		wxPanel* step_modifier_panel;
 		wxBoxSizer* sizer_no_order;
 		wxCheckBox* modifier_no_order_checkbox;
@@ -164,6 +165,31 @@ class GUI_Base : public wxFrame
 		wxButton* walk_panel_button_down;
 		wxButton* walk_panel_button_downright;
 		wxAuiNotebook* main_book;
+		ImportStepsPanel* import_steps_panel;
+		wxButton* import_steps_into_steps_index_btn;
+		wxSpinCtrl* import_steps_into_steps_ctrl;
+		wxButton* import_steps_into_steps_btn;
+		wxTextCtrl* import_steps_into_template_ctrl;
+		wxButton* import_steps_into_template_btn;
+		wxCheckBox* import_steps_clear_checkbox;
+		wxTextCtrl* import_steps_text_import;
+		wxPanel* step_panel;
+		wxSearchCtrl* step_search_ctrl;
+		wxCheckBox* step_search_toggle_updown;
+		wxButton* step_split_multibuild_button;
+		wxColourPickerCtrl* step_colour_picker;
+		wxCheckBox* steps_focus_checkbox;
+		wxButton* btn_add_step;
+		wxButton* btn_change_step;
+		wxButton* btn_delete_step;
+		wxButton* btn_move_up;
+		wxButton* btn_move_down;
+		wxGrid* grid_steps;
+		wxPanel* reorder_panel;
+		wxButton* reorder_reorder_button;
+		wxCheckBox* reorder_text_input_clear_checkbox;
+		wxButton* reorder_locator_button;
+		wxTextCtrl* reorder_text_input;
 		wxPanel* template_panel;
 		wxComboBox* cmb_choose_template;
 		wxButton* btn_template_new;
@@ -188,31 +214,6 @@ class GUI_Base : public wxFrame
 		wxSpinCtrl* spin_template_iterator;
 		wxChoice* choice_template_direction;
 		wxGrid* grid_template;
-		wxPanel* step_panel;
-		wxSearchCtrl* step_search_ctrl;
-		wxCheckBox* step_search_toggle_updown;
-		wxButton* step_split_multibuild_button;
-		wxColourPickerCtrl* step_colour_picker;
-		wxCheckBox* steps_focus_checkbox;
-		wxButton* btn_add_step;
-		wxButton* btn_change_step;
-		wxButton* btn_delete_step;
-		wxButton* btn_move_up;
-		wxButton* btn_move_down;
-		wxGrid* grid_steps;
-		ImportStepsPanel* import_steps_panel;
-		wxButton* import_steps_into_steps_index_btn;
-		wxSpinCtrl* import_steps_into_steps_ctrl;
-		wxButton* import_steps_into_steps_btn;
-		wxTextCtrl* import_steps_into_template_ctrl;
-		wxButton* import_steps_into_template_btn;
-		wxCheckBox* import_steps_clear_checkbox;
-		wxTextCtrl* import_steps_text_import;
-		wxPanel* reorder_panel;
-		wxButton* reorder_reorder_button;
-		wxCheckBox* reorder_text_input_clear_checkbox;
-		wxButton* reorder_locator_button;
-		wxTextCtrl* reorder_text_input;
 
 		// Virtual event handlers, override them in your derived class
 		virtual void OnApplicationClose( wxCloseEvent& event ) { event.Skip(); }
@@ -323,20 +324,15 @@ class GUI_Base : public wxFrame
 		virtual void OnWalkPanelBtnDownClicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnWalkPanelBtnDownRightClicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMainBookPageChanged( wxAuiNotebookEvent& event ) { event.Skip(); }
-		virtual void OnTemplateChosen( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnTemplateText( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnNewTemplateClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnDeleteTemplateClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnDeleteTemplateRightClicked( wxMouseEvent& event ) { event.Skip(); }
-		virtual void OnTemplateAddStepClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnTemplateChangeStepClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnTemplateDeleteStepClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnTemplateMoveUpClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnTemplateMoveDownClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnTemplateAddToStepsListClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnTemplateAddFromStepsListClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnTemplateGridDoubleLeftClick( wxGridEvent& event ) { event.Skip(); }
-		virtual void OnTemplateGridRangeSelect( wxGridRangeSelectEvent& event ) { event.Skip(); }
+		virtual void OnImportStepsIntoStepsIndexBtnClicked( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnImportStepsIntoStepsIndexBtnRight( wxMouseEvent& event ) { event.Skip(); }
+		virtual void OnImportStepsIntoStepsCtrl( wxSpinEvent& event ) { event.Skip(); }
+		virtual void OnImportStepsIntoStepsCtrlEnter( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnImportStepsIntoStepsBtnClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnImportStepsIntoTemplateCtrlText( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnImportStepsIntoTemplateCtrlEnter( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnImportStepsIntoTemplateBtnClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnImportStepsTextUpdate( wxCommandEvent& event ) { event.Skip(); }
 		virtual void StepSeachOnCancelButton( wxCommandEvent& event ) { event.Skip(); }
 		virtual void StepSeachOnSearchButton( wxCommandEvent& event ) { event.Skip(); }
 		virtual void StepSeachOnText( wxCommandEvent& event ) { event.Skip(); }
@@ -356,26 +352,34 @@ class GUI_Base : public wxFrame
 		virtual void OnMoveDownClicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMoveDownFiveClicked( wxMouseEvent& event ) { event.Skip(); }
 		virtual void OnStepsGridCellChange( wxGridEvent& event ) { event.Skip(); }
-		virtual void OnStepsGridDoubleLeftClick( wxGridEvent& event ) { event.Skip(); }
-		virtual void OnStepsGridDoubleRightClick( wxGridEvent& event ) { event.Skip(); }
+		virtual void OnStepsGridRightClick( wxGridEvent& event ) { event.Skip(); }
 		virtual void OnStepsGridEditorHidden( wxGridEvent& event ) { event.Skip(); }
 		virtual void OnStepsGridEditorShown( wxGridEvent& event ) { event.Skip(); }
 		virtual void OnStepsGridRangeSelect( wxGridRangeSelectEvent& event ) { event.Skip(); }
-		virtual void OnImportStepsIntoStepsIndexBtnClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnImportStepsIntoStepsIndexBtnRight( wxMouseEvent& event ) { event.Skip(); }
-		virtual void OnImportStepsIntoStepsCtrl( wxSpinEvent& event ) { event.Skip(); }
-		virtual void OnImportStepsIntoStepsCtrlEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnImportStepsIntoStepsBtnClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnImportStepsIntoTemplateCtrlText( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnImportStepsIntoTemplateCtrlEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnImportStepsIntoTemplateBtnClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnImportStepsTextUpdate( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnReorderReorderButtonClicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnReorderLocatorButtonClicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnReorderTextUpdate( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnTemplateChosen( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnTemplateText( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnNewTemplateClicked( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnDeleteTemplateClicked( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnDeleteTemplateRightClicked( wxMouseEvent& event ) { event.Skip(); }
+		virtual void OnTemplateAddStepClicked( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnTemplateChangeStepClicked( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnTemplateDeleteStepClicked( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnTemplateMoveUpClicked( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnTemplateMoveDownClicked( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnTemplateAddToStepsListClicked( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnTemplateAddFromStepsListClicked( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnTemplateGridDoubleLeftClick( wxGridEvent& event ) { event.Skip(); }
+		virtual void OnTemplateGridRangeSelect( wxGridRangeSelectEvent& event ) { event.Skip(); }
 
 
 	public:
+		wxMenuItem* auto_put_furnace;
+		wxMenuItem* auto_put_burner;
+		wxMenuItem* auto_put_lab;
+		wxMenuItem* auto_put_recipe;
 		wxString import_steps_into_template_ctrl_validator;
 
 		GUI_Base( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Factorio TAS Generator"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 1840,1080 ), long style = wxDEFAULT_FRAME_STYLE|wxSYSTEM_MENU|wxTAB_TRAVERSAL );
