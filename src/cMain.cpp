@@ -272,6 +272,8 @@ void cMain::OnStepsGridCellChange(wxGridEvent& event)
 				step.Item = new_item;
 			break;
 
+		case e_take:
+		case e_put:
 		case e_equip:
 		case e_drop:
 		case e_filter:
