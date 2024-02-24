@@ -1362,6 +1362,31 @@ local function equip()
 	return true
 end
 
+local function enter()
+	local possible_entities = player.surface.find_entities_filtered{
+		position=target_position,
+		type={"car"},
+		limit=1
+	}
+	if #possible_entities < 1 then
+		return false
+	end
+
+	local entity = possible_entities[1]
+	--local prototype = entity.prototype
+
+	local dist = math.sqrt(
+				math.abs(player.position.x - entity.position.x)^2 + math.abs(player.position.y - entity.position.y)^2
+			)
+	if player.character.prototype.enter_vehicle_distance < dist then
+		return false
+	end
+
+	entity.set_driver(player)
+
+	return true
+end
+
 -- Routing function to perform one of the many available steps
 -- True: Indicates the calling function should advance the step. 
 -- False: Indicates the calling function should not advance step.
@@ -1515,7 +1540,14 @@ local function doStep(current_step)
 		slot = current_step[5]
 		return equip()
 
+	elseif current_step[2] == "enter" then
+		task_category = "enter"
+        task = current_step[1]
+		target_position = current_step[3]
+		return enter()
+
 	end
+
 end
 
 local original_warning = Warning
@@ -2065,12 +2097,12 @@ script.on_event(defines.events.on_game_created_from_scenario, function(event)
 	end
 end)
 
--- Triggered on script built
+--[[ Triggered on script built
 script.on_event(defines.events.script_raised_built, function(event)
 	local entity = event.entity
 	entity.create_build_effect_smoke()
 	entity.surface.play_sound{path="entity-build/"..entity.prototype.name, position=entity.position}
-end)
+end)]]
 
 --modsetting names are stored in a global array for all mods, so each setting value needs to be unique among all mods
 local settings_short = "DunRaider-quickbar-"
