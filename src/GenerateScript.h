@@ -170,6 +170,10 @@ private:
 	void _throw(string step, string x_cord, string y_cord, string item, string comment);
 	void equip(string step, string amount, string item, InventoryType inventory, string comment);
 
+	void enter(string step, string comment);
+	void drive(string step, string duration, Riding riding_state, string comment);
+	void send(string step, string x_cord, string y_cord, string id, string comment);
+
 	void rotate(string step, string action, string x_cord, string y_cord, string times, string item, string OrientationEnum, string comment = "");
 	void row_rotate(string step, string x_cord, string y_cord, string times, string item, string OrientationEnum, string direction, string number_of_buildings, string building_size, string comment);
 	

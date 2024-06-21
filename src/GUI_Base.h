@@ -126,8 +126,10 @@ class GUI_Base : public wxFrame
 		wxComboBox* cmb_item;
 		wxStaticText* label_from_into;
 		wxComboBox* cmb_from_into;
+		wxBoxSizer* detail_sizer_Input;
 		wxStaticText* label_input;
 		wxRadioBox* radio_input;
+		wxRadioBox* radio_acceleration;
 		wxStaticText* label_output;
 		wxRadioBox* radio_output;
 		wxStaticText* label_building_orientation;
@@ -253,6 +255,9 @@ class GUI_Base : public wxFrame
 		virtual void OnKeepWalkingMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnKeepOnPathMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnKeepCraftingMenuSelected( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnEnterExitMenuSelected( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnDriveMenuSelected( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnSendMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnChangeShortcutMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnAddMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnAddAltMenuSelected( wxCommandEvent& event ) { event.Skip(); }
@@ -310,6 +315,9 @@ class GUI_Base : public wxFrame
 		virtual void OnKeepWalkingChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnKeepOnPathChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnKeepCraftingChosen( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnEnterExitChosen( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnDriveChosen( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnSendChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnNoOrderClicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnNoOrderRightClicked( wxMouseEvent& event ) { event.Skip(); }
 		virtual void OnSkipClicked( wxCommandEvent& event ) { event.Skip(); }

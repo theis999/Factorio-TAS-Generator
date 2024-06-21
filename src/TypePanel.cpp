@@ -44,10 +44,14 @@ void TypePanel::SetType(wxRadioButton * choosen_btn)
 		parent->rbtn_shoot,
 		parent->rbtn_equip,
 		parent->rbtn_throw,
+		parent->rbtn_enter_exit,
+		parent->rbtn_drive,
+		parent->rbtn_send,
 	};
 	parent->rbtn_character_panel_hidden->SetValue(true);
 	parent->rbtn_building_panel_hidden->SetValue(true);
 	parent->rbtn_game_panel_hidden->SetValue(true);
+	parent->rbtn_vehicle_panel_hidden->SetValue(true);
 	for (auto btn : radio_buttons)
 	{
 		btn->SetValue(btn == choosen_btn);
@@ -117,6 +121,12 @@ void TypePanel::SwitchStep(StepType type)
 			break;
 		case e_throw: SetType(parent->rbtn_throw);
 			break;
+		case e_enter: SetType(parent->rbtn_enter_exit);
+			break;
+		case e_drive: SetType(parent->rbtn_drive);
+			break;
+		case e_send: SetType(parent->rbtn_send);
+			break;
 		default:
 			// ERROR: You have done something wrong
 			break;
@@ -156,7 +166,7 @@ void cMain::setup_paramters(const int parameters)
 	spin_amount->Enable(parameters & amount);
 	cmb_item->Enable(parameters & item);
 	cmb_from_into->Enable(parameters & from_to);
-	radio_input->Enable((bool)(input == (parameters & input)));
+	radio_input->Enable((bool)(input == (parameters & input))); radio_acceleration->Enable((bool)(input == (parameters & input)));
 	radio_output->Enable((bool)(output == (parameters & output)));
 	cmb_building_orientation->Enable(parameters & building_orientation);
 	cmb_direction_to_build->Enable(parameters & direction_to_build);
@@ -269,6 +279,13 @@ string cMain::ExtractSteptypeName()
 
 	if (rbtn_throw->GetValue())
 		return StepNames[e_throw];
+
+	if (rbtn_enter_exit->GetValue())
+		return StepNames[e_enter];
+	if (rbtn_drive->GetValue())
+		return StepNames[e_drive];
+	if (rbtn_send->GetValue())
+		return StepNames[e_send];
 
 	return "not found";
 }
@@ -439,6 +456,10 @@ void cMain::OnPriorityChosen(wxCommandEvent& event)
 	type_panel->SetType(rbtn_priority);
 	setup_paramters(parameter_choices.priority);
 	SetupModifiers(e_priority);
+
+	radio_input->Show();
+	radio_acceleration->Hide();
+	detail_sizer_Input->Layout();
 }
 
 void cMain::OnLimitChosen(wxCommandEvent& event)
@@ -561,6 +582,31 @@ void cMain::OnKeepCraftingChosen(wxCommandEvent& event)
 	setup_paramters(parameter_choices.keep_crafting);
 	SetupModifiers(e_keep_crafting);
 }
+
+void cMain::OnEnterChosen(wxCommandEvent& event)
+{
+	type_panel->SetType(rbtn_enter_exit);
+	setup_paramters(parameter_choices.enter);
+	SetupModifiers(e_enter);
+}
+
+void cMain::OnDriveChosen(wxCommandEvent& event)
+{
+	type_panel->SetType(rbtn_drive);
+	setup_paramters(parameter_choices.drive);
+	radio_input->Hide();
+	radio_acceleration->Show();
+	detail_sizer_Input->Layout();
+	SetupModifiers(e_drive);
+}
+
+void cMain::OnSendChosen(wxCommandEvent& event)
+{
+	type_panel->SetType(rbtn_send);
+	setup_paramters(parameter_choices.send);
+	SetupModifiers(e_send);
+}
+
 #pragma endregion
 
 #pragma region cMain Menu eventhandlers
@@ -757,6 +803,27 @@ void cMain::OnPauseMenuSelected(wxCommandEvent& event)
 {
 	type_panel->SwitchStep(e_pause);
 	OnPauseChosen(event);
+	event.Skip();
+}
+
+void cMain::OnEnterExitMenuSelected(wxCommandEvent& event)
+{
+	type_panel->SwitchStep(e_enter);
+	OnEnterChosen(event);
+	event.Skip();
+}
+
+void cMain::OnDriveMenuSelected(wxCommandEvent& event)
+{
+	type_panel->SwitchStep(e_drive);
+	OnDriveChosen(event);
+	event.Skip();
+}
+
+void cMain::OnSendMenuSelected(wxCommandEvent& event)
+{
+	type_panel->SwitchStep(e_send);
+	OnSendChosen(event);
 	event.Skip();
 }
 #pragma endregion

@@ -34,39 +34,44 @@ const struct parameter_choices_struct
 {
 	//game interactions
 	const int Pause = comment,
-	stop = comment,
-	save = comment,
-	game_speed = amount | comment,
-	never_idle = comment,
-	keep_walking = comment,
-	keep_on_path = comment,
-	keep_crafting = comment;
+		stop = comment,
+		save = comment,
+		game_speed = amount | comment,
+		never_idle = comment,
+		keep_walking = comment,
+		keep_on_path = comment,
+		keep_crafting = comment;
 
 	//game state interactions
 	const int craft = amount | item | comment,
-	tech = item | comment,
-	cancel_crafting = amount | item | comment;
+		tech = item | comment,
+		cancel_crafting = amount | item | comment;
 
 	//player state interactions
 	const int walk = point | comment,
-	pick = amount | comment,
-	idle = amount | comment,
-	mining = point | amount | comment,
-	shoot = point | amount | comment,
-	equip = amount | item | from_to | comment,
-	_throw = point | item | comment;
+		pick = amount | comment,
+		idle = amount | comment,
+		mining = point | amount | comment,
+		shoot = point | amount | comment,
+		equip = amount | item | from_to | comment,
+		_throw = point | item | comment;
 
 	//building interactions
 	const int build = building | item | building_orientation,
-	take = building | container,
-	put = building | container,
-	rotate = building | amount,
-	limit = building | amount,
-	priority = building | priority_io,
-	recipe = building | amount | item,
-	filter = building | amount | item,
-	launch = point | comment,
-	next = comment;
+		take = building | container,
+		put = building | container,
+		rotate = building | amount,
+		limit = building | amount,
+		priority = building | priority_io,
+		recipe = building | amount | item,
+		filter = building | amount | item,
+		launch = point | comment,
+		next = comment;
+
+	//vehicle interactions
+	const int enter = comment,
+		drive = amount | priority_io | comment,
+		send = point | amount | comment;
 
 	//misc
 	const int drop = point | item | comment;
@@ -102,5 +107,8 @@ const vector<int> listStepTypeToParameterChoices = {
 	parameter_choices.keep_crafting, 
 	parameter_choices.shoot,
 	parameter_choices.equip,
-	parameter_choices._throw
+	parameter_choices._throw,
+	parameter_choices.enter,
+	parameter_choices.drive,
+	parameter_choices.send,
 };

@@ -391,6 +391,16 @@ void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progre
 			case e_equip:
 				equip(currentStep, amount, item, steps[i].inventory, comment);
 				break;
+
+			case e_enter:
+				enter(currentStep, comment);
+				break;
+			case e_drive:
+				drive(currentStep, amount, steps[i].riding, comment);
+				break;
+			case e_send:
+				send(currentStep, x_cord, y_cord, amount, comment);
+				break;
 		}
 	}
 
@@ -1000,6 +1010,24 @@ void GenerateScript::_throw(string step, string x_cord, string y_cord, string it
 void GenerateScript::equip(string step, string amount, string item, InventoryType inventory, string comment)
 {
 	step_list += StepSignature(step, "1", "\"equip\", " + amount + ", \"" + check_item_name(item) + "\", \"" + inventory_types_list[inventory] + "\"", comment);
+	total_steps += 1;
+}
+
+void GenerateScript::enter(string step, string comment)
+{
+	step_list += StepSignature(step, "1", "\"enter\", ", comment);
+	total_steps += 1;
+}
+
+void GenerateScript::drive(string step, string duration, Riding riding_state, string comment)
+{
+	step_list += StepSignature(step, "1", "\"drive\", "+ duration +", " + riding_state.ToLua(), comment);
+	total_steps += 1;
+}
+
+void GenerateScript::send(string step, string x_cord, string y_cord, string id, string comment)
+{
+	step_list += StepSignature(step, "1", "\"send\", {" + x_cord + ", " + y_cord + "}," + id + ", ", comment);
 	total_steps += 1;
 }
 

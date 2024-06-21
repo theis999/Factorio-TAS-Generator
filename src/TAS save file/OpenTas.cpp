@@ -228,6 +228,10 @@ Step OpenTas::ReadStep(const size_t segment_size, int& buildingsInSnapShot, std:
 			if (buildingsInSnapShot > -1) BuildingExists(buildingSnapshot, buildingsInSnapShot, step);
 			break;
 
+		case e_drive:
+			step.riding.FromString(step_segments[5]);
+			break;
+
 		case e_limit:
 		case e_put:
 		case e_take:

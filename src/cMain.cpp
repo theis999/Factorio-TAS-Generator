@@ -1956,6 +1956,15 @@ void cMain::UpdateParametersChangeType(wxCommandEvent& event, StepType step)
 		case e_cancel_crafting:
 			OnCancelCraftingMenuSelected(event);
 			break;
+		case e_enter:
+			OnEnterExitMenuSelected(event);
+			break;
+		case e_drive:
+			OnDriveMenuSelected(event);
+			break;
+		case e_send:
+			OnSendMenuSelected(event);
+			break;
 		default:
 			break;
 	}
@@ -1992,8 +2001,16 @@ void cMain::UpdateParameters(GridEntry* gridEntry, wxCommandEvent& event, bool c
 		);
 	if (parameters & item) cmb_item->SetValue(gridEntry->Item);
 	if (parameters & from_to) cmb_from_into->SetValue(gridEntry->BuildingOrientation);
-	if (parameters & input) radio_input->Select(Priority::MapNameToType[orientation_string.substr(0, pos)]);
-	if (parameters & output) radio_output->Select(Priority::MapNameToType[orientation_string.substr(pos + 1)]);
+	if (type == e_drive)
+	{
+		radio_acceleration->Select(Riding::MapStringToAcceleration[orientation_string.substr(0, pos)]);
+		radio_output->Select(Riding::MapStringToDirection[orientation_string.substr(pos + 1)]);
+	}
+	else
+	{
+		if (parameters & input) radio_input->Select(Priority::MapNameToType[orientation_string.substr(0, pos)]);
+		if (parameters & output) radio_output->Select(Priority::MapNameToType[orientation_string.substr(pos + 1)]);
+	}
 	if (parameters & building_orientation) cmb_building_orientation->SetValue(gridEntry->BuildingOrientation);
 	if (parameters & direction_to_build) cmb_direction_to_build->SetValue(gridEntry->DirectionToBuild);
 	if (parameters & building_size) spin_building_size->SetValue(gridEntry->BuildingSize);
@@ -2100,8 +2117,19 @@ Step cMain::ExtractStep()
 	step.Direction = MapStringToOrientation(cmb_direction_to_build->GetValue().ToStdString());
 	step.Size = spin_building_size->GetValue();
 	step.Buildings = spin_building_amount->GetValue();
-	step.priority.input = (Priority::Type) radio_input->GetSelection();
-	step.priority.output = (Priority::Type) radio_output->GetSelection();
+	if (step.type == e_drive)
+	{
+		step.riding = {
+			.acceleration = (Riding::Acceleration)radio_acceleration->GetSelection(),
+			.direction = (Riding::Direction)radio_output->GetSelection(),
+		};
+	}
+	else
+	{
+		step.priority.input = (Priority::Type) radio_input->GetSelection();
+		step.priority.output = (Priority::Type) radio_output->GetSelection();
+	}
+	
 	step.Comment = txt_comment->GetValue().ToStdString();
 
 	step.Modifiers = {
@@ -2290,6 +2318,34 @@ GridEntry cMain::PrepareStepForGrid(Step* step)
 			gridEntry.BuildingSize = std::to_string(step->Size);
 			gridEntry.AmountOfBuildings = std::to_string(step->Buildings);
 			break;
+
+		case e_drive:
+
+			gridEntry.Amount = step->AmountGrid();
+			gridEntry.Priority = step->riding.ToString();
+			break;
+
+		default:
+		{
+			using enum choice_bit_vector;
+			auto param = listStepTypeToParameterChoices[step->type];
+			if (param & x_coordinate) gridEntry.X = std::to_string(step->X);
+			if (param & y_coordinate) gridEntry.Y = std::to_string(step->Y);
+			if (param & amount) gridEntry.Amount = step->AmountGrid();
+			if (param & item) gridEntry.Item = step->Item;
+			if (param & building_orientation) gridEntry.BuildingOrientation = orientation_list[step->orientation];
+
+			if (param & priority_io) gridEntry.Priority = step->priority.ToString();
+
+			if (param & multi_build)
+			{
+				gridEntry.DirectionToBuild = orientation_list[step->Direction];
+				gridEntry.BuildingSize = std::to_string(step->Size);
+				gridEntry.AmountOfBuildings = std::to_string(step->Buildings);
+			}
+		}
+			
+
 	}
 
 	return gridEntry;
@@ -2376,6 +2432,9 @@ bool cMain::ValidateStep(const int& row, Step& step, bool validateBuildSteps)
 		case e_throw:
 		case e_equip:
 		case e_next:
+		case e_enter:
+		case e_drive:
+		case e_send:
 			return true;
 
 		case e_build:

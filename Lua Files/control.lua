@@ -894,6 +894,8 @@ local function walk_neg_neg()
 end
 
 local function walk()
+	if player.driving then return {walking = false, direction = defines.direction.north} end --prevent walking while driving
+	
 	if pos_pos then
 		return walk_pos_pos()
 	elseif pos_neg then
@@ -1363,28 +1365,23 @@ local function equip()
 end
 
 local function enter()
-	local possible_entities = player.surface.find_entities_filtered{
-		position=target_position,
-		type={"car"},
-		limit=1
-	}
-	if #possible_entities < 1 then
-		return false
+	if player.driving then
+		if global.riding_duration < 1 then
+			player.driving = false
+			return true
+		end
+	else
+		player.driving = true
+		if player.driving then
+			return true
+		else
+			return false
+		end
 	end
+end
 
-	local entity = possible_entities[1]
-	--local prototype = entity.prototype
-
-	local dist = math.sqrt(
-				math.abs(player.position.x - entity.position.x)^2 + math.abs(player.position.y - entity.position.y)^2
-			)
-	if player.character.prototype.enter_vehicle_distance < dist then
-		return false
-	end
-
-	entity.set_driver(player)
-
-	return true
+local function send()
+	--idk
 end
 
 -- Routing function to perform one of the many available steps
@@ -1543,11 +1540,15 @@ local function doStep(current_step)
 	elseif current_step[2] == "enter" then
 		task_category = "enter"
         task = current_step[1]
-		target_position = current_step[3]
 		return enter()
 
-	end
+	elseif current_step[2] == "send" then
+		task_category = "send"
+        task = current_step[1]
+		target_position = current_step[3]
+		return send()
 
+	end
 end
 
 local original_warning = Warning
@@ -1646,12 +1647,17 @@ local function handle_pretick()
 				Debug(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", player_position.x, player_position.y, player.online_time / 60, player.online_time))
 			end
 			change_step(1)
-		elseif(steps[step][2] == "walk" and (walking.walking == false or global.walk_towards_state) and idle < 1) then
+		elseif(steps[step][2] == "walk" and (walking.walking == false or global.walk_towards_state) and idle < 1 and global.riding_duration < 1) then
 			update_destination_position(steps[step][3][1], steps[step][3][2])
 			global.walk_towards_state = steps[step].walk_towards
-
 			find_walking_pattern()
 			walking = walk()
+			change_step(1)
+		elseif(steps[step][2] == "drive" and (not global.riding_state or walking.walking == false or global.walk_towards_state) and idle < 1 and global.riding_duration < 1) then
+			global.riding_duration = steps[step][3]
+			global.riding_state = {acceleration = steps[step][4], direction = steps[step][5]}
+			player.riding_state = global.riding_state
+			global.walk_towards_state = false
 			change_step(1)
 		elseif steps[step][2] == warnings.never_idle then
 			global.state.never_idle = not global.state.never_idle
@@ -1676,8 +1682,13 @@ local function handle_ontick()
 		player.picking_state = true
 		pickup_ticks = pickup_ticks - 1
 	end
+	if global.riding_duration > 0 then
+		player.riding_state = global.riding_state
+		global.riding_duration = global.riding_duration - 1
+		if global.riding_duration < 1 then global.riding_state = nil end
+	end
 
-	if walking.walking == false then
+	if walking.walking == false and player.driving == false then
 		if idle > 0 then
 			idle = idle - 1
 			idled = idled + 1
@@ -1773,8 +1784,14 @@ local function handle_ontick()
 					mining = 0
 				end
 			end
-		elseif steps[step][2] ~= "walk" and steps[step][2] ~= "idle" and steps[step][2] ~= "mine" then
-			
+		elseif (global.walk_towards_state or player.driving) and steps[step][2] == "enter" then
+			if doStep(steps[step]) then
+				-- Do step while walking
+				Comment(steps[step].comment)
+				step_executed = true
+				change_step(1)
+			end
+		elseif steps[step][2] ~= "walk" and steps[step][2] ~= "enter" and steps[step][2] ~= "idle" and steps[step][2] ~= "mine" then
 			if doStep(steps[step]) then
 				-- Do step while walking
 				Comment(steps[step].comment)
@@ -1967,6 +1984,7 @@ script.on_event(defines.events.on_tick, function(event)
 		update_destination_position(player_position.x, player_position.y)
 		player.force.research_queue_enabled = true
 		walking = {walking = false, direction = defines.direction.north}
+		global.riding_duration = 0
 	end
 
 	if player == nil or player.character == nil then --early end if in god mode
