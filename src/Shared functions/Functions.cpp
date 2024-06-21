@@ -174,6 +174,7 @@ void ProcessMiningStep(vector<Building>& buildings, int buildingsInSnapShot, Ste
 				return;
 			}
 
+			step.BuildingIndex = buildings[i];
 			buildings[i].X = -0.4523543; // Invalidate the building
 			return;
 		}
