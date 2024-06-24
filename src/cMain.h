@@ -166,7 +166,7 @@ protected:
 	void OnKeepWalkingChosen(wxCommandEvent& event);
 	void OnKeepOnPathChosen(wxCommandEvent& event);
 	void OnKeepCraftingChosen(wxCommandEvent& event);
-	void OnEnterChosen(wxCommandEvent& event);
+	void OnEnterExitChosen(wxCommandEvent& event);
 	void OnDriveChosen(wxCommandEvent& event);
 	void OnSendChosen(wxCommandEvent& event);
 

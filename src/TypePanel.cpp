@@ -398,6 +398,9 @@ void cMain::OnfilterChosen(wxCommandEvent& event)
 
 	UpdateCmbItem(&item_choices);
 	UpdateLabelItem(&TypePanel::item);
+
+	label_input->SetLabelText("Input:");
+	label_output->SetLabelText("Output:");
 }
 
 void cMain::OnRecipeChosen(wxCommandEvent& event)
@@ -583,7 +586,7 @@ void cMain::OnKeepCraftingChosen(wxCommandEvent& event)
 	SetupModifiers(e_keep_crafting);
 }
 
-void cMain::OnEnterChosen(wxCommandEvent& event)
+void cMain::OnEnterExitChosen(wxCommandEvent& event)
 {
 	type_panel->SetType(rbtn_enter_exit);
 	setup_paramters(parameter_choices.enter);
@@ -597,6 +600,8 @@ void cMain::OnDriveChosen(wxCommandEvent& event)
 	radio_input->Hide();
 	radio_acceleration->Show();
 	detail_sizer_Input->Layout();
+	label_input->SetLabelText("Speed:");
+	label_output->SetLabelText("Steering:");
 	SetupModifiers(e_drive);
 }
 
@@ -809,7 +814,7 @@ void cMain::OnPauseMenuSelected(wxCommandEvent& event)
 void cMain::OnEnterExitMenuSelected(wxCommandEvent& event)
 {
 	type_panel->SwitchStep(e_enter);
-	OnEnterChosen(event);
+	OnEnterExitChosen(event);
 	event.Skip();
 }
 
