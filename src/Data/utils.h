@@ -147,7 +147,8 @@ static const map<string, vector<float>> building_size_list = {
 	{"Refined hazard concrete left", {1, 1}},
 	{"Refined hazard concrete right", {1, 1}},
 	{"Landfill", {1, 1}},
-	{"Wreck", {1, 1}}
+	{"Wreck", {1, 1}},
+	{"vehicle", {1, 1}}
 };
 
 static const map<string, vector<float>> old_building_size_list = {

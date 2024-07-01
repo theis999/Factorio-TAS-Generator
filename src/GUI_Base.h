@@ -155,6 +155,9 @@ class GUI_Base : public wxFrame
 		wxCheckBox* modifier_split_checkbox;
 		wxCheckBox* modifier_walk_towards_checkbox;
 		wxCheckBox* modifier_all_checkbox;
+		wxBoxSizer* sizer_vehicle;
+		wxCheckBox* modifier_vehicle_checkbox;
+		wxButton* modifier_vehicle_button;
 		wxPanel* walk_panel;
 		wxSpinCtrlDouble* walk_panel_increment_spin;
 		wxPanel* walk_panel_grid_panel;
@@ -322,7 +325,9 @@ class GUI_Base : public wxFrame
 		virtual void OnNoOrderRightClicked( wxMouseEvent& event ) { event.Skip(); }
 		virtual void OnSkipClicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnForceClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnSkipRightClicked( wxMouseEvent& event ) { event.Skip(); }
+		virtual void OnForceRightClicked( wxMouseEvent& event ) { event.Skip(); }
+		virtual void OnVehicleClicked( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnVehicleRightClicked( wxMouseEvent& event ) { event.Skip(); }
 		virtual void OnWalkPanelBtnUpLeftClicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnWalkPanelBtnUpClicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnWalkPanelBtnUpRightClicked( wxCommandEvent& event ) { event.Skip(); }

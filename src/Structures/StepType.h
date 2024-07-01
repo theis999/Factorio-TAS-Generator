@@ -172,4 +172,11 @@ static struct ModifierTypeSets{
 	set<StepType> split{
 		e_mine,
 	};
+	set<StepType> vehicle{
+		e_take,
+		e_put,
+		e_limit,
+		e_filter,
+		e_mine,
+	};
 } modifier_types;

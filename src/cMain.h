@@ -178,6 +178,9 @@ protected:
 	void OnForceClicked(wxCommandEvent& event);
 	void OnForceRightClicked(wxMouseEvent& event);
 	void ForceButtonHandle(bool force = false);
+	void OnVehicleClicked(wxCommandEvent& event);
+	void OnVehicleRightClicked(wxMouseEvent& event);
+	void VehicleButtonHandle(bool force = false);
 
 	// walk panel
 	void SetupWalkPanelUnicodeCharacters();

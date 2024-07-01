@@ -250,6 +250,19 @@ local function check_selection_reach()
 	player.update_selected_entity(target_position)
 	player_selection = player.selected
 
+	if not player_selection and global.vehicle then --if entity not found and vehichle modifier active, retry to find the car in 5 tile radius
+		local vehicles = player.surface.find_entities_filtered{
+			position = target_position,
+			radius = 5,
+			name = {"car", "cargo-wagon", "locomotive", "fluid-wagon", "tank"},
+			limit = 1
+		}
+		if #vehicles > 0 then
+			player.update_selected_entity(vehicles[1].position)
+			player_selection = player.selected
+		end
+	end
+
 	if not player_selection then
 		if not walking.walking then
 			Warning(string.format("Step: %s, Action: %s, Step: %d - %s: Cannot select entity", task[1], task[2], step, task_category))
@@ -271,7 +284,7 @@ end
 
 -- Check that it is possible to get the inventory of the entity
 local function check_inventory()
-	target_inventory = player_selection.get_inventory(slot)
+	target_inventory = player_selection.get_inventory(slot) or player_selection.get_inventory(1)
 
 	if not target_inventory then
 		if not walking.walking then
@@ -643,7 +656,11 @@ end
 -- Creating buildings
 local function build()
 
-	if player.get_item_count(item) == 0 then
+	local _item = item == "straight-rail" and "rail" or item == "curved_rail" and "rail" or item
+	local take_4items = item == "curved_rail"
+	local _count = player.get_item_count(_item)
+
+	if _count < 1 or take_4items and _count < 4 then
 		if(step > step_reached) then
 			if walking.walking == false then
 				Warning(string.format("Step: %s, Action: %s, Step: %d - Build: %s not available", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
@@ -654,7 +671,7 @@ local function build()
 		return false
 	end
 
-	if (item ~= "rail") then
+	if (_item ~= "rail") then
 		if item_is_tile(item) then
 			if tile_is_in_reach() then
 				if item == "stone-brick" then
@@ -692,20 +709,15 @@ local function build()
 			return false
 		end
 	else
-		if player.can_place_entity{name = "straight-rail", position = target_position, direction = direction} then
-			if player.surface.can_fast_replace{name = "straight-rail", position = target_position, direction = direction, force = "player"} then
-				if player.surface.create_entity{name = "straight-rail", position = target_position, direction = direction, force="player", fast_replace=true, player=player, raise_built = true} then
-					player.remove_item({name = item, count = 1})
-					end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", task[1], task[2], step, item ))
-					return true
-				end
-			else
-				if player.surface.create_entity{name = "straight-rail", position = target_position, direction = direction, force="player", raise_built = true} then
-					player.remove_item({name = item, count = 1})
-					end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", task[1], task[2], step, item ))
-					return true
-				end
+
+		if player.can_place_entity{name = item, position = target_position, direction = direction} then
+			
+			if player.surface.create_entity{name = item, position = target_position, direction = direction, force="player", raise_built = true} then
+				player.remove_item({name = _item, count = take_4items and 4 or 1})
+				end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", task[1], task[2], step, item ))
+				return true
 			end
+
 
 		else
 			if not walking.walking then
@@ -1129,10 +1141,17 @@ local function filter()
 		return true
 	end
 
+	local inv = player_selection
+	if player_selection.type == "car" or player_selection.type == "tank" then
+		inv = player_selection.get_inventory(defines.inventory.car_trunk)
+	elseif player_selection.type == "cargo-wagon" then
+		inv = player_selection.get_inventory(defines.inventory.cargo_wagon)
+	end
+
 	if item == "none" then
-		player_selection.set_filter(slot, nil)
+		inv.set_filter(slot, nil)
 	else
-		player_selection.set_filter(slot, item)
+		inv.set_filter(slot, item)
 	end
 
 	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Filter: [item=%s]", task[1], task[2], step, item ))
@@ -1388,14 +1407,16 @@ end
 -- True: Indicates the calling function should advance the step. 
 -- False: Indicates the calling function should not advance step.
 local function doStep(current_step)
+
+	global.vehicle = current_step.vehicle
+	global.wait_for_recipe = current_step.wait_for
+	global.cancel = current_step.cancel
+
 	if current_step[2] == "craft" then
         task_category = "Craft"
         task = current_step[1]
 		count = current_step[3]
 		item = current_step[4]
-
-		global.wait_for_recipe = current_step.wait_for
-		global.cancel = current_step.cancel
 		return craft()
 
 	elseif current_step[2] == "cancel crafting" then
@@ -1403,7 +1424,6 @@ local function doStep(current_step)
         task = current_step[1]
 		count = current_step[3]
 		item = current_step[4]
-
 		return cancel_crafting()
 
 	elseif current_step[2] == "build" then
@@ -1412,7 +1432,6 @@ local function doStep(current_step)
 		target_position = current_step[3]
 		item = current_step[4]
 		direction = current_step[5]
-
 		return build()
 
 	elseif current_step[2] == "take" then
@@ -1436,7 +1455,6 @@ local function doStep(current_step)
 		item = current_step[4]
 		amount = current_step[5]
 		slot = current_step[6]
-
 		return put()
 
 	elseif current_step[2] == "rotate" then
@@ -1444,14 +1462,12 @@ local function doStep(current_step)
         task = current_step[1]
 		target_position = current_step[3]
 		rev = current_step[4]
-
 		return rotate()
 
 	elseif current_step[2] == "tech" then
         task_category = "Tech"
         task = current_step[1]
 		item = current_step[3]
-		global.cancel = current_step.cancel
 		return tech()
 
 	elseif current_step[2] == "recipe" then
@@ -1459,7 +1475,6 @@ local function doStep(current_step)
         task = current_step[1]
 		target_position = current_step[3]
 		item = current_step[4]
-		global.wait_for_recipe = current_step.wait_for
 		return recipe()
 
 	elseif current_step[2] == "limit" then
@@ -1468,7 +1483,6 @@ local function doStep(current_step)
 		target_position = current_step[3]
 		amount = current_step[4]
 		slot = current_step[5]
-
 		return limit()
 
 	elseif current_step[2] == "priority" then
@@ -1477,7 +1491,6 @@ local function doStep(current_step)
 		target_position = current_step[3]
 		input = current_step[4]
 		output = current_step[5]
-
 		return priority()
 
 	elseif current_step[2] == "filter" then
@@ -1487,7 +1500,6 @@ local function doStep(current_step)
 		item = current_step[4]
 		slot = current_step[5]
 		type = current_step[6]
-
 		return filter()
 
     elseif current_step[2] == "drop" then
@@ -1547,8 +1559,8 @@ local function doStep(current_step)
         task = current_step[1]
 		target_position = current_step[3]
 		return send()
-
 	end
+
 end
 
 local original_warning = Warning

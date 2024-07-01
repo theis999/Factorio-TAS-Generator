@@ -35,6 +35,10 @@ cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSi
 	inventory_choices.Add(inventory_types.modules);
 	inventory_choices.Add(inventory_types.chest);
 	inventory_choices.Add(inventory_types.wreck);
+	inventory_choices.Add(inventory_types.vehicle_trunk);
+	inventory_choices.Add(inventory_types.ammo_1);
+	inventory_choices.Add(inventory_types.ammo_2);
+	inventory_choices.Add(inventory_types.ammo_3);
 	
 	equip_inventory_choices.Add(inventory_types.armor);
 	equip_inventory_choices.Add(inventory_types.ammo_1);
@@ -1180,6 +1184,9 @@ void cMain::OnStepsGridRangeSelect(wxGridRangeSelectEvent& event)
 		modifier_force_checkbox->Show();
 		modifier_force_button->Hide();
 		sizer_force->Layout();
+		modifier_vehicle_checkbox->Show();
+		modifier_vehicle_button->Hide();
+		sizer_vehicle->Layout();
 		btn_change_step->Enable();
 	}
 	else
@@ -1193,6 +1200,9 @@ void cMain::OnStepsGridRangeSelect(wxGridRangeSelectEvent& event)
 		modifier_force_checkbox->Hide();
 		modifier_force_button->Show();
 		sizer_force->Layout();
+		modifier_vehicle_checkbox->Hide();
+		modifier_vehicle_button->Show();
+		sizer_vehicle->Layout();
 		btn_change_step->Disable();
 	}	
 	HandleSplitOrMergeToggle(rows);
@@ -1981,6 +1991,7 @@ void cMain::UpdateParameters(GridEntry* gridEntry, wxCommandEvent& event, bool c
 	modifier_force_checkbox->SetValue(modifiers.find("force") != std::string::npos);
 	modifier_split_checkbox->SetValue(modifiers.find("split") != std::string::npos);
 	modifier_all_checkbox->SetValue(modifiers.find("all") != std::string::npos);
+	modifier_vehicle_checkbox->SetValue(modifiers.find("vehicle") != std::string::npos);
 
 	StepType type = ToStepType(gridEntry->Step.ToStdString());
 	int parameters = listStepTypeToParameterChoices[type];
@@ -2141,6 +2152,7 @@ Step cMain::ExtractStep()
 		.split = modifier_split_checkbox->IsEnabled() && modifier_split_checkbox->GetValue(),
 		.walk_towards = modifier_walk_towards_checkbox->IsEnabled() && modifier_walk_towards_checkbox->GetValue(),
 		.all = modifier_all_checkbox->IsEnabled() && modifier_all_checkbox->GetValue(),
+		.vehicle = modifier_vehicle_checkbox->IsEnabled() && modifier_vehicle_checkbox->GetValue(),
 	};
 
 	step.colour = step_colour_picker->GetColour();
@@ -2474,7 +2486,7 @@ bool cMain::ValidateStep(const int& row, Step& step, bool validateBuildSteps)
 
 		case e_put:
 		case e_take:
-			if (step.inventory != Wreck && !BuildingExists(BuildingsSnapShot, amountOfBuildings, step))
+			if (step.inventory != Wreck && !step.Modifiers.vehicle && !BuildingExists(BuildingsSnapShot, amountOfBuildings, step))
 			{
 				wxMessageBox("Building location doesn't exist.\n1. Please use exactly the same coordinates as you used to build \n2. Check that you have not removed the building(s)\n3. Check that you are not putting this step before the Build step", "Please use the same coordinates");
 				return false;
@@ -2489,14 +2501,15 @@ bool cMain::ValidateStep(const int& row, Step& step, bool validateBuildSteps)
 			return true;
 
 		default:
-
-			if (!BuildingExists(BuildingsSnapShot, amountOfBuildings, step))
+			if (step.inventory == Wreck || step.Modifiers.vehicle)
+				return true;
+			else if (!BuildingExists(BuildingsSnapShot, amountOfBuildings, step))
 			{
 				wxMessageBox("Building location doesn't exist.\n1. Please use exactly the same coordinates as you used to build \n2. Check that you have not removed the building(s)\n3. Check that you are not putting this step before the Build step", "Please use the same coordinates");
 				return false;
-			};
-
-			return ExtraBuildingChecks(step);
+			}
+			else
+				return ExtraBuildingChecks(step);
 	}
 }
 
@@ -2599,7 +2612,7 @@ bool cMain::CheckTakePut(Step& step)
 {
 	InventoryType to_check = step.inventory;
 
-	if (to_check == Wreck)
+	if (to_check == Wreck || step.Modifiers.vehicle)
 	{
 		return true;
 	}
@@ -2756,7 +2769,7 @@ bool cMain::ValidateAllSteps()
 			case e_rotate:
 			case e_priority:
 			case e_launch:
-				if (!BuildingExists(BuildingsSnapShot, buildingsInSnapShot, step))
+				if (!step.Modifiers.vehicle && !BuildingExists(BuildingsSnapShot, buildingsInSnapShot, step))
 				{
 					string message = "Step " + to_string(i + 1) + " is not connected to a building. Ensure that the step is not placed before the build step.";
 					wxMessageBox(message, "Step not connected to building");
@@ -2767,7 +2780,7 @@ bool cMain::ValidateAllSteps()
 			case e_limit:
 			case e_put:
 			case e_take:
-				if (step.inventory != Wreck && !BuildingExists(BuildingsSnapShot, buildingsInSnapShot, step))
+				if (step.inventory != Wreck && !step.Modifiers.vehicle && !BuildingExists(BuildingsSnapShot, buildingsInSnapShot, step))
 				{
 					string message = "Step " + to_string(i + 1) + " is not connected to a building. Ensure that the step is not placed before the build step.";
 					wxMessageBox(message, "Step not connected to building");
@@ -2872,6 +2885,50 @@ void cMain::ForceButtonHandle(bool force)
 			modifier_types.force.contains(step.type))
 		{
 			step.Modifiers.force = !modifier_value;
+			grid_steps->SetCellValue(row, 6, step.Modifiers.ToString());
+		}
+		change.after.push_back({row, step});
+	}
+
+	stack.Push(change);
+	no_changes = false;
+}
+
+void cMain::OnVehicleRightClicked(wxMouseEvent& event)
+{
+	VehicleButtonHandle(true);
+}
+void cMain::OnVehicleClicked(wxCommandEvent& event)
+{
+	VehicleButtonHandle();
+}
+void cMain::VehicleButtonHandle(bool force)
+{
+	wxArrayInt rows = grid_steps->GetSelectedRows();
+	if (rows.size() < 2) return;
+	if (!force)
+	{
+		for (int row : rows)
+		{
+			StepType e = StepGridData.at(row).type;
+			if (!modifier_types.vehicle.contains(e))
+			{
+				wxMessageBox(std::format("Step {} is unable to be assigned the Vehicle modifier. \n As it is of the type {}.", row + 1, StepNames[e]),
+					"One or more steps can't be assigned Vehicle modifier");
+				return;
+			}
+		}
+	}
+	Command change;
+	bool modifier_value = StepGridData.at(rows.front()).Modifiers.vehicle;
+	for (int row : rows)
+	{
+		auto& step = StepGridData.at(row);
+		change.before.push_back({row, step});
+		if (step.Modifiers.vehicle == modifier_value &&
+			modifier_types.vehicle.contains(step.type))
+		{
+			step.Modifiers.vehicle = !modifier_value;
 			grid_steps->SetCellValue(row, 6, step.Modifiers.ToString());
 		}
 		change.after.push_back({row, step});

@@ -906,13 +906,13 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	detail_panel->Layout();
 	detail_sizer->Fit( detail_panel );
 	step_modifier_panel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	m_mgr.AddPane( step_modifier_panel, wxAuiPaneInfo() .Name( wxT("ModifiersPanel") ).Top() .Caption( wxT("Modifiers") ).CloseButton( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxSize( 256,159 ) ).BottomDockable( false ).LeftDockable( false ).RightDockable( false ).Row( 2 ).BestSize( wxSize( 240,140 ) ).MinSize( wxSize( 240,120 ) ).MaxSize( wxSize( 240,180 ) ).Layer( 1 ) );
+	m_mgr.AddPane( step_modifier_panel, wxAuiPaneInfo() .Name( wxT("ModifiersPanel") ).Top() .Caption( wxT("Modifiers") ).CloseButton( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxSize( 295,159 ) ).BottomDockable( false ).LeftDockable( false ).RightDockable( false ).Row( 2 ).BestSize( wxSize( 290,140 ) ).MinSize( wxSize( 290,120 ) ).MaxSize( wxSize( 290,180 ) ).Layer( 1 ) );
 
 	wxBoxSizer* step_modifier_panel_sizer;
 	step_modifier_panel_sizer = new wxBoxSizer( wxVERTICAL );
 
 	wxFlexGridSizer* step_modifier_flex;
-	step_modifier_flex = new wxFlexGridSizer( 0, 2, 5, 5 );
+	step_modifier_flex = new wxFlexGridSizer( 0, 3, 5, 5 );
 	step_modifier_flex->SetFlexibleDirection( wxBOTH );
 	step_modifier_flex->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 
@@ -994,6 +994,22 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	modifier_all_checkbox->SetToolTip( wxT("This allows you take all items from the specific inventory. Ignoring item type and amount.") );
 
 	step_modifier_flex->Add( modifier_all_checkbox, 0, wxALL, 5 );
+
+	sizer_vehicle = new wxBoxSizer( wxVERTICAL );
+
+	modifier_vehicle_checkbox = new wxCheckBox( step_modifier_panel, wxID_ANY, wxT("Vehicle"), wxDefaultPosition, wxDefaultSize, 0 );
+	modifier_vehicle_checkbox->SetToolTip( wxT("Tells the generator that this step is associated with a vehicle instead of building.\nThe generator will then not attempt to match the step with a building.\n\nThis will also tell the TAS controller to be lenient when matching the entity with a 5 tile search radius.") );
+
+	sizer_vehicle->Add( modifier_vehicle_checkbox, 0, wxALL, 5 );
+
+	modifier_vehicle_button = new wxButton( step_modifier_panel, wxID_ANY, wxT("Vehicle"), wxDefaultPosition, wxDefaultSize, 0 );
+	modifier_vehicle_button->Hide();
+	modifier_vehicle_button->SetToolTip( wxT("Tells the generator that this step is associated with a vehicle instead of building.\nThe generator will then not attempt to match the step with a building.\n\nThis will also tell the TAS controller to be lenient when matching the entity with a 5 tile search radius.") );
+
+	sizer_vehicle->Add( modifier_vehicle_button, 0, 0, 5 );
+
+
+	step_modifier_flex->Add( sizer_vehicle, 1, wxEXPAND, 5 );
 
 
 	step_modifier_panel_sizer->Add( step_modifier_flex, 1, wxALL|wxEXPAND, 5 );
@@ -1741,7 +1757,9 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	modifier_no_order_button->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnNoOrderRightClicked ), NULL, this );
 	modifier_skip_button->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnSkipClicked ), NULL, this );
 	modifier_force_button->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnForceClicked ), NULL, this );
-	modifier_force_button->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnSkipRightClicked ), NULL, this );
+	modifier_force_button->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnForceRightClicked ), NULL, this );
+	modifier_vehicle_button->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnVehicleClicked ), NULL, this );
+	modifier_vehicle_button->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnVehicleRightClicked ), NULL, this );
 	walk_panel_button_upleft->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpLeftClicked ), NULL, this );
 	walk_panel_button_up->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpClicked ), NULL, this );
 	walk_panel_button_upright->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpRightClicked ), NULL, this );
@@ -1843,7 +1861,9 @@ GUI_Base::~GUI_Base()
 	modifier_no_order_button->Disconnect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnNoOrderRightClicked ), NULL, this );
 	modifier_skip_button->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnSkipClicked ), NULL, this );
 	modifier_force_button->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnForceClicked ), NULL, this );
-	modifier_force_button->Disconnect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnSkipRightClicked ), NULL, this );
+	modifier_force_button->Disconnect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnForceRightClicked ), NULL, this );
+	modifier_vehicle_button->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnVehicleClicked ), NULL, this );
+	modifier_vehicle_button->Disconnect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnVehicleRightClicked ), NULL, this );
 	walk_panel_button_upleft->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpLeftClicked ), NULL, this );
 	walk_panel_button_up->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpClicked ), NULL, this );
 	walk_panel_button_upright->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpRightClicked ), NULL, this );
