@@ -11,6 +11,7 @@
 #include "Priority.h"
 #include "StepModifiers.h"
 
+#include "../Riding.h"
 #include "../Data/Inventory.h"
 
 using std::string;
@@ -46,6 +47,7 @@ struct Step
 	Orientation orientation = North;
 	Orientation Direction = North;
 	PriorityStruct priority;
+	Riding riding;
 	string Comment;
 	wxColour colour;
 

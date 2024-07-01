@@ -177,6 +177,7 @@
     <ClCompile Include="ImportStepsPanel.cpp" />
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="Recipe.cpp" />
+    <ClCompile Include="Riding.h" />
     <ClCompile Include="Shared functions\Functions.cpp" />
     <ClCompile Include="Shared functions\StringFunctions.cpp" />
     <ClCompile Include="ShortcutChanger.cpp" />

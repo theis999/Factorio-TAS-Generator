@@ -21,6 +21,7 @@ static const struct
 	string assembly_input = "defines.inventory.assembling_machine_input";
 	string assembly_output = "defines.inventory.assembling_machine_output";
 	string assembly_modules = "defines.inventory.assembling_machine_modules";
+	string vehicle_trunk = "defines.inventory.car_trunk";
 } inventory_defines;
 
 /*
@@ -144,6 +145,8 @@ enum InventoryType
 	Chest,
 	Wreck,
 
+	Trunk,
+
 	Armor,
 	Ammo_1,
 	Ammo_2,
@@ -165,6 +168,8 @@ static const struct
 	string chest = "Chest";
 	string wreck = "Wreck";
 
+	string vehicle_trunk = "Trunk";
+
 	string armor = "Armor";
 	string ammo_1 = "Ammo 1";
 	string ammo_2 = "Ammo 2";
@@ -183,6 +188,8 @@ static const vector<string> inventory_types_list
 	inventory_types.chest,
 	inventory_types.wreck,
 
+	inventory_types.vehicle_trunk,
+
 	inventory_types.armor,
 	inventory_types.ammo_1,
 	inventory_types.ammo_2,
@@ -199,7 +206,7 @@ static inline InventoryType GetInventoryType(string inventory_type_string)
 	throw "unknown InventoryType";
 }
 
-static inline const string GetInventoryTypeForEntity(InventoryType type, string entity)
+static inline const string GetInventoryTypeForEntityInternal(InventoryType type, string entity)
 {
 	static const string Lab = "Lab";
 	static const string Beacon = "Beacon";
@@ -229,7 +236,46 @@ static inline const string GetInventoryTypeForEntity(InventoryType type, string 
 			return inventory_defines.chest;
 		case Wreck:
 			return inventory_defines.chest;
+		case Trunk:
+			return inventory_defines.vehicle_trunk;
 		default:
 			throw "unknown inventory_type";// unclear how we get here
 	}
+}
+static inline const string GetInventoryTypeForEntityInternalVehicle(InventoryType type)
+{
+	switch (type)
+	{
+		case Ammo_1:
+			return "defines.inventory.car_ammo";
+			break;
+		case Ammo_2:
+			return "defines.inventory.car_ammo";
+			break;
+		case Ammo_3:
+			return "defines.inventory.car_ammo";
+			break;
+
+		case Fuel:
+			return inventory_defines.fuel;
+			break;
+
+		[[likely]] case Trunk:
+		case Input:
+		case Output:
+		case Modules:
+		case Chest:
+		case Wreck:
+		default:
+			return inventory_defines.vehicle_trunk;
+			break;
+	}
+}
+
+static inline const string GetInventoryTypeForEntity(InventoryType type, string entity)
+{
+	if (entity == "vehicle")
+		return GetInventoryTypeForEntityInternalVehicle(type);
+	else
+		return GetInventoryTypeForEntityInternal(type, entity);
 }

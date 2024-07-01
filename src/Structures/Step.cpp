@@ -84,6 +84,9 @@ string Step::ToString()
 		case e_priority:
 			return steptype + ";" + to_string(X) + ";" + to_string(Y) + ";" + ";" + ";" + priority.ToString() + ";" + orientation_list[Direction] + ";" + to_string(Size) + ";" + to_string(Buildings) + string_end;
 
+		case e_drive:
+				return steptype + ";;;" + to_string(amount) + ";;" + riding.ToString() + ";;;" + string_end;
+		
 		default:
 			return std::format("{};{};{};{};{};{};{};{};{}{}",
 				steptype,

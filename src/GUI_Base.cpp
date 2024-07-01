@@ -172,6 +172,20 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	shortcut_keep_crafting = new wxMenuItem( menu_steptypes, wxID_ANY, wxString( wxT("Keep crafting") ) , wxEmptyString, wxITEM_NORMAL );
 	menu_steptypes->Append( shortcut_keep_crafting );
 
+	menu_steptypes->AppendSeparator();
+
+	wxMenuItem* shortcut_enter_exit;
+	shortcut_enter_exit = new wxMenuItem( menu_steptypes, wxID_ANY, wxString( wxT("Enter exit vehicle") ) , wxEmptyString, wxITEM_NORMAL );
+	menu_steptypes->Append( shortcut_enter_exit );
+
+	wxMenuItem* shortcut_drive;
+	shortcut_drive = new wxMenuItem( menu_steptypes, wxID_ANY, wxString( wxT("Drive vehicle") ) , wxEmptyString, wxITEM_NORMAL );
+	menu_steptypes->Append( shortcut_drive );
+
+	wxMenuItem* shortcut_send;
+	shortcut_send = new wxMenuItem( menu_steptypes, wxID_ANY, wxString( wxT("Send train") ) , wxEmptyString, wxITEM_NORMAL );
+	menu_steptypes->Append( shortcut_send );
+
 	main_menubar->Append( menu_steptypes, wxT("Step types") );
 
 	menu_shortcuts = new wxMenu();
@@ -626,16 +640,17 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	fgSizer61->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 
 	rbtn_enter_exit = new wxRadioButton( vehicle_panel, wxID_ANY, wxT("Enter"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_enter_exit->SetToolTip( wxT("Toggles between enter & exit vehicle.\nIf in proximity to a vehicle the character will enter it.\nIf inside a vehicle, the character will exit it.") );
+	rbtn_enter_exit->SetToolTip( wxT("Toggles between enter & exit vehicle.\nIf in proximity to the vehicle the character will enter it.\nIf inside a vehicle, the character will exit it.") );
 
 	fgSizer61->Add( rbtn_enter_exit, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 	rbtn_drive = new wxRadioButton( vehicle_panel, wxID_ANY, wxT("Drive"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_drive->SetToolTip( wxT("Change the acceleration of the vehicle your character is inside. ei driving.\n") );
+	rbtn_drive->SetToolTip( wxT("Change the acceleration and direction of the vehicle your character is inside. ei driving.\n") );
 
 	fgSizer61->Add( rbtn_drive, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 	rbtn_send = new wxRadioButton( vehicle_panel, wxID_ANY, wxT("Send"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_send->Hide();
 	rbtn_send->SetToolTip( wxT("Send a train anywhere on the map a temporary stop") );
 
 	fgSizer61->Add( rbtn_send, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
@@ -764,7 +779,6 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	detail_sizer_col2->Add( detail_sizer_FromTo, 1, 0, 5 );
 
-	wxBoxSizer* detail_sizer_Input;
 	detail_sizer_Input = new wxBoxSizer( wxHORIZONTAL );
 
 	label_input = new wxStaticText( detail_panel, wxID_ANY, wxT("Input:"), wxDefaultPosition, wxSize( 60,-1 ), wxALIGN_RIGHT );
@@ -779,6 +793,17 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	radio_input->SetMinSize( wxSize( 180,-1 ) );
 
 	detail_sizer_Input->Add( radio_input, 0, wxLEFT|wxRIGHT, 5 );
+
+	wxString radio_accelerationChoices[] = { wxT("Idle"), wxT("Accel"), wxT("Break"), wxT("Back") };
+	int radio_accelerationNChoices = sizeof( radio_accelerationChoices ) / sizeof( wxString );
+	radio_acceleration = new wxRadioBox( detail_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, radio_accelerationNChoices, radio_accelerationChoices, 4, wxRA_SPECIFY_COLS );
+	radio_acceleration->SetSelection( 1 );
+	radio_acceleration->SetFont( wxFont( 6, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+	radio_acceleration->Hide();
+	radio_acceleration->SetToolTip( wxT("Specifies vehicle momentum") );
+	radio_acceleration->SetMinSize( wxSize( 180,-1 ) );
+
+	detail_sizer_Input->Add( radio_acceleration, 0, wxLEFT|wxRIGHT, 5 );
 
 
 	detail_sizer_col2->Add( detail_sizer_Input, 1, 0, 5 );
@@ -881,13 +906,13 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	detail_panel->Layout();
 	detail_sizer->Fit( detail_panel );
 	step_modifier_panel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	m_mgr.AddPane( step_modifier_panel, wxAuiPaneInfo() .Name( wxT("ModifiersPanel") ).Top() .Caption( wxT("Modifiers") ).CloseButton( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxSize( 256,159 ) ).BottomDockable( false ).LeftDockable( false ).RightDockable( false ).Row( 2 ).BestSize( wxSize( 240,140 ) ).MinSize( wxSize( 240,120 ) ).MaxSize( wxSize( 240,180 ) ).Layer( 1 ) );
+	m_mgr.AddPane( step_modifier_panel, wxAuiPaneInfo() .Name( wxT("ModifiersPanel") ).Top() .Caption( wxT("Modifiers") ).CloseButton( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxSize( 295,159 ) ).BottomDockable( false ).LeftDockable( false ).RightDockable( false ).Row( 2 ).BestSize( wxSize( 290,140 ) ).MinSize( wxSize( 290,120 ) ).MaxSize( wxSize( 290,180 ) ).Layer( 1 ) );
 
 	wxBoxSizer* step_modifier_panel_sizer;
 	step_modifier_panel_sizer = new wxBoxSizer( wxVERTICAL );
 
 	wxFlexGridSizer* step_modifier_flex;
-	step_modifier_flex = new wxFlexGridSizer( 0, 2, 5, 5 );
+	step_modifier_flex = new wxFlexGridSizer( 0, 3, 5, 5 );
 	step_modifier_flex->SetFlexibleDirection( wxBOTH );
 	step_modifier_flex->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 
@@ -969,6 +994,22 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	modifier_all_checkbox->SetToolTip( wxT("This allows you take all items from the specific inventory. Ignoring item type and amount.") );
 
 	step_modifier_flex->Add( modifier_all_checkbox, 0, wxALL, 5 );
+
+	sizer_vehicle = new wxBoxSizer( wxVERTICAL );
+
+	modifier_vehicle_checkbox = new wxCheckBox( step_modifier_panel, wxID_ANY, wxT("Vehicle"), wxDefaultPosition, wxDefaultSize, 0 );
+	modifier_vehicle_checkbox->SetToolTip( wxT("Tells the generator that this step is associated with a vehicle instead of building.\nThe generator will then not attempt to match the step with a building.\n\nThis will also tell the TAS controller to be lenient when matching the entity with a 5 tile search radius.") );
+
+	sizer_vehicle->Add( modifier_vehicle_checkbox, 0, wxALL, 5 );
+
+	modifier_vehicle_button = new wxButton( step_modifier_panel, wxID_ANY, wxT("Vehicle"), wxDefaultPosition, wxDefaultSize, 0 );
+	modifier_vehicle_button->Hide();
+	modifier_vehicle_button->SetToolTip( wxT("Tells the generator that this step is associated with a vehicle instead of building.\nThe generator will then not attempt to match the step with a building.\n\nThis will also tell the TAS controller to be lenient when matching the entity with a 5 tile search radius.") );
+
+	sizer_vehicle->Add( modifier_vehicle_button, 0, 0, 5 );
+
+
+	step_modifier_flex->Add( sizer_vehicle, 1, wxEXPAND, 5 );
 
 
 	step_modifier_panel_sizer->Add( step_modifier_flex, 1, wxALL|wxEXPAND, 5 );
@@ -1645,6 +1686,9 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnKeepWalkingMenuSelected ), this, shortcut_keep_walking->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnKeepOnPathMenuSelected ), this, shortcut_keep_on_path->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnKeepCraftingMenuSelected ), this, shortcut_keep_crafting->GetId());
+	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnEnterExitMenuSelected ), this, shortcut_enter_exit->GetId());
+	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnDriveMenuSelected ), this, shortcut_drive->GetId());
+	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnSendMenuSelected ), this, shortcut_send->GetId());
 	menu_shortcuts->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnChangeShortcutMenuSelected ), this, shortcut_changer->GetId());
 	menu_shortcuts->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnAddMenuSelected ), this, shortcut_add_step->GetId());
 	menu_shortcuts->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnAddAltMenuSelected ), this, shortcut_add_step_alt->GetId());
@@ -1706,14 +1750,16 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	rbtn_keep_walking->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnKeepWalkingChosen ), NULL, this );
 	rbtn_keep_on_path->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnKeepOnPathChosen ), NULL, this );
 	rbtn_keep_crafting->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnKeepCraftingChosen ), NULL, this );
-	rbtn_enter_exit->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnNeverIdleChosen ), NULL, this );
-	rbtn_drive->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnGameSpeedChosen ), NULL, this );
-	rbtn_send->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnKeepWalkingChosen ), NULL, this );
+	rbtn_enter_exit->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnEnterExitChosen ), NULL, this );
+	rbtn_drive->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnDriveChosen ), NULL, this );
+	rbtn_send->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnSendChosen ), NULL, this );
 	modifier_no_order_button->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnNoOrderClicked ), NULL, this );
 	modifier_no_order_button->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnNoOrderRightClicked ), NULL, this );
 	modifier_skip_button->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnSkipClicked ), NULL, this );
 	modifier_force_button->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnForceClicked ), NULL, this );
-	modifier_force_button->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnSkipRightClicked ), NULL, this );
+	modifier_force_button->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnForceRightClicked ), NULL, this );
+	modifier_vehicle_button->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnVehicleClicked ), NULL, this );
+	modifier_vehicle_button->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnVehicleRightClicked ), NULL, this );
 	walk_panel_button_upleft->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpLeftClicked ), NULL, this );
 	walk_panel_button_up->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpClicked ), NULL, this );
 	walk_panel_button_upright->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpRightClicked ), NULL, this );
@@ -1808,14 +1854,16 @@ GUI_Base::~GUI_Base()
 	rbtn_keep_walking->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnKeepWalkingChosen ), NULL, this );
 	rbtn_keep_on_path->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnKeepOnPathChosen ), NULL, this );
 	rbtn_keep_crafting->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnKeepCraftingChosen ), NULL, this );
-	rbtn_enter_exit->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnNeverIdleChosen ), NULL, this );
-	rbtn_drive->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnGameSpeedChosen ), NULL, this );
-	rbtn_send->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnKeepWalkingChosen ), NULL, this );
+	rbtn_enter_exit->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnEnterExitChosen ), NULL, this );
+	rbtn_drive->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnDriveChosen ), NULL, this );
+	rbtn_send->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnSendChosen ), NULL, this );
 	modifier_no_order_button->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnNoOrderClicked ), NULL, this );
 	modifier_no_order_button->Disconnect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnNoOrderRightClicked ), NULL, this );
 	modifier_skip_button->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnSkipClicked ), NULL, this );
 	modifier_force_button->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnForceClicked ), NULL, this );
-	modifier_force_button->Disconnect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnSkipRightClicked ), NULL, this );
+	modifier_force_button->Disconnect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnForceRightClicked ), NULL, this );
+	modifier_vehicle_button->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnVehicleClicked ), NULL, this );
+	modifier_vehicle_button->Disconnect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnVehicleRightClicked ), NULL, this );
 	walk_panel_button_upleft->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpLeftClicked ), NULL, this );
 	walk_panel_button_up->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpClicked ), NULL, this );
 	walk_panel_button_upright->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpRightClicked ), NULL, this );

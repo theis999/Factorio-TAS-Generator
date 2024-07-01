@@ -42,6 +42,9 @@
     <ClCompile Include="StdUtil.cpp">
       <Filter>util</Filter>
     </ClCompile>
+    <ClCompile Include="Riding.h">
+      <Filter>Structs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cApp.h" />

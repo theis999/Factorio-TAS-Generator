@@ -111,6 +111,10 @@ protected:
 	void OnKeepOnPathMenuSelected(wxCommandEvent& event);
 	void OnKeepCraftingMenuSelected(wxCommandEvent& event);
 
+	void OnEnterExitMenuSelected(wxCommandEvent& event);
+	void OnDriveMenuSelected(wxCommandEvent& event);
+	void OnSendMenuSelected(wxCommandEvent& event);
+
 	// Shortcut menu
 	void OnChangeShortcutMenuSelected(wxCommandEvent& event);
 
@@ -162,6 +166,9 @@ protected:
 	void OnKeepWalkingChosen(wxCommandEvent& event);
 	void OnKeepOnPathChosen(wxCommandEvent& event);
 	void OnKeepCraftingChosen(wxCommandEvent& event);
+	void OnEnterExitChosen(wxCommandEvent& event);
+	void OnDriveChosen(wxCommandEvent& event);
+	void OnSendChosen(wxCommandEvent& event);
 
 	// Modifiers
 	void OnNoOrderClicked(wxCommandEvent& event);
@@ -171,6 +178,9 @@ protected:
 	void OnForceClicked(wxCommandEvent& event);
 	void OnForceRightClicked(wxMouseEvent& event);
 	void ForceButtonHandle(bool force = false);
+	void OnVehicleClicked(wxCommandEvent& event);
+	void OnVehicleRightClicked(wxMouseEvent& event);
+	void VehicleButtonHandle(bool force = false);
 
 	// walk panel
 	void SetupWalkPanelUnicodeCharacters();

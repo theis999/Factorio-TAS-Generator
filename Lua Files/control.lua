@@ -250,6 +250,19 @@ local function check_selection_reach()
 	player.update_selected_entity(target_position)
 	player_selection = player.selected
 
+	if not player_selection and global.vehicle then --if entity not found and vehichle modifier active, retry to find the car in 5 tile radius
+		local vehicles = player.surface.find_entities_filtered{
+			position = target_position,
+			radius = 5,
+			name = {"car", "cargo-wagon", "locomotive", "fluid-wagon", "tank"},
+			limit = 1
+		}
+		if #vehicles > 0 then
+			player.update_selected_entity(vehicles[1].position)
+			player_selection = player.selected
+		end
+	end
+
 	if not player_selection then
 		if not walking.walking then
 			Warning(string.format("Step: %s, Action: %s, Step: %d - %s: Cannot select entity", task[1], task[2], step, task_category))
@@ -271,7 +284,7 @@ end
 
 -- Check that it is possible to get the inventory of the entity
 local function check_inventory()
-	target_inventory = player_selection.get_inventory(slot)
+	target_inventory = player_selection.get_inventory(slot) or player_selection.get_inventory(1)
 
 	if not target_inventory then
 		if not walking.walking then
@@ -643,7 +656,11 @@ end
 -- Creating buildings
 local function build()
 
-	if player.get_item_count(item) == 0 then
+	local _item = item == "straight-rail" and "rail" or item == "curved_rail" and "rail" or item
+	local take_4items = item == "curved_rail"
+	local _count = player.get_item_count(_item)
+
+	if _count < 1 or take_4items and _count < 4 then
 		if(step > step_reached) then
 			if walking.walking == false then
 				Warning(string.format("Step: %s, Action: %s, Step: %d - Build: %s not available", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
@@ -654,7 +671,7 @@ local function build()
 		return false
 	end
 
-	if (item ~= "rail") then
+	if (_item ~= "rail") then
 		if item_is_tile(item) then
 			if tile_is_in_reach() then
 				if item == "stone-brick" then
@@ -692,20 +709,15 @@ local function build()
 			return false
 		end
 	else
-		if player.can_place_entity{name = "straight-rail", position = target_position, direction = direction} then
-			if player.surface.can_fast_replace{name = "straight-rail", position = target_position, direction = direction, force = "player"} then
-				if player.surface.create_entity{name = "straight-rail", position = target_position, direction = direction, force="player", fast_replace=true, player=player, raise_built = true} then
-					player.remove_item({name = item, count = 1})
-					end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", task[1], task[2], step, item ))
-					return true
-				end
-			else
-				if player.surface.create_entity{name = "straight-rail", position = target_position, direction = direction, force="player", raise_built = true} then
-					player.remove_item({name = item, count = 1})
-					end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", task[1], task[2], step, item ))
-					return true
-				end
+
+		if player.can_place_entity{name = item, position = target_position, direction = direction} then
+			
+			if player.surface.create_entity{name = item, position = target_position, direction = direction, force="player", raise_built = true} then
+				player.remove_item({name = _item, count = take_4items and 4 or 1})
+				end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", task[1], task[2], step, item ))
+				return true
 			end
+
 
 		else
 			if not walking.walking then
@@ -894,6 +906,8 @@ local function walk_neg_neg()
 end
 
 local function walk()
+	if player.driving then return {walking = false, direction = defines.direction.north} end --prevent walking while driving
+	
 	if pos_pos then
 		return walk_pos_pos()
 	elseif pos_neg then
@@ -1127,10 +1141,17 @@ local function filter()
 		return true
 	end
 
+	local inv = player_selection
+	if player_selection.type == "car" or player_selection.type == "tank" then
+		inv = player_selection.get_inventory(defines.inventory.car_trunk)
+	elseif player_selection.type == "cargo-wagon" then
+		inv = player_selection.get_inventory(defines.inventory.cargo_wagon)
+	end
+
 	if item == "none" then
-		player_selection.set_filter(slot, nil)
+		inv.set_filter(slot, nil)
 	else
-		player_selection.set_filter(slot, item)
+		inv.set_filter(slot, item)
 	end
 
 	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Filter: [item=%s]", task[1], task[2], step, item ))
@@ -1362,18 +1383,40 @@ local function equip()
 	return true
 end
 
+local function enter()
+	if player.driving then
+		if global.riding_duration < 1 then
+			player.driving = false
+			return true
+		end
+	else
+		player.driving = true
+		if player.driving then
+			return true
+		else
+			return false
+		end
+	end
+end
+
+local function send()
+	--idk
+end
+
 -- Routing function to perform one of the many available steps
 -- True: Indicates the calling function should advance the step. 
 -- False: Indicates the calling function should not advance step.
 local function doStep(current_step)
+
+	global.vehicle = current_step.vehicle
+	global.wait_for_recipe = current_step.wait_for
+	global.cancel = current_step.cancel
+
 	if current_step[2] == "craft" then
         task_category = "Craft"
         task = current_step[1]
 		count = current_step[3]
 		item = current_step[4]
-
-		global.wait_for_recipe = current_step.wait_for
-		global.cancel = current_step.cancel
 		return craft()
 
 	elseif current_step[2] == "cancel crafting" then
@@ -1381,7 +1424,6 @@ local function doStep(current_step)
         task = current_step[1]
 		count = current_step[3]
 		item = current_step[4]
-
 		return cancel_crafting()
 
 	elseif current_step[2] == "build" then
@@ -1390,7 +1432,6 @@ local function doStep(current_step)
 		target_position = current_step[3]
 		item = current_step[4]
 		direction = current_step[5]
-
 		return build()
 
 	elseif current_step[2] == "take" then
@@ -1414,7 +1455,6 @@ local function doStep(current_step)
 		item = current_step[4]
 		amount = current_step[5]
 		slot = current_step[6]
-
 		return put()
 
 	elseif current_step[2] == "rotate" then
@@ -1422,14 +1462,12 @@ local function doStep(current_step)
         task = current_step[1]
 		target_position = current_step[3]
 		rev = current_step[4]
-
 		return rotate()
 
 	elseif current_step[2] == "tech" then
         task_category = "Tech"
         task = current_step[1]
 		item = current_step[3]
-		global.cancel = current_step.cancel
 		return tech()
 
 	elseif current_step[2] == "recipe" then
@@ -1437,7 +1475,6 @@ local function doStep(current_step)
         task = current_step[1]
 		target_position = current_step[3]
 		item = current_step[4]
-		global.wait_for_recipe = current_step.wait_for
 		return recipe()
 
 	elseif current_step[2] == "limit" then
@@ -1446,7 +1483,6 @@ local function doStep(current_step)
 		target_position = current_step[3]
 		amount = current_step[4]
 		slot = current_step[5]
-
 		return limit()
 
 	elseif current_step[2] == "priority" then
@@ -1455,7 +1491,6 @@ local function doStep(current_step)
 		target_position = current_step[3]
 		input = current_step[4]
 		output = current_step[5]
-
 		return priority()
 
 	elseif current_step[2] == "filter" then
@@ -1465,7 +1500,6 @@ local function doStep(current_step)
 		item = current_step[4]
 		slot = current_step[5]
 		type = current_step[6]
-
 		return filter()
 
     elseif current_step[2] == "drop" then
@@ -1515,7 +1549,18 @@ local function doStep(current_step)
 		slot = current_step[5]
 		return equip()
 
+	elseif current_step[2] == "enter" then
+		task_category = "enter"
+        task = current_step[1]
+		return enter()
+
+	elseif current_step[2] == "send" then
+		task_category = "send"
+        task = current_step[1]
+		target_position = current_step[3]
+		return send()
 	end
+
 end
 
 local original_warning = Warning
@@ -1614,12 +1659,17 @@ local function handle_pretick()
 				Debug(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", player_position.x, player_position.y, player.online_time / 60, player.online_time))
 			end
 			change_step(1)
-		elseif(steps[step][2] == "walk" and (walking.walking == false or global.walk_towards_state) and idle < 1) then
+		elseif(steps[step][2] == "walk" and (walking.walking == false or global.walk_towards_state) and idle < 1 and global.riding_duration < 1) then
 			update_destination_position(steps[step][3][1], steps[step][3][2])
 			global.walk_towards_state = steps[step].walk_towards
-
 			find_walking_pattern()
 			walking = walk()
+			change_step(1)
+		elseif(steps[step][2] == "drive" and (not global.riding_state or walking.walking == false or global.walk_towards_state) and idle < 1 and global.riding_duration < 1) then
+			global.riding_duration = steps[step][3]
+			global.riding_state = {acceleration = steps[step][4], direction = steps[step][5]}
+			player.riding_state = global.riding_state
+			global.walk_towards_state = false
 			change_step(1)
 		elseif steps[step][2] == warnings.never_idle then
 			global.state.never_idle = not global.state.never_idle
@@ -1644,8 +1694,13 @@ local function handle_ontick()
 		player.picking_state = true
 		pickup_ticks = pickup_ticks - 1
 	end
+	if global.riding_duration > 0 then
+		player.riding_state = global.riding_state
+		global.riding_duration = global.riding_duration - 1
+		if global.riding_duration < 1 then global.riding_state = nil end
+	end
 
-	if walking.walking == false then
+	if walking.walking == false and player.driving == false then
 		if idle > 0 then
 			idle = idle - 1
 			idled = idled + 1
@@ -1741,8 +1796,14 @@ local function handle_ontick()
 					mining = 0
 				end
 			end
-		elseif steps[step][2] ~= "walk" and steps[step][2] ~= "idle" and steps[step][2] ~= "mine" then
-			
+		elseif (global.walk_towards_state or player.driving) and steps[step][2] == "enter" then
+			if doStep(steps[step]) then
+				-- Do step while walking
+				Comment(steps[step].comment)
+				step_executed = true
+				change_step(1)
+			end
+		elseif steps[step][2] ~= "walk" and steps[step][2] ~= "enter" and steps[step][2] ~= "idle" and steps[step][2] ~= "mine" then
 			if doStep(steps[step]) then
 				-- Do step while walking
 				Comment(steps[step].comment)
@@ -1935,6 +1996,7 @@ script.on_event(defines.events.on_tick, function(event)
 		update_destination_position(player_position.x, player_position.y)
 		player.force.research_queue_enabled = true
 		walking = {walking = false, direction = defines.direction.north}
+		global.riding_duration = 0
 	end
 
 	if player == nil or player.character == nil then --early end if in god mode
@@ -2065,12 +2127,12 @@ script.on_event(defines.events.on_game_created_from_scenario, function(event)
 	end
 end)
 
--- Triggered on script built
+--[[ Triggered on script built
 script.on_event(defines.events.script_raised_built, function(event)
 	local entity = event.entity
 	entity.create_build_effect_smoke()
 	entity.surface.play_sound{path="entity-build/"..entity.prototype.name, position=entity.position}
-end)
+end)]]
 
 --modsetting names are stored in a global array for all mods, so each setting value needs to be unique among all mods
 local settings_short = "DunRaider-quickbar-"

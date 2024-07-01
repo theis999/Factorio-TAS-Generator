@@ -315,7 +315,7 @@ void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progre
 				break;
 
 			case e_filter:
-				if (steps[i].BuildingIndex.has_value() == false)
+				if (steps[i].BuildingIndex.has_value() == false && steps[i].Modifiers.vehicle == false)
 				{
 					UnexpectedError(dialog_progress_bar, i);
 					return;
@@ -391,6 +391,16 @@ void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progre
 			case e_equip:
 				equip(currentStep, amount, item, steps[i].inventory, comment);
 				break;
+
+			case e_enter:
+				enter(currentStep, comment);
+				break;
+			case e_drive:
+				drive(currentStep, amount, steps[i].riding, comment);
+				break;
+			case e_send:
+				send(currentStep, x_cord, y_cord, amount, comment);
+				break;
 		}
 	}
 
@@ -464,6 +474,11 @@ void GenerateScript::SetBuildingAndOrientation(Step* step)
 		building = inventory_types.wreck;
 		return;
 	}
+	else if (step->Modifiers.vehicle)
+	{
+		building = "vehicle";
+		return;
+	}
 
 	building = step->BuildingIndex.value().Name();
 	build_orientation = orientation_list[step->orientation];
@@ -489,6 +504,7 @@ void GenerateScript::TransferParameters(Step& step)
 		.split = step.Modifiers.split,
 		.walk_towards = step.Modifiers.walk_towards,
 		.all = step.Modifiers.all,
+		.vehicle = step.Modifiers.vehicle,
 	};
 }
 
@@ -554,7 +570,7 @@ void GenerateScript::check_mining_distance(string step, string action, string x_
 		coordinates = find_walk_location(min_x_edge, max_x_edge, min_y_edge, max_y_edge, buffer, max_distance);
 	}
 
-	if (!(modifiers.force || generateconfig.no_intermediate_walk) && (player_x_cord != coordinates[0] || player_y_cord != coordinates[1]))
+	if (!(modifiers.force || modifiers.vehicle || generateconfig.no_intermediate_walk) && (player_x_cord != coordinates[0] || player_y_cord != coordinates[1]))
 	{
 		modifiers.walk_towards = generateconfig.intermediate_walk_towards;
 		walk(step, action, std::to_string(coordinates[0]), std::to_string(coordinates[1]), last_walking_comment);
@@ -612,7 +628,7 @@ void GenerateScript::check_interact_distance(string step, string action, string 
 
 	std::vector<float> coordinates = find_walk_location(min_x_edge, max_x_edge, min_y_edge, max_y_edge, buffer, max_distance);
 
-	if (!(modifiers.force || generateconfig.no_intermediate_walk) && (player_x_cord != coordinates[0] || player_y_cord != coordinates[1]))
+	if (!(modifiers.force || modifiers.vehicle || generateconfig.no_intermediate_walk) && (player_x_cord != coordinates[0] || player_y_cord != coordinates[1]))
 	{
 		modifiers.walk_towards = generateconfig.intermediate_walk_towards;
 		walk(step, action, std::to_string(coordinates[0]), std::to_string(coordinates[1]), last_walking_comment);
@@ -858,7 +874,7 @@ void GenerateScript::walk(string step, string action, string x_cord, string y_co
 void GenerateScript::mining(string step, string x_cord, string y_cord, string duration, string building_name, string OrientationEnum, bool is_building, string comment)
 { 
 	// Mine the coordinates without checking distance if the user have added Override in the comment - this is mostly useful for removing wreckage. 
-	if (modifiers.force || generateconfig.no_intermediate_walk)
+	if (modifiers.force || modifiers.vehicle || generateconfig.no_intermediate_walk)
 	{
 		step_list += StepSignature(step, "1", "\"mine\", {" + x_cord + ", " + y_cord + "}, " + duration, comment);
 		total_steps += 1;
@@ -1003,6 +1019,24 @@ void GenerateScript::equip(string step, string amount, string item, InventoryTyp
 	total_steps += 1;
 }
 
+void GenerateScript::enter(string step, string comment)
+{
+	step_list += StepSignature(step, "1", "\"enter\" ", comment);
+	total_steps += 1;
+}
+
+void GenerateScript::drive(string step, string duration, Riding riding_state, string comment)
+{
+	step_list += StepSignature(step, "1", "\"drive\", "+ duration +", " + riding_state.ToLua(), comment);
+	total_steps += 1;
+}
+
+void GenerateScript::send(string step, string x_cord, string y_cord, string id, string comment)
+{
+	step_list += StepSignature(step, "1", "\"send\", {" + x_cord + ", " + y_cord + "}," + id + ", ", comment);
+	total_steps += 1;
+}
+
 void GenerateScript::rotate(string step, string action, string x_cord, string y_cord, string times, string item, string OrientationEnum, string comment)
 {
 	check_interact_distance(step, action, x_cord, y_cord, item, OrientationEnum);
@@ -1091,7 +1125,7 @@ void GenerateScript::row_build(string step, string x_cord, string y_cord, string
 
 void GenerateScript::take(string step, string action, string x_cord, string y_cord, string amount, string item, string from, string building, string OrientationEnum, string comment)
 {
-	if (modifiers.force || generateconfig.no_intermediate_walk)
+	if (modifiers.force || modifiers.vehicle || generateconfig.no_intermediate_walk)
 	{
 		item = check_item_name(item);
 		step_list += StepSignature(step, action, "\"take\", {" + x_cord + ", " + y_cord + "}, \"" + item + "\", " + amount + ", " + from, comment);
@@ -1137,7 +1171,7 @@ void GenerateScript::row_take(string step, string x_cord, string y_cord, string 
 
 void GenerateScript::put(string step, string action, string x_cord, string y_cord, string amount, string item, string into, string building, string OrientationEnum, string comment)
 {
-	if (modifiers.force || generateconfig.no_intermediate_walk)
+	if (modifiers.force || modifiers.vehicle || generateconfig.no_intermediate_walk)
 	{
 		item = check_item_name(item);
 		step_list += StepSignature(step, action, "\"put\", {" + x_cord + ", " + y_cord + "}, \"" + item + "\", " + amount + ", " + into, comment);

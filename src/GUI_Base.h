@@ -126,8 +126,10 @@ class GUI_Base : public wxFrame
 		wxComboBox* cmb_item;
 		wxStaticText* label_from_into;
 		wxComboBox* cmb_from_into;
+		wxBoxSizer* detail_sizer_Input;
 		wxStaticText* label_input;
 		wxRadioBox* radio_input;
+		wxRadioBox* radio_acceleration;
 		wxStaticText* label_output;
 		wxRadioBox* radio_output;
 		wxStaticText* label_building_orientation;
@@ -153,6 +155,9 @@ class GUI_Base : public wxFrame
 		wxCheckBox* modifier_split_checkbox;
 		wxCheckBox* modifier_walk_towards_checkbox;
 		wxCheckBox* modifier_all_checkbox;
+		wxBoxSizer* sizer_vehicle;
+		wxCheckBox* modifier_vehicle_checkbox;
+		wxButton* modifier_vehicle_button;
 		wxPanel* walk_panel;
 		wxSpinCtrlDouble* walk_panel_increment_spin;
 		wxPanel* walk_panel_grid_panel;
@@ -253,6 +258,9 @@ class GUI_Base : public wxFrame
 		virtual void OnKeepWalkingMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnKeepOnPathMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnKeepCraftingMenuSelected( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnEnterExitMenuSelected( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnDriveMenuSelected( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnSendMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnChangeShortcutMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnAddMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnAddAltMenuSelected( wxCommandEvent& event ) { event.Skip(); }
@@ -310,11 +318,16 @@ class GUI_Base : public wxFrame
 		virtual void OnKeepWalkingChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnKeepOnPathChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnKeepCraftingChosen( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnEnterExitChosen( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnDriveChosen( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnSendChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnNoOrderClicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnNoOrderRightClicked( wxMouseEvent& event ) { event.Skip(); }
 		virtual void OnSkipClicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnForceClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnSkipRightClicked( wxMouseEvent& event ) { event.Skip(); }
+		virtual void OnForceRightClicked( wxMouseEvent& event ) { event.Skip(); }
+		virtual void OnVehicleClicked( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnVehicleRightClicked( wxMouseEvent& event ) { event.Skip(); }
 		virtual void OnWalkPanelBtnUpLeftClicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnWalkPanelBtnUpClicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnWalkPanelBtnUpRightClicked( wxCommandEvent& event ) { event.Skip(); }
