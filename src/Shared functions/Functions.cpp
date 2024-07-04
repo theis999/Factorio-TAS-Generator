@@ -85,10 +85,15 @@ string Capitalize(const wxString& stringToCapitalize, const bool isItem)
 	return Capitalize(stringToCapitalize.ToStdString(), isItem);
 }
 
+static bool ichar_equals(char a, char b)
+{
+	return std::tolower(static_cast<unsigned char>(a)) ==
+		std::tolower(static_cast<unsigned char>(b));
+}
+
 bool equals_ignore_case(const std::string_view& lhs, const std::string_view& rhs)
 {
-	auto to_lower{std::ranges::views::transform(std::tolower)};
-	return std::ranges::equal(lhs | to_lower, rhs | to_lower);
+	return std::ranges::equal(lhs , rhs, ichar_equals);
 }
 
 bool starts_with_ignore_case(const std::string& base, const std::string& start)
