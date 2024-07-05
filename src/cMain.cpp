@@ -2981,23 +2981,21 @@ void cMain::UndoRedo(wxGrid* grid, vector<Step>& data_list, vector<StepBlock> be
 	}
 
 	// make room for before
-	for (auto it = before.rbegin(); it != before.rend(); ++it)
+	for (auto it = before.begin(); it != before.end(); ++it)
 	{
 		auto& [row, steps] = *it;
-		data_list.insert(data_list.begin() + row, steps.begin(), steps.end());
+		auto t_row = data_list.begin() + row;
+		data_list.insert(t_row, steps.begin(), steps.end());
 		grid->InsertRows(row, steps.size());
 	}
 
 	// insert before
 	bool first = true;
+	grid->ClearSelection();
+	grid->GoToCell(before.back().row, 0);
+	grid->GoToCell(before.front().row, 0);
 	for (auto& [row, steps] : before)
 	{
-		if (first)
-		{
-			grid->ClearSelection();
-			grid->GoToCell(row, 0);
-			first = false;
-		}
 		for (int i = 0; i < steps.size(); i++)
 		{
 			int currentrow = row + i;
