@@ -222,6 +222,9 @@ protected:
 
 	void OnStepsFocusCheckbox(wxCommandEvent & event);
 	void HandleFocusMode(bool checked, bool changed = false);
+	int HandleFocusMode_FindLastSaveStep(const int from);
+	void HandleFocusMode_HideSteps(const int to, const bool changed, const int row_count);
+	void HandleFocusMode_ShowSteps(const bool changed, const int row_count);
 
 	void OnStepsGridCellChange(wxGridEvent& event);
 	void OnStepsGridEditorShown(wxGridEvent& event);

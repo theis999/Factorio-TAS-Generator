@@ -1240,7 +1240,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	step_panel_search_sizer->Add( bSizer65, 1, wxEXPAND, 5 );
 
 	steps_focus_checkbox = new wxCheckBox( step_panel, wxID_ANY, wxT("Focus"), wxDefaultPosition, wxDefaultSize, 0 );
-	steps_focus_checkbox->SetToolTip( wxT("Focuses the list on steps on the last segments.\nBy hidding every step before the last save point.") );
+	steps_focus_checkbox->SetToolTip( wxT("Focuses the list on steps on the last segments.\nBy hidding every step before the second to last save step.") );
 
 	step_panel_search_sizer->Add( steps_focus_checkbox, 0, wxALL, 5 );
 
