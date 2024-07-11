@@ -175,6 +175,7 @@
   <ItemGroup>
     <ClCompile Include="cApp.cpp" />
     <ClCompile Include="cMain.cpp" />
+    <ClCompile Include="cMain_Focus.cpp" />
     <ClCompile Include="CommandStack.cpp" />
     <ClCompile Include="DialogProgressBar.cpp" />
     <ClCompile Include="GenerateScript.cpp" />
