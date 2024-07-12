@@ -45,6 +45,9 @@
     <ClCompile Include="Riding.h">
       <Filter>Structs</Filter>
     </ClCompile>
+    <ClCompile Include="cMain_Focus.cpp">
+      <Filter>cMain</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cApp.h" />
@@ -168,6 +171,9 @@
     </Filter>
     <Filter Include="util">
       <UniqueIdentifier>{2936a506-84da-4584-91d6-54287c7753f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cMain">
+      <UniqueIdentifier>{ab7d1857-bfda-45e3-9eda-3f45647ff7c2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
