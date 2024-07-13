@@ -26,7 +26,7 @@ int cMain::AddWalkScanStartRow()
 		if (!control_types.contains(StepGridData[i].type))
 			return i;
 		
-	return 0;
+	return -1;
 }
 pair<double, double> cMain::AddWalkScanCurrentPosition()
 {
