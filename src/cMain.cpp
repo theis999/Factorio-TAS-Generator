@@ -726,12 +726,8 @@ vector<StepLine> cMain::AddStep(int row, Step step, bool auto_put)
 
 			if (!steps_focus_checkbox->IsChecked() || modifier_skip_checkbox->IsChecked()) return returnValue;
 
-			grid_steps->BeginBatch();
-			{
-				for (int i = 0; i < row; i++)
-					grid_steps->HideRow(i);
-			}
-			grid_steps->EndBatch();
+			HandleFocusMode(true, false);
+
 			return returnValue;
 
 		case e_build:
