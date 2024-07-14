@@ -11,7 +11,6 @@ local step_executed = false
 local not_same_step = 1
 
 local step_reached = 0
-local mining
 
 local player
 local player_selection
@@ -54,7 +53,6 @@ local tas_state_change = script.generate_event_name()
 
 local function save_global()
 	--if not global.tas then return end
-	global.tas.mining = mining
 	global.tas.pos_pos = pos_pos
 	global.tas.pos_neg = pos_neg
 	global.tas.neg_pos = neg_pos
@@ -1744,16 +1742,16 @@ local function handle_ontick()
 				if LEGACY_MINING then player.mining_state = {mining = false, position = steps[global.tas.step][3]} end
 				change_step(1)
 				step_executed = true
-				mining = 0
+				global.tas.mining = 0
 				ticks_mining = 0
 			end
 
-			mining = mining + 1
-			if mining > 5 then
+			global.tas.mining = global.tas.mining + 1
+			if global.tas.mining > 5 then
 				if player.character_mining_progress == 0 then
 					Error(string.format("Step: %s, Action: %s, Step: %s - Mine: Cannot reach resource", steps[global.tas.step][1][1], steps[global.tas.step][1][2], global.tas.step))
 				else
-					mining = 0
+					global.tas.mining = 0
 				end
 			end
 
@@ -1778,16 +1776,16 @@ local function handle_ontick()
 			if ticks_mining >= duration then
 				if LEGACY_MINING then player.mining_state = {mining = false, position = steps[global.tas.step][3]} end
 				change_step(1)
-				mining = 0
+				global.tas.mining = 0
 				ticks_mining = 0
 			end
 
-			mining = mining + 1
-			if mining > 5 then
+			global.tas.mining = global.tas.mining + 1
+			if global.tas.mining > 5 then
 				if player.character_mining_progress == 0 then
 					Debug(string.format("Step: %s, Action: %s, Step: %s - Mine: Cannot reach resource", steps[global.tas.step][1][1], steps[global.tas.step][1][2], global.tas.step))
 				else
-					mining = 0
+					global.tas.mining = 0
 				end
 			end
 		elseif (global.walk_towards_state or player.driving) and steps[global.tas.step][2] == "enter" then
@@ -1837,7 +1835,7 @@ local function handle_posttick()
 		end
 
 		if global.state.keep_walking then
-			if walking.walking or mining ~= 0 or global.tas.idle ~= 0 then
+			if walking.walking or global.tas.mining ~= 0 or global.tas.idle ~= 0 then
 				end_state_warning_mode(warnings.keep_walking)
 			else
 				global[warnings.keep_walking] = global[warnings.keep_walking] or {step = global.tas.step, start = game.tick}
@@ -1855,7 +1853,7 @@ local function handle_posttick()
 		global.last_step = global.tas.step
 	end
 
-	if walking.walking or mining ~= 0 or global.tas.idle ~= 0 or global.tas.pickup_ticks ~= 0 then
+	if walking.walking or global.tas.mining ~= 0 or global.tas.idle ~= 0 or global.tas.pickup_ticks ~= 0 then
 		-- we wait to finish the previous step before we end the run
 	elseif steps[global.tas.step] == nil or steps[global.tas.step][1] == "break" then
 		Message(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", player_position.x, player_position.y, player.online_time / 60, player.online_time))
@@ -1946,17 +1944,17 @@ local function backwards_compatibility()
 			if ticks_mining >= duration then
 				player.mining_state = {mining = false, position = steps[global.tas.step][3]}
 				change_step(1)
-				mining = 0
+				global.tas.mining = 0
 				ticks_mining = 0
 			end
 
-			mining = mining + 1
-			if mining > 5 then
+			global.tas.mining = global.tas.mining + 1
+			if global.tas.mining > 5 then
 				if player.character_mining_progress == 0 then
 					Warning(string.format("Step: %s, Action: %s, Step: %s - Mine: Cannot reach resource", steps[global.tas.step][1][1], steps[global.tas.step][1][2], global.tas.step))
 					debug_state = false
 				else
-					mining = 0
+					global.tas.mining = 0
 				end
 			end
 
@@ -2092,7 +2090,7 @@ script.on_event(defines.events.on_player_mined_entity, function(event)
 		change_step(1)
 	end
 
-	mining = 0
+	global.tas.mining = 0
 	ticks_mining = 0
 
 	if compatibility_mode then
@@ -2209,7 +2207,6 @@ end
 
 local function migrate_global()
 	if not global.tas then return end
-	mining = global.tas.mining
 	pos_pos = global.tas.pos_pos
 	pos_neg = global.tas.pos_neg
 	neg_pos = global.tas.neg_pos
