@@ -35,7 +35,6 @@ local ticks_mining
 local idled
 local font_size = 0.15 --best guess estimate of fontsize for flying text
 
-local compatibility_mode
 local keep_x
 local keep_y
 local diagonal
@@ -49,7 +48,6 @@ local tas_state_change = script.generate_event_name()
 
 local function save_global()
 	--if not global.tas then return end
-	global.tas.compatibility_mode = compatibility_mode
 	global.tas.keep_x = keep_x
 	global.tas.keep_y = keep_y
 	global.tas.diagonal = diagonal
@@ -748,7 +746,7 @@ local function walk_pos_pos()
 		if player_position.y > destination.y then
 			return {walking = true, direction = defines.direction.north}
 		else
-			if compatibility_mode then
+			if global.tas.compatibility_mode then
 				return {walking = false, direction = defines.direction.north}
 			else
 				return {walking = false, direction = walking.direction}
@@ -792,7 +790,7 @@ local function walk_pos_neg()
 		if player_position.y < destination.y then
 			return {walking = true, direction = defines.direction.south}
 		else
-			if compatibility_mode then
+			if global.tas.compatibility_mode then
 				return {walking = false, direction = defines.direction.north}
 			else
 				return {walking = false, direction = walking.direction}
@@ -836,7 +834,7 @@ local function walk_neg_pos()
 		if player_position.y > destination.y then
 			return {walking = true, direction = defines.direction.north}
 		else
-			if compatibility_mode then
+			if global.tas.compatibility_mode then
 				return {walking = false, direction = defines.direction.north}
 			else
 				return {walking = false, direction = walking.direction}
@@ -880,7 +878,7 @@ local function walk_neg_neg()
 		if player_position.y < destination.y then
 			return {walking = true, direction = defines.direction.south}
 		else
-			if compatibility_mode then
+			if global.tas.compatibility_mode then
 				return {walking = false, direction = defines.direction.north}
 			else
 				return {walking = false, direction = walking.direction}
@@ -902,7 +900,7 @@ local function walk()
 		return walk_neg_neg()
 	end
 
-	if compatibility_mode then
+	if global.tas.compatibility_mode then
 		return {walking = false, direction = defines.direction.north}
 	else
 		return {walking = false, direction = walking.direction}
@@ -910,7 +908,7 @@ local function walk()
 end
 
 local function find_walking_pattern()
-	if compatibility_mode then
+	if global.tas.compatibility_mode then
 		if (player_position.x - destination.x >= 0) then
 			if (player_position.y - destination.y >= 0) then
 				global.tas.pos_pos = true
@@ -965,7 +963,7 @@ end
 local function update_destination_position(x, y)
 	destination = { x = x, y = y }
 
-	if compatibility_mode then
+	if global.tas.compatibility_mode then
 		return
 	end
 
@@ -1989,11 +1987,11 @@ script.on_event(defines.events.on_tick, function(event)
 
 	if steps[global.tas.step][2] == "walk" then
 		if steps[global.tas.step][4] == "old" then
-			compatibility_mode = true
+			global.tas.compatibility_mode = true
 		end
 
 		if steps[global.tas.step].comment == "new" then
-			compatibility_mode = false
+			global.tas.compatibility_mode = false
 		end
 	end
 
@@ -2019,7 +2017,7 @@ script.on_event(defines.events.on_tick, function(event)
 
 	update_player_position()
 
-	if compatibility_mode then
+	if global.tas.compatibility_mode then
 		backwards_compatibility()
 	else
 		step_executed = false
@@ -2085,7 +2083,7 @@ script.on_event(defines.events.on_player_mined_entity, function(event)
 	global.tas.mining = 0
 	ticks_mining = 0
 
-	if compatibility_mode then
+	if global.tas.compatibility_mode then
 		return
 	end
 
@@ -2200,7 +2198,6 @@ end
 local function migrate_global()
 	if not global.tas then return end
 	diagonal = global.tas.diagonal
-	compatibility_mode = global.tas.compatibility_mode
 	keep_x = global.tas.keep_x
 	keep_y = global.tas.keep_y
 	diagonal = global.tas.diagonal
