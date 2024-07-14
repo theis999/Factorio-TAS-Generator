@@ -10,7 +10,6 @@ local use_all_ticks = false
 local step_executed = false
 local not_same_step = 1
 
-local step
 local step_reached = 0
 local idle
 local pickup_ticks
@@ -57,7 +56,6 @@ local tas_state_change = script.generate_event_name()
 
 local function save_global()
 	--if not global.tas then return end
-	global.tas.step = step
 	global.tas.idle = idle
 	global.tas.pickup_ticks = pickup_ticks
 	global.tas.mining = mining
@@ -216,13 +214,13 @@ end
 ---@param by number
 local function change_step(by)
 	local _task = 0
-	if steps and steps[step] and steps[step][1][1] then
-		_task = steps[step][1][1]
+	if steps and steps[global.tas.step] and steps[global.tas.step][1][1] then
+		_task = steps[global.tas.step][1][1]
 	end
-	step = step + by
+	global.tas.step = global.tas.step + by
 	script.raise_event(tas_step_change, {
 		change_step_by = by,
-		step = step,
+		step = global.tas.step,
 		task = _task,
 		tick = game.tick,
 	})
@@ -265,7 +263,7 @@ local function check_selection_reach()
 
 	if not player_selection then
 		if not walking.walking then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - %s: Cannot select entity", task[1], task[2], step, task_category))
+			Warning(string.format("Step: %s, Action: %s, Step: %d - %s: Cannot select entity", task[1], task[2], global.tas.step, task_category))
 		end
 
 		return false
@@ -273,7 +271,7 @@ local function check_selection_reach()
 
 	if not player.can_reach_entity(player_selection) then
 		if not walking.walking then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - %s: Cannot reach entity", task[1], task[2], step, task_category))
+			Warning(string.format("Step: %s, Action: %s, Step: %d - %s: Cannot reach entity", task[1], task[2], global.tas.step, task_category))
 		end
 
 		return false
@@ -288,7 +286,7 @@ local function check_inventory()
 
 	if not target_inventory then
 		if not walking.walking then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - %s: Cannot get entity inventory", task[1], task[2], step, task_category))
+			Warning(string.format("Step: %s, Action: %s, Step: %d - %s: Cannot get entity inventory", task[1], task[2], global.tas.step, task_category))
 		end
 
 		return false
@@ -317,7 +315,7 @@ local function put()
 
 	if removalable_items == 0 then
 		if not walking.walking then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Put: %s is not available in your inventory", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Put: %s is not available in your inventory", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
 		end
 
 		return false;
@@ -325,7 +323,7 @@ local function put()
 
 	if insertable_items == 0 then
 		if not walking.walking then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Put: %s can't be put into target inventory", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Put: %s can't be put into target inventory", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
 		end
 
 		return false;
@@ -333,7 +331,7 @@ local function put()
 
 	if amount > removalable_items or amount > insertable_items then
 		if not walking.walking then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Put: not enough %s can be transferred. Amount: %d Removalable: %d Insertable: %d", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper), amount, removalable_items, insertable_items))
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Put: not enough %s can be transferred. Amount: %d Removalable: %d Insertable: %d", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper), amount, removalable_items, insertable_items))
 		end
 
 		return false
@@ -352,7 +350,7 @@ local function put()
 	}
 
 	if amount < 1 then
-		Warning(string.format("Step: %s, Action: %s, Step: %d - Put: %s can not be transferred. Amount: %d Removalable: %d Insertable: %d", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper), amount, removalable_items, insertable_items))
+		Warning(string.format("Step: %s, Action: %s, Step: %d - Put: %s can not be transferred. Amount: %d Removalable: %d Insertable: %d", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper), amount, removalable_items, insertable_items))
 		return false
 	end
 
@@ -369,7 +367,7 @@ local function put()
 		text=text,
 		position=pos}
 
-	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Put: [item=%s]", task[1], task[2], step, item ))
+	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Put: [item=%s]", task[1], task[2], global.tas.step, item ))
 	return true
 end
 
@@ -408,7 +406,7 @@ local function take_all()
 	end
 	
 
-	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Take: [item=%s]", task[1], task[2], step, item ))
+	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Take: [item=%s]", task[1], task[2], global.tas.step, item ))
 	return true
 end
 
@@ -433,7 +431,7 @@ local function take()
 
 	if removalable_items == 0 then
 		if not walking.walking then
-			Warning({"step-warning.take", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper), "is not available from the inventory"})
+			Warning({"step-warning.take", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper), "is not available from the inventory"})
 		end
 
 		return false;
@@ -441,7 +439,7 @@ local function take()
 
 	if insertable_items == 0 then
 		if not walking.walking then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Take: %s can't be put into your inventory", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Take: %s can't be put into your inventory", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
 		end
 
 		return false;
@@ -449,7 +447,7 @@ local function take()
 
 	if amount > removalable_items or amount > insertable_items then
 		if not walking.walking then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Take: not enough %s can be transferred. Amount: %d Removalable: %d Insertable: %d", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper), amount, removalable_items, insertable_items))
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Take: not enough %s can be transferred. Amount: %d Removalable: %d Insertable: %d", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper), amount, removalable_items, insertable_items))
 		end
 
 		return false
@@ -474,16 +472,16 @@ local function take()
 		text=text,
 		position=pos}
 
-	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Take: [item=%s]", task[1], task[2], step, item ))
+	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Take: [item=%s]", task[1], task[2], global.tas.step, item ))
 	return true
 end
 
 -- Handcraft one or more of a recipe
 local function craft()
 	if not player.force.recipes[item].enabled then
-		if(step > step_reached) then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Craft: It is not possible to craft %s - It needs to be researched first.", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
-			step_reached = step
+		if(global.tas.step > step_reached) then
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Craft: It is not possible to craft %s - It needs to be researched first.", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			step_reached = global.tas.step
 		end
 
 		return false;
@@ -493,8 +491,8 @@ local function craft()
 		player.cancel_crafting{ index = 1, count = 1000000}
 		return false
 	elseif global.wait_for_recipe and player.crafting_queue_size > 0 then
-		Warning(string.format("Step: %s, Action: %s, Step: %d - Craft [item=%s]: It is not possible to craft as the queue is not empty", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
-		step_reached = step
+		Warning(string.format("Step: %s, Action: %s, Step: %d - Craft [item=%s]: It is not possible to craft as the queue is not empty", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
+		step_reached = global.tas.step
 		return false
 	else
 		global.wait_for_recipe = nil
@@ -510,17 +508,17 @@ local function craft()
 			player.begin_crafting{count = count, recipe = item}
 		else
 			if not walking.walking then
-				Warning(string.format("Step: %s, Action: %s, Step: %d - Craft: It is not possible to craft %s - Only possible to craft %d of %d", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper), amount, count))
+				Warning(string.format("Step: %s, Action: %s, Step: %d - Craft: It is not possible to craft %s - Only possible to craft %d of %d", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper), amount, count))
 			end
 
 			return false
 		end
-		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Craft: [item=%s]", task[1], task[2], step, item ))
+		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Craft: [item=%s]", task[1], task[2], global.tas.step, item ))
 		return true
     else
-        if(step > step_reached) then
-            Warning(string.format("Step: %s, Action: %s, Step: %d - Craft: It is not possible to craft %s - Please check the script", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
-            step_reached = step
+        if(global.tas.step > step_reached) then
+            Warning(string.format("Step: %s, Action: %s, Step: %d - Craft: It is not possible to craft %s - Please check the script", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
+            step_reached = global.tas.step
 		end
 
         return false
@@ -535,19 +533,19 @@ local function cancel_crafting()
 		if queue[i].recipe == item then
 			if count == -1 then
 				player.cancel_crafting{index = i, count = 1000000}
-				end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Cancel: [item=%s]", task[1], task[2], step, item ))
+				end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Cancel: [item=%s]", task[1], task[2], global.tas.step, item ))
 				return true
 			elseif queue[i].count >= count then
 				player.cancel_crafting{index = i, count = count}
-				end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Cancel: [item=%s]", task[1], task[2], step, item ))
+				end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Cancel: [item=%s]", task[1], task[2], global.tas.step, item ))
 				return true
 			else
-				Warning(string.format("Step: %s, Action: %s, Step: %d - Cancel craft: It is not possible to cancel %s - Please check the script", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+				Warning(string.format("Step: %s, Action: %s, Step: %d - Cancel craft: It is not possible to cancel %s - Please check the script", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
 				return false
 			end
 		end
 	end
-	Warning(string.format("Step: %s, Action: %s, Step: %d - Cancel craft: It is not possible to cancel %s - Please check the script", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+	Warning(string.format("Step: %s, Action: %s, Step: %d - Cancel craft: It is not possible to cancel %s - Please check the script", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
 	return false
 end
 
@@ -597,7 +595,7 @@ local function create_entity_replace()
 		end
 		if (not neighbour_position) then
 			player.remove_item({name = item, count = 1})
-			end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", task[1], task[2], step, item ))
+			end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", task[1], task[2], global.tas.step, item ))
 			return true
 		end
 
@@ -641,13 +639,13 @@ local function create_entity_replace()
 		end
 		--spend the item placed
 		player.remove_item({name = item, count = 1})
-		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", task[1], task[2], step, item ))
+		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", task[1], task[2], global.tas.step, item ))
 		return true
 	end
 
 	--no special fast replace handling
 	if created_entity then
-		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", task[1], task[2], step, item ))
+		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", task[1], task[2], global.tas.step, item ))
 		player.remove_item({name = item, count = 1})
 	end
 	return created_entity ~= nil
@@ -661,10 +659,10 @@ local function build()
 	local _count = player.get_item_count(_item)
 
 	if _count < 1 or take_4items and _count < 4 then
-		if(step > step_reached) then
+		if(global.tas.step > step_reached) then
 			if walking.walking == false then
-				Warning(string.format("Step: %s, Action: %s, Step: %d - Build: %s not available", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
-				step_reached = step
+				Warning(string.format("Step: %s, Action: %s, Step: %d - Build: %s not available", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
+				step_reached = global.tas.step
 			end
 		end
 
@@ -689,21 +687,21 @@ local function build()
 				end
 
 				player.remove_item({name = item, count = 1})
-				end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", task[1], task[2], step, item ))
+				end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", task[1], task[2], global.tas.step, item ))
 				return true
 
 			elseif not walking.walking then
-				Warning(string.format("Step: %s, Action: %s, Step: %d - Build: %s not in reach", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+				Warning(string.format("Step: %s, Action: %s, Step: %d - Build: %s not in reach", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
 			end
 
 			return false
 
 		elseif player.can_place_entity{name = item, position = target_position, direction = direction} then
-			end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", task[1], task[2], step, item ))
+			end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", task[1], task[2], global.tas.step, item ))
 			return create_entity_replace()
 		else
 			if not walking.walking then
-				Warning(string.format("Step: %s, Action: %s, Step: %d - Build: %s cannot be placed", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+				Warning(string.format("Step: %s, Action: %s, Step: %d - Build: %s cannot be placed", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
 			end
 
 			return false
@@ -714,14 +712,14 @@ local function build()
 			
 			if player.surface.create_entity{name = item, position = target_position, direction = direction, force="player", raise_built = true} then
 				player.remove_item({name = _item, count = take_4items and 4 or 1})
-				end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", task[1], task[2], step, item ))
+				end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", task[1], task[2], global.tas.step, item ))
 				return true
 			end
 
 
 		else
 			if not walking.walking then
-				Warning(string.format("Step: %s, Action: %s, Step: %d - Build: %s cannot be placed", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+				Warning(string.format("Step: %s, Action: %s, Step: %d - Build: %s cannot be placed", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
 			end
 
 			return false
@@ -989,15 +987,15 @@ local function update_destination_position(x, y)
 	keep_y = false
 	diagonal = false
 
-if steps[step] and steps[step][5] and steps[step][5] == "same_x" then
+if steps[global.tas.step] and steps[global.tas.step][5] and steps[global.tas.step][5] == "same_x" then
 		keep_x = true
 	end
 
-	if steps[step] and steps[step][6] and steps[step][6] == "same_y" then
+	if steps[global.tas.step] and steps[global.tas.step][6] and steps[global.tas.step][6] == "same_y" then
 		keep_y = true
 	end
 
-	if steps[step] and steps[step][5] and steps[step][5] == "diagonal" then
+	if steps[global.tas.step] and steps[global.tas.step][5] and steps[global.tas.step][5] == "diagonal" then
 		diagonal = true
 	end
 end
@@ -1016,7 +1014,7 @@ local function rotate()
 
 	if r then player.play_sound{path="utility/rotated_small"} end
 
-	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Rotate", task[1], task[2], step ))
+	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Rotate", task[1], task[2], global.tas.step ))
 	return true
 end
 
@@ -1027,17 +1025,17 @@ local function recipe()
 	end
 
 	if item ~= "none" and not player.force.recipes[item].enabled then
-		if(step > step_reached) then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Recipe: It is not possible to set recipe %s - It needs to be researched first.", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
-			step_reached = step
+		if(global.tas.step > step_reached) then
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Recipe: It is not possible to set recipe %s - It needs to be researched first.", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			step_reached = global.tas.step
 		end
 
 		return false;
 	end
 
 	if global.wait_for_recipe and player_selection.crafting_progress ~= 0 then
-		Warning(string.format("Step: %s, Action: %s, Step: %d - Set recipe %s: The entity is still crafting.", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
-		step_reached = step
+		Warning(string.format("Step: %s, Action: %s, Step: %d - Set recipe %s: The entity is still crafting.", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
+		step_reached = global.tas.step
 		return false
 	end
 	global.wait_for_recipe = nil
@@ -1049,7 +1047,7 @@ local function recipe()
 	end
 
 	player.play_sound{ path = "utility/entity_settings_pasted", }
-	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Recipe: [recipe=%s]", task[1], task[2], step, item ))
+	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Recipe: [recipe=%s]", task[1], task[2], global.tas.step, item ))
 	return true
 end
 
@@ -1061,7 +1059,7 @@ local function tech()
 		global.cancel = nil
 	end
 
-	if steps[step].comment and steps[step].comment == "Cancel" and player.force.current_research then
+	if steps[global.tas.step].comment and steps[global.tas.step].comment == "Cancel" and player.force.current_research then
 		player.force.research_queue = {}
 		player.force.add_research(item)
 		if PRINT_TECH then Message(string.format("Research: Cleared queue and %s added", item)) end
@@ -1107,7 +1105,7 @@ local function limit()
 
 	-- Setting set_bar to 1 completely limits all slots, so it's off by one
 	target_inventory.set_bar(amount+1)
-	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Limit", task[1], task[2], step ))
+	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Limit", task[1], task[2], global.tas.step))
 	return true
 end
 
@@ -1120,7 +1118,7 @@ local function priority()
 	player_selection.splitter_input_priority = input
 	player_selection.splitter_output_priority = output
 
-	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Priority", task[1], task[2], step ))
+	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Priority", task[1], task[2], global.tas.step))
 	return true
 end
 
@@ -1137,7 +1135,7 @@ local function filter()
 			player_selection.splitter_filter = item
 		end
 
-		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Filter: [item=%s]", task[1], task[2], step, item ))
+		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Filter: [item=%s]", task[1], task[2], global.tas.step, item ))
 		return true
 	end
 
@@ -1154,7 +1152,7 @@ local function filter()
 		inv.set_filter(slot, item)
 	end
 
-	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Filter: [item=%s]", task[1], task[2], step, item ))
+	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Filter: [item=%s]", task[1], task[2], global.tas.step, item ))
 	return true
 end
 
@@ -1174,7 +1172,7 @@ local function drop()
 								spill = true
 								}
 		player.remove_item({name = drop_item})
-		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Drop: [item=%s]", task[1], task[2], step, item ))
+		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Drop: [item=%s]", task[1], task[2], global.tas.step, item ))
 		return true
 	end
 
@@ -1188,7 +1186,7 @@ local function launch()
 		return false
 	end
 
-	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Launch", task[1], task[2], step ))
+	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Launch", task[1], task[2], global.tas.step ))
 	return player_selection.launch_rocket()
 end
 
@@ -1198,10 +1196,10 @@ local function Next()
 	if interface and interface.TAS_Next then
 		local result = remote.call("DunRaider-TAS-supply", "TAS_Next")
 		if not result then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Next is not available", task[1], task[2], step ))
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Next is not available", task[1], task[2], global.tas.step ))
 			return false
 		end
-		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Next", task[1], task[2], step ))
+		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Next", task[1], task[2], global.tas.step ))
 		return result
 	else
 		Error("Called next without the function existing")
@@ -1218,12 +1216,12 @@ local function shoot()
 		player.shooting_state = {state = defines.shooting.shooting_selected, position = target_position}
 		global.tas_shooting_amount = global.tas_shooting_amount - 1
 	else
-		Warning(string.format("Step: %s, Action: %s, Step: %d - Shoot: %d can't shoot location", task[1], task[2], step, amount ))
+		Warning(string.format("Step: %s, Action: %s, Step: %d - Shoot: %d can't shoot location", task[1], task[2], global.tas.step, amount ))
 	end
 
 	if global.tas_shooting_amount == 0 then
 		global.tas_shooting_amount = nil
-		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Shoot", task[1], task[2], step ))
+		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Shoot", task[1], task[2], global.tas.step))
 		return true
 	end
 
@@ -1237,14 +1235,14 @@ local function throw()
 	if player.get_item_count (item) > 0 then
 		local stack, index = player.get_main_inventory().find_item_stack(item)
 		if not stack or not index then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - throw: [item=%s] can't find item in player inventory", task[1], task[2], step, item ))
+			Warning(string.format("Step: %s, Action: %s, Step: %d - throw: [item=%s] can't find item in player inventory", task[1], task[2], global.tas.step, item ))
 			return false
 		end
 
 		local fish = false
 		local prototype = stack.prototype
 		if not prototype.capsule_action then 
-			Warning(string.format("Step: %s, Action: %s, Step: %d - throw: [item=%s] is not a throwable type", task[1], task[2], step, item ))
+			Warning(string.format("Step: %s, Action: %s, Step: %d - throw: [item=%s] is not a throwable type", task[1], task[2], global.tas.step, item ))
 		end
 		if prototype.capsule_action.type == "throw" then 
 			local dist = math.sqrt(
@@ -1252,24 +1250,24 @@ local function throw()
 			)
 			local can_reach = prototype.capsule_action.attack_parameters.range > dist and dist > prototype.capsule_action.attack_parameters.min_range
 			if not can_reach then
-				Warning(string.format("Step: %s, Action: %s, Step: %d - throw: [item=%s] target is out of range", task[1], task[2], step, item ))
+				Warning(string.format("Step: %s, Action: %s, Step: %d - throw: [item=%s] target is out of range", task[1], task[2], global.tas.step, item ))
 				return false
 			end
 		elseif prototype.capsule_action.type == "use-on-self" then
 			fish = true
 		else
-			Warning(string.format("Step: %s, Action: %s, Step: %d - throw: [item=%s] is not a throwable type", task[1], task[2], step, item ))
+			Warning(string.format("Step: %s, Action: %s, Step: %d - throw: [item=%s] is not a throwable type", task[1], task[2], global.tas.step, item ))
 		end	
 
 		global.tas_throw_cooldown = global.tas_throw_cooldown or 0
 		if game.tick < global.tas_throw_cooldown then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - throw: [item=%s] is still on cooldown", task[1], task[2], step, item ))
+			Warning(string.format("Step: %s, Action: %s, Step: %d - throw: [item=%s] is still on cooldown", task[1], task[2], global.tas.step, item ))
 			return false
 		end
 
 		global.tas_throw_cooldown = game.tick + prototype.capsule_action.attack_parameters.cooldown
 		local created_entities = stack.use_capsule(player.character, target_position)
-		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Throw: [item=%s]", task[1], task[2], step, item ))
+		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Throw: [item=%s]", task[1], task[2], global.tas.step, item ))
 		return fish or (created_entities and #created_entities > 0)
 	end
 	return false
@@ -1306,7 +1304,7 @@ local function equip()
 			return true
 		end
 		if main_count < amount then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - As the character does not hold enough in their inventory.", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - As the character does not hold enough in their inventory.", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
 			return false
 		end
 		local main_removed = main_inventory.remove({
@@ -1314,7 +1312,7 @@ local function equip()
 			count = amount})
 		local c = stack.set_stack({ name = item, count = main_removed})
 		if not c then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - Maybe the corresponding ammo/weapon slot is not clear.", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - Maybe the corresponding ammo/weapon slot is not clear.", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
 			main_inventory.insert({
 				name = item,
 				count = main_removed})
@@ -1326,18 +1324,18 @@ local function equip()
 		stack.clear()
 		
 		if removed_stack_amount > returned_stack_amount then
-			Error(string.format("Step: %s, Action: %s, Step: %d - Equip: More items removed from the target inventory than inserted into main inventory - maybe there wasn't room in the main inventory", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			Error(string.format("Step: %s, Action: %s, Step: %d - Equip: More items removed from the target inventory than inserted into main inventory - maybe there wasn't room in the main inventory", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
 			run = false
 			return false
 		end
 	elseif stack.name ~= item then -- change slot item
 		if main_count < amount then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - As the character does not hold enough in their inventory.", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - As the character does not hold enough in their inventory.", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
 			return false
 		end
 		local returned_stack_amount = main_inventory.insert( stack )
 		if stack.count > returned_stack_amount then
-			Error(string.format("Step: %s, Action: %s, Step: %d - Equip: More items removed from the target inventory than inserted into main inventory - maybe there wasn't room in the main inventory", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			Error(string.format("Step: %s, Action: %s, Step: %d - Equip: More items removed from the target inventory than inserted into main inventory - maybe there wasn't room in the main inventory", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
 			run = false
 			return false
 		end
@@ -1347,7 +1345,7 @@ local function equip()
 			count = amount})
 		local c = stack.set_stack({ name = item, count = main_removed})
 		if not c then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - Maybe the corresponding ammo/weapon slot is not clear.", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - Maybe the corresponding ammo/weapon slot is not clear.", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
 			main_inventory.insert({
 				name = item,
 				count = main_removed})
@@ -1356,7 +1354,7 @@ local function equip()
 	
 	elseif stack.count < amount then -- add more items to the slot
 		if main_count - stack.count < amount then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - As the character does not hold enough in their inventory.", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - As the character does not hold enough in their inventory.", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
 			return false
 		end
 		local main_removed = main_inventory.remove({
@@ -1364,7 +1362,7 @@ local function equip()
 			count = amount - stack.count})
 		local c = stack.transfer_stack({ name = item, count = main_removed})
 		if not c then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - Unknown error.", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - Unknown error.", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
 			return false
 		end
 	elseif stack.count > amount then -- remove items from the slot
@@ -1375,7 +1373,7 @@ local function equip()
 		stack.clear()
 		local c = stack.set_stack({ name = item, count = amount})
 		if not c then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - Unknown error.", task[1], task[2], step, item:gsub("-", " "):gsub("^%l", string.upper)))
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - Unknown error.", task[1], task[2], global.tas.step, item:gsub("-", " "):gsub("^%l", string.upper)))
 			return false
 		end
 	end
@@ -1565,14 +1563,14 @@ end
 
 local original_warning = Warning
 local function load_StepBlock()
-	if global.step_block or not steps[step].no_order then return end
+	if global.step_block or not steps[global.tas.step].no_order then return end
 	global.step_block = {}
 	global.executed_step_block = {finalized = false}
 	Debug("entering step block")
 	Warning = function ()
 		--override Warning with a function that does nothing
 	end
-	for i = step, #steps do
+	for i = global.tas.step, #steps do
 		local _step = steps[i]
 		if not _step.no_order then
 			break
@@ -1598,7 +1596,7 @@ local function execute_StepBlock()
 			table.remove(global.step_block, i)
 			table.insert(global.executed_step_block, _step)
 			if i == 1 and #global.step_block > 1 then
-				local fast_change_step = global.step_block[1] - step
+				local fast_change_step = global.step_block[1] - global.tas.step
 				change_step(fast_change_step)
 				global.step_block_info.steps_left = global.step_block_info.steps_left - fast_change_step
 			end
@@ -1630,59 +1628,59 @@ local function handle_pretick()
 	--pretick sets step directly so it doesn't raise too many events
 	global.state = global.state or {}
 	while run do
-		if steps[step] == nil then
+		if steps[global.tas.step] == nil then
 			run = false
 			raise_state_change()
 			return
-		elseif (steps[step][2] == "speed") then
+		elseif (steps[global.tas.step][2] == "speed") then
 			if LOGLEVEL < 2 then
-				Comment(steps[step].comment)
-				Debug(string.format("Step: %s, Action: %s, Step: %s - Game speed: %d", steps[step][1][1], steps[step][1][2], step, steps[step][3]))
-				speed(steps[step][3])
+				Comment(steps[global.tas.step].comment)
+				Debug(string.format("Step: %s, Action: %s, Step: %s - Game speed: %d", steps[global.tas.step][1][1], steps[global.tas.step][1][2], global.tas.step, steps[global.tas.step][3]))
+				speed(steps[global.tas.step][3])
 			end
-			step = step + 1
-		elseif steps[step][2] == "save" then
-			queued_save = LOGLEVEL < 2 and {name = steps[step][1][1], step = steps[step][3]} or nil
-			step = step + 1
-		elseif steps[step][2] == "pick" then
-			Comment(steps[step].comment)
-			if pickup_ticks and pickup_ticks > 0 then 
-				Debug(string.format("Previous pickup not completed with %d ticks left before adding %d extra.", pickup_ticks, steps[step][3])) 
+			global.tas.step = global.tas.step + 1
+		elseif steps[global.tas.step][2] == "save" then
+			queued_save = LOGLEVEL < 2 and {name = steps[global.tas.step][1][1], step = steps[global.tas.step][3]} or nil
+			global.tas.step = global.tas.step + 1
+		elseif steps[global.tas.step][2] == "pick" then
+			Comment(steps[global.tas.step].comment)
+			if pickup_ticks and pickup_ticks > 0 then
+				Debug(string.format("Previous pickup not completed with %d ticks left before adding %d extra.", pickup_ticks, steps[global.tas.step][3]))
 			end
-			pickup_ticks = pickup_ticks + steps[step][3] - 1
+			pickup_ticks = pickup_ticks + steps[global.tas.step][3] - 1
 			player.picking_state = true
-			step = step + 1
-		elseif (steps[step][2] == "pause") then
+			global.tas.step = global.tas.step + 1
+		elseif (steps[global.tas.step][2] == "pause") then
 			if LOGLEVEL < 2 then
 				pause()
 				Message("Script paused")
 				Debug(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", player_position.x, player_position.y, player.online_time / 60, player.online_time))
 			end
 			change_step(1)
-		elseif(steps[step][2] == "walk" and (walking.walking == false or global.walk_towards_state) and idle < 1 and global.riding_duration < 1) then
-			update_destination_position(steps[step][3][1], steps[step][3][2])
-			global.walk_towards_state = steps[step].walk_towards
+		elseif(steps[global.tas.step][2] == "walk" and (walking.walking == false or global.walk_towards_state) and idle < 1 and global.riding_duration < 1) then
+			update_destination_position(steps[global.tas.step][3][1], steps[global.tas.step][3][2])
+			global.walk_towards_state = steps[global.tas.step].walk_towards
 			find_walking_pattern()
 			walking = walk()
 			change_step(1)
-		elseif(steps[step][2] == "drive" and (not global.riding_state or walking.walking == false or global.walk_towards_state) and idle < 1 and global.riding_duration < 1) then
-			global.riding_duration = steps[step][3]
-			global.riding_state = {acceleration = steps[step][4], direction = steps[step][5]}
+		elseif(steps[global.tas.step][2] == "drive" and (not global.riding_state or walking.walking == false or global.walk_towards_state) and idle < 1 and global.riding_duration < 1) then
+			global.riding_duration = steps[global.tas.step][3]
+			global.riding_state = {acceleration = steps[global.tas.step][4], direction = steps[global.tas.step][5]}
 			player.riding_state = global.riding_state
 			global.walk_towards_state = false
 			change_step(1)
-		elseif steps[step][2] == warnings.never_idle then
+		elseif steps[global.tas.step][2] == warnings.never_idle then
 			global.state.never_idle = not global.state.never_idle
-			step = step + 1
-		elseif steps[step][2] == warnings.keep_walking then
+			global.tas.step = global.tas.step + 1
+		elseif steps[global.tas.step][2] == warnings.keep_walking then
 			global.state.keep_walking = not global.state.keep_walking
-			step = step + 1
-		elseif steps[step][2] == warnings.keep_on_path then
+			global.tas.step = global.tas.step + 1
+		elseif steps[global.tas.step][2] == warnings.keep_on_path then
 			global.state.keep_on_path = not global.state.keep_on_path
-			step = step + 1
-		elseif steps[step][2] == warnings.keep_crafting then
+			global.tas.step = global.tas.step + 1
+		elseif steps[global.tas.step][2] == warnings.keep_crafting then
 			global.state.keep_crafting = not global.state.keep_crafting
-			step = step + 1
+			global.tas.step = global.tas.step + 1
 		else
 			return --no more to do, break loop
 		end
@@ -1705,15 +1703,15 @@ local function handle_ontick()
 			idle = idle - 1
 			idled = idled + 1
 
-			Debug(string.format("Step: %s, Action: %s, Step: %s - idled for %d", steps[step][1][1]-1, steps[step][1][2], step-1, idled))
+			Debug(string.format("Step: %s, Action: %s, Step: %s - idled for %d", steps[global.tas.step][1][1]-1, steps[global.tas.step][1][2], global.tas.step-1, idled))
 
 			if idle == 0 then
 				idled = 0
-				Comment(steps[step].comment)
+				Comment(steps[global.tas.step].comment)
 
-				if steps[step][2] == "walk" then
-					update_destination_position(steps[step][3][1], steps[step][3][2])
-					global.walk_towards_state = steps[step].walk_towards
+				if steps[global.tas.step][2] == "walk" then
+					update_destination_position(steps[global.tas.step][3][1], steps[global.tas.step][3][2])
+					global.walk_towards_state = steps[global.tas.step].walk_towards
 
 					find_walking_pattern()
 					walking = walk()
@@ -1722,32 +1720,32 @@ local function handle_ontick()
 					step_executed = true
 				end
 			end
-		elseif steps[step][2] == "walk" then
-			Comment(steps[step].comment)
-			update_destination_position(steps[step][3][1], steps[step][3][2])
-			global.walk_towards_state = steps[step].walk_towards
+		elseif steps[global.tas.step][2] == "walk" then
+			Comment(steps[global.tas.step].comment)
+			update_destination_position(steps[global.tas.step][3][1], steps[global.tas.step][3][2])
+			global.walk_towards_state = steps[global.tas.step].walk_towards
 			
 			find_walking_pattern()
 			walking = walk()
 			
 			change_step(1)
 
-		elseif steps[step][2] == "mine" then
-			if duration and duration == 0 then Comment(steps[step].comment) end
+		elseif steps[global.tas.step][2] == "mine" then
+			if duration and duration == 0 then Comment(steps[global.tas.step].comment) end
 			
-			player.update_selected_entity(steps[step][3])
+			player.update_selected_entity(steps[global.tas.step][3])
 
-			player.mining_state = {mining = true, position = steps[step][3]}
+			player.mining_state = {mining = true, position = steps[global.tas.step][3]}
 			if global.use_all_ticks_warning_mode then
 				end_use_all_ticks_warning_mode()
 			end
 
-			duration = steps[step][4]
+			duration = steps[global.tas.step][4]
 
 			ticks_mining = ticks_mining + 1
 
 			if ticks_mining >= duration then
-				if LEGACY_MINING then player.mining_state = {mining = false, position = steps[step][3]} end
+				if LEGACY_MINING then player.mining_state = {mining = false, position = steps[global.tas.step][3]} end
 				change_step(1)
 				step_executed = true
 				mining = 0
@@ -1757,32 +1755,32 @@ local function handle_ontick()
 			mining = mining + 1
 			if mining > 5 then
 				if player.character_mining_progress == 0 then
-					Error(string.format("Step: %s, Action: %s, Step: %s - Mine: Cannot reach resource", steps[step][1][1], steps[step][1][2], step))
+					Error(string.format("Step: %s, Action: %s, Step: %s - Mine: Cannot reach resource", steps[global.tas.step][1][1], steps[global.tas.step][1][2], global.tas.step))
 				else
 					mining = 0
 				end
 			end
 
-		elseif doStep(steps[step]) then
+		elseif doStep(steps[global.tas.step]) then
 			-- Do step while standing still
-			Comment(steps[step].comment)
+			Comment(steps[global.tas.step].comment)
 			step_executed = true
 			change_step(1)
 		end
 	else
-		if global.walk_towards_state and steps[step][2] == "mine" then
-			if duration and duration == 0 then Comment(steps[step].comment) end
+		if global.walk_towards_state and steps[global.tas.step][2] == "mine" then
+			if duration and duration == 0 then Comment(steps[global.tas.step].comment) end
 			
-			player.update_selected_entity(steps[step][3])
+			player.update_selected_entity(steps[global.tas.step][3])
 
-			player.mining_state = {mining = true, position = steps[step][3]}
+			player.mining_state = {mining = true, position = steps[global.tas.step][3]}
 
-			duration = steps[step][4]
+			duration = steps[global.tas.step][4]
 
 			ticks_mining = ticks_mining + 1
 
 			if ticks_mining >= duration then
-				if LEGACY_MINING then player.mining_state = {mining = false, position = steps[step][3]} end
+				if LEGACY_MINING then player.mining_state = {mining = false, position = steps[global.tas.step][3]} end
 				change_step(1)
 				mining = 0
 				ticks_mining = 0
@@ -1791,22 +1789,22 @@ local function handle_ontick()
 			mining = mining + 1
 			if mining > 5 then
 				if player.character_mining_progress == 0 then
-					Debug(string.format("Step: %s, Action: %s, Step: %s - Mine: Cannot reach resource", steps[step][1][1], steps[step][1][2], step))
+					Debug(string.format("Step: %s, Action: %s, Step: %s - Mine: Cannot reach resource", steps[global.tas.step][1][1], steps[global.tas.step][1][2], global.tas.step))
 				else
 					mining = 0
 				end
 			end
-		elseif (global.walk_towards_state or player.driving) and steps[step][2] == "enter" then
-			if doStep(steps[step]) then
+		elseif (global.walk_towards_state or player.driving) and steps[global.tas.step][2] == "enter" then
+			if doStep(steps[global.tas.step]) then
 				-- Do step while walking
-				Comment(steps[step].comment)
+				Comment(steps[global.tas.step].comment)
 				step_executed = true
 				change_step(1)
 			end
-		elseif steps[step][2] ~= "walk" and steps[step][2] ~= "enter" and steps[step][2] ~= "idle" and steps[step][2] ~= "mine" then
-			if doStep(steps[step]) then
+		elseif steps[global.tas.step][2] ~= "walk" and steps[global.tas.step][2] ~= "enter" and steps[global.tas.step][2] ~= "idle" and steps[global.tas.step][2] ~= "mine" then
+			if doStep(steps[global.tas.step]) then
 				-- Do step while walking
-				Comment(steps[step].comment)
+				Comment(steps[global.tas.step].comment)
 				step_executed = true
 				change_step(1)
 			end
@@ -1830,7 +1828,7 @@ local function handle_posttick()
 			if player.crafting_queue_size > 0 then
 				end_state_warning_mode(warnings.keep_crafting)
 			else
-				global[warnings.keep_crafting] = global[warnings.keep_crafting] or {step = step, start = game.tick}
+				global[warnings.keep_crafting] = global[warnings.keep_crafting] or {step = global.tas.step, start = game.tick}
 			end
 		end
 
@@ -1838,7 +1836,7 @@ local function handle_posttick()
 			if player.character_running_speed > 0.16 then -- 0.15 is default
 				end_state_warning_mode(warnings.keep_on_path)
 			else
-				global[warnings.keep_on_path] = global[warnings.keep_on_path] or {step = step, start = game.tick}
+				global[warnings.keep_on_path] = global[warnings.keep_on_path] or {step = global.tas.step, start = game.tick}
 			end
 		end
 
@@ -1846,24 +1844,24 @@ local function handle_posttick()
 			if walking.walking or mining ~= 0 or idle ~= 0 then
 				end_state_warning_mode(warnings.keep_walking)
 			else
-				global[warnings.keep_walking] = global[warnings.keep_walking] or {step = step, start = game.tick}
+				global[warnings.keep_walking] = global[warnings.keep_walking] or {step = global.tas.step, start = game.tick}
 			end
 		end
 
 		global.last_step = global.last_step or 1
 		if global.state.never_idle and not global.step_block then
-			if step ~= global.last_step  then
+			if global.tas.step ~= global.last_step  then
 				end_state_warning_mode(warnings.never_idle)
 			else
-				global[warnings.never_idle] = global[warnings.never_idle] or {step = step, start = game.tick}
+				global[warnings.never_idle] = global[warnings.never_idle] or {step = global.tas.step, start = game.tick}
 			end
 		end
-		global.last_step = step
+		global.last_step = global.tas.step
 	end
 
 	if walking.walking or mining~=0 or idle~=0 or pickup_ticks~=0 then
 		-- we wait to finish the previous step before we end the run
-	elseif steps[step] == nil or steps[step][1] == "break" then
+	elseif steps[global.tas.step] == nil or steps[global.tas.step][1] == "break" then
 		Message(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", player_position.x, player_position.y, player.online_time / 60, player.online_time))
 		run = false
 		raise_state_change()
@@ -1889,13 +1887,13 @@ local function handle_tick()
 end
 
 local function backwards_compatibility()
-	if steps[step] == nil or steps[step][1] == "break" then
+	if steps[global.tas.step] == nil or steps[global.tas.step][1] == "break" then
 		Debug(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", player_position.x, player_position.y, player.online_time / 60, player.online_time))
 		debug_state = false
 		return
 	end
 
-	if (steps[step][2] == "pause") then
+	if (steps[global.tas.step][2] == "pause") then
 		pause()
 		Debug("Script paused")
 		Debug(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", player_position.x, player_position.y, player.online_time / 60, player.online_time))
@@ -1903,15 +1901,15 @@ local function backwards_compatibility()
 		return
 	end
 
-	if (steps[step][2] == "speed") then
-		Debug(string.format("Step: %s, Action: %s, Step: %s - Game speed: %d", steps[step][1][1], steps[step][1][2], step, steps[step][3]))
-		speed(steps[step][3])
+	if (steps[global.tas.step][2] == "speed") then
+		Debug(string.format("Step: %s, Action: %s, Step: %s - Game speed: %d", steps[global.tas.step][1][1], steps[global.tas.step][1][2], global.tas.step, steps[global.tas.step][3]))
+		speed(steps[global.tas.step][3])
 		change_step(1)
 	end
 
-	if steps[step][2] == "save" then
+	if steps[global.tas.step][2] == "save" then
 		change_step(1)
-		save(steps[step-1][1][1], steps[step-1][3])
+		save(steps[global.tas.step-1][1][1], steps[global.tas.step-1][3])
 	end
 
 	if pickup_ticks > 0 then
@@ -1925,32 +1923,32 @@ local function backwards_compatibility()
 			idle = idle - 1
 			idled = idled + 1
 
-			Debug(string.format("Step: %s, Action: %s, Step: %s - idled for %d", steps[step][1][1]-1, steps[step][1][2], step-1, idled))
+			Debug(string.format("Step: %s, Action: %s, Step: %s - idled for %d", steps[global.tas.step][1][1]-1, steps[global.tas.step][1][2], global.tas.step-1, idled))
 
 			if idle == 0 then
 				idled = 0
 			end
-		elseif steps[step][2] == "walk" then
-			update_destination_position(steps[step][3][1], steps[step][3][2])
-			global.walk_towards_state = steps[step].walk_towards
+		elseif steps[global.tas.step][2] == "walk" then
+			update_destination_position(steps[global.tas.step][3][1], steps[global.tas.step][3][2])
+			global.walk_towards_state = steps[global.tas.step].walk_towards
 
 			find_walking_pattern()
 			walking = walk()
 
 			change_step(1)
 
-		elseif steps[step][2] == "mine" then
+		elseif steps[global.tas.step][2] == "mine" then
 
-			player.update_selected_entity(steps[step][3])
+			player.update_selected_entity(steps[global.tas.step][3])
 
-			player.mining_state = {mining = true, position = steps[step][3]}
+			player.mining_state = {mining = true, position = steps[global.tas.step][3]}
 
-			duration = steps[step][4]
+			duration = steps[global.tas.step][4]
 
 			ticks_mining = ticks_mining + 1
 
 			if ticks_mining >= duration then
-				player.mining_state = {mining = false, position = steps[step][3]}
+				player.mining_state = {mining = false, position = steps[global.tas.step][3]}
 				change_step(1)
 				mining = 0
 				ticks_mining = 0
@@ -1959,21 +1957,21 @@ local function backwards_compatibility()
 			mining = mining + 1
 			if mining > 5 then
 				if player.character_mining_progress == 0 then
-					Warning(string.format("Step: %s, Action: %s, Step: %s - Mine: Cannot reach resource", steps[step][1][1], steps[step][1][2], step))
+					Warning(string.format("Step: %s, Action: %s, Step: %s - Mine: Cannot reach resource", steps[global.tas.step][1][1], steps[global.tas.step][1][2], global.tas.step))
 					debug_state = false
 				else
 					mining = 0
 				end
 			end
 
-		elseif doStep(steps[step]) then
+		elseif doStep(steps[global.tas.step]) then
 			-- Do step while standing still
 			change_step(1)
 
 		end
 	else
-		if steps[step][2] ~= "walk" and steps[step][2] ~= "mine" and steps[step][2] ~= "idle" and steps[step][2] ~= "pick" then
-			if doStep(steps[step]) then
+		if steps[global.tas.step][2] ~= "walk" and steps[global.tas.step][2] ~= "mine" and steps[global.tas.step][2] ~= "idle" and steps[global.tas.step][2] ~= "pick" then
+			if doStep(steps[global.tas.step]) then
 				-- Do step while walking
 				change_step(1)
 			end
@@ -2003,31 +2001,31 @@ script.on_event(defines.events.on_tick, function(event)
 		return
 	end
 
-	if steps[step][2] == "walk" then
-		if steps[step][4] == "old" then
+	if steps[global.tas.step][2] == "walk" then
+		if steps[global.tas.step][4] == "old" then
 			compatibility_mode = true
 		end
 
-		if steps[step].comment == "new" then
+		if steps[global.tas.step].comment == "new" then
 			compatibility_mode = false
 		end
 	end
 
-	if steps[step].comment and step > not_same_step then
-		if steps[step].comment == "Never Stop" then 
+	if steps[global.tas.step].comment and global.tas.step > not_same_step then
+		if steps[global.tas.step].comment == "Never Stop" then
 			never_stop = not never_stop
 
-			Message(string.format("Step: %d - Never Stop: %s", steps[step][1][1], never_stop))
-			not_same_step = step
-		elseif steps[step].comment == "Use All Ticks" then
+			Message(string.format("Step: %d - Never Stop: %s", steps[global.tas.step][1][1], never_stop))
+			not_same_step = global.tas.step
+		elseif steps[global.tas.step].comment == "Use All Ticks" then
 			use_all_ticks = not use_all_ticks
 			
-			Message(string.format("Step: %d - Use All Ticks: %s", steps[step][1][1], use_all_ticks))
-			not_same_step = step
+			Message(string.format("Step: %d - Use All Ticks: %s", steps[global.tas.step][1][1], use_all_ticks))
+			not_same_step = global.tas.step
 		end
 	end
 
-	if steps[step] == nil or steps[step][1] == "break" then
+	if steps[global.tas.step] == nil or steps[global.tas.step][1] == "break" then
 		Debug(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", player_position.x, player_position.y, player.online_time / 60, player.online_time))
 		debug_state = false
 		return
@@ -2046,7 +2044,7 @@ script.on_event(defines.events.on_tick, function(event)
 		end
 
 		if use_all_ticks and not step_executed and global.use_all_ticks_warning_mode == nil and not player.mining_state.mining then
-			global.use_all_ticks_warning_mode = {start = game.tick, step = steps[step][1][1]}
+			global.use_all_ticks_warning_mode = {start = game.tick, step = steps[global.tas.step][1][1]}
 		end
 	end
 
@@ -2055,7 +2053,7 @@ script.on_event(defines.events.on_tick, function(event)
 	end
 
 	if never_stop and global.never_stop_modifier_warning_mode == nil and walking.walking == false then
-		global.never_stop_modifier_warning_mode = {start = game.tick, step = steps[step][1][1]}
+		global.never_stop_modifier_warning_mode = {start = game.tick, step = steps[global.tas.step][1][1]}
 	end
 
 	player.walking_state = walking
@@ -2076,7 +2074,7 @@ script.on_event(defines.events.on_player_mined_entity, function(event)
 		return
 	end
 
-	if (steps[step][1] == "break") then
+	if (steps[global.tas.step][1] == "break") then
 		return
 	end
 
@@ -2094,7 +2092,7 @@ script.on_event(defines.events.on_player_mined_entity, function(event)
 	end
 
 	--change step when tas is running and the current step is mining step
-	if run and steps[step] and steps[step][2] and steps[step][2] == "mine" and (LEGACY_MINING or ticks_mining > 1) then
+	if run and steps[global.tas.step] and steps[global.tas.step][2] and steps[global.tas.step][2] == "mine" and (LEGACY_MINING or ticks_mining > 1) then
 		change_step(1)
 	end
 
@@ -2105,9 +2103,9 @@ script.on_event(defines.events.on_player_mined_entity, function(event)
 		return
 	end
 
-	if run and steps[step] and steps[step][2] and steps[step][2] == "walk" then
-		update_destination_position(steps[step][3][1], steps[step][3][2])
-		global.walk_towards_state = steps[step].walk_towards
+	if run and steps[global.tas.step] and steps[global.tas.step][2] and steps[global.tas.step][2] == "walk" then
+		update_destination_position(steps[global.tas.step][3][1], steps[global.tas.step][3][2])
+		global.walk_towards_state = steps[global.tas.step].walk_towards
 
 		find_walking_pattern()
 		walking = walk()
@@ -2215,7 +2213,6 @@ end
 
 local function migrate_global()
 	if not global.tas then return end
-	step = global.tas.step
 	idle = global.tas.idle
 	pickup_ticks = global.tas.pickup_ticks
 	mining = global.tas.mining
@@ -2354,7 +2351,7 @@ commands.add_command("skip", nil, skip)
 local tas_interface =
 {
 	get_current_task = function()
-		return step
+		return global.tas.step
 	end,
 	get_task_list = function()
 		return steps
