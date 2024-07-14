@@ -35,10 +35,6 @@ local ticks_mining
 local idled
 local font_size = 0.15 --best guess estimate of fontsize for flying text
 
-local pos_pos
-local pos_neg
-local neg_pos
-local neg_neg
 local compatibility_mode
 local keep_x
 local keep_y
@@ -53,10 +49,6 @@ local tas_state_change = script.generate_event_name()
 
 local function save_global()
 	--if not global.tas then return end
-	global.tas.pos_pos = pos_pos
-	global.tas.pos_neg = pos_neg
-	global.tas.neg_pos = neg_pos
-	global.tas.neg_neg = neg_neg
 	global.tas.compatibility_mode = compatibility_mode
 	global.tas.keep_x = keep_x
 	global.tas.keep_y = keep_y
@@ -900,13 +892,13 @@ end
 local function walk()
 	if player.driving then return {walking = false, direction = defines.direction.north} end --prevent walking while driving
 	
-	if pos_pos then
+	if global.tas.pos_pos then
 		return walk_pos_pos()
-	elseif pos_neg then
+	elseif global.tas.pos_neg then
 		return walk_pos_neg()
-	elseif neg_pos then
+	elseif global.tas.neg_pos then
 		return walk_neg_pos()
-	elseif neg_neg then
+	elseif global.tas.neg_neg then
 		return walk_neg_neg()
 	end
 
@@ -921,46 +913,46 @@ local function find_walking_pattern()
 	if compatibility_mode then
 		if (player_position.x - destination.x >= 0) then
 			if (player_position.y - destination.y >= 0) then
-				pos_pos = true
-				pos_neg = false
-				neg_pos = false
-				neg_neg = false
+				global.tas.pos_pos = true
+				global.tas.pos_neg = false
+				global.tas.neg_pos = false
+				global.tas.neg_neg = false
 			elseif (player_position.y - destination.y < 0) then
-				pos_neg = true
-				pos_pos = false
-				neg_pos = false
-				neg_neg = false
+				global.tas.pos_neg = true
+				global.tas.pos_pos = false
+				global.tas.neg_pos = false
+				global.tas.neg_neg = false
 			end
 		else
 			if (player_position.y - destination.y >= 0) then
-				neg_pos = true
-				pos_pos = false
-				pos_neg = false
-				neg_neg = false
+				global.tas.neg_pos = true
+				global.tas.pos_pos = false
+				global.tas.pos_neg = false
+				global.tas.neg_neg = false
 			elseif (player_position.y - destination.y < 0) then
-				neg_neg = true
-				pos_pos = false
-				pos_neg = false
-				neg_pos = false
+				global.tas.neg_neg = true
+				global.tas.pos_pos = false
+				global.tas.pos_neg = false
+				global.tas.neg_pos = false
 			end
 		end
 	else
-		pos_pos = false
-		pos_neg = false
-		neg_pos = false
-		neg_neg = false
+		global.tas.pos_pos = false
+		global.tas.pos_neg = false
+		global.tas.neg_pos = false
+		global.tas.neg_neg = false
 
 		if (player_position.x - destination.x >= 0) then
 			if (player_position.y - destination.y >= 0) then
-				pos_pos = true
+				global.tas.pos_pos = true
 			else
-				pos_neg = true
+				global.tas.pos_neg = true
 			end
 		else
 			if (player_position.y - destination.y >= 0) then
-				neg_pos = true
+				global.tas.neg_pos = true
 			else
-				neg_neg = true
+				global.tas.neg_neg = true
 			end
 		end
 	end
@@ -2207,10 +2199,6 @@ end
 
 local function migrate_global()
 	if not global.tas then return end
-	pos_pos = global.tas.pos_pos
-	pos_neg = global.tas.pos_neg
-	neg_pos = global.tas.neg_pos
-	neg_neg = global.tas.neg_neg
 	diagonal = global.tas.diagonal
 	compatibility_mode = global.tas.compatibility_mode
 	keep_x = global.tas.keep_x
