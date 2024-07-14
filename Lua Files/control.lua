@@ -35,10 +35,6 @@ local ticks_mining
 local idled
 local font_size = 0.15 --best guess estimate of fontsize for flying text
 
-local keep_x
-local keep_y
-local diagonal
-
 local drop_item
 local drop_position
 
@@ -48,9 +44,6 @@ local tas_state_change = script.generate_event_name()
 
 local function save_global()
 	--if not global.tas then return end
-	global.tas.keep_x = keep_x
-	global.tas.keep_y = keep_y
-	global.tas.diagonal = diagonal
 	global.tas.player_selection = player_selection
 	global.tas.destination = destination
 	global.tas.target_position = target_position
@@ -712,7 +705,7 @@ local function build()
 end
 
 local function walk_pos_pos()
-	if keep_x then
+	if global.tas.keep_x then
 		if player_position.y > destination.y then
 			return {walking = true, direction = defines.direction.north}
 		else
@@ -720,7 +713,7 @@ local function walk_pos_pos()
 		end
 	end
 
-	if keep_y then
+	if global.tas.keep_y then
 		if player_position.x > destination.x then
 			return {walking = true, direction = defines.direction.west}
 		else
@@ -728,7 +721,7 @@ local function walk_pos_pos()
 		end
 	end
 
-	if diagonal then
+	if global.tas.diagonal then
 		if player_position.x > destination.x or player_position.y > destination.y then
 			return {walking = true, direction = defines.direction.northwest}
 		else
@@ -756,7 +749,7 @@ local function walk_pos_pos()
 end
 
 local function walk_pos_neg()
-	if keep_x then
+	if global.tas.keep_x then
 		if player_position.y < destination.y then
 			return {walking = true, direction = defines.direction.south}
 		else
@@ -764,7 +757,7 @@ local function walk_pos_neg()
 		end
 	end
 
-	if keep_y then
+	if global.tas.keep_y then
 		if player_position.x > destination.x then
 			return {walking = true, direction = defines.direction.west}
 		else
@@ -772,7 +765,7 @@ local function walk_pos_neg()
 		end
 	end
 
-	if diagonal then
+	if global.tas.diagonal then
 		if player_position.x > destination.x or player_position.y < destination.y then
 			return {walking = true, direction = defines.direction.southwest}
 		else
@@ -800,7 +793,7 @@ local function walk_pos_neg()
 end
 
 local function walk_neg_pos()
-	if keep_x then
+	if global.tas.keep_x then
 		if player_position.y > destination.y then
 			return {walking = true, direction = defines.direction.north}
 		else
@@ -808,7 +801,7 @@ local function walk_neg_pos()
 		end
 	end
 
-	if keep_y then
+	if global.tas.keep_y then
 		if player_position.x < destination.x then
 			return {walking = true, direction = defines.direction.east}
 		else
@@ -816,7 +809,7 @@ local function walk_neg_pos()
 		end
 	end
 
-	if diagonal then
+	if global.tas.diagonal then
 		if player_position.x < destination.x or player_position.y > destination.y then
 			return {walking = true, direction = defines.direction.northeast}
 		else
@@ -844,7 +837,7 @@ local function walk_neg_pos()
 end
 
 local function walk_neg_neg()
-	if keep_x then
+	if global.tas.keep_x then
 		if player_position.y < destination.y then
 			return {walking = true, direction = defines.direction.south}
 		else
@@ -852,7 +845,7 @@ local function walk_neg_neg()
 		end
 	end
 
-	if keep_y then
+	if global.tas.keep_y then
 		if player_position.x < destination.x then
 			return {walking = true, direction = defines.direction.east}
 		else
@@ -860,7 +853,7 @@ local function walk_neg_neg()
 		end
 	end
 
-	if diagonal then
+	if global.tas.diagonal then
 		if player_position.x < destination.x or player_position.y < destination.y then
 			return {walking = true, direction = defines.direction.southeast}
 		else
@@ -963,24 +956,22 @@ end
 local function update_destination_position(x, y)
 	destination = { x = x, y = y }
 
-	if global.tas.compatibility_mode then
-		return
-	end
+	if global.tas.compatibility_mode then return end
 
-	keep_x = false
-	keep_y = false
-	diagonal = false
+	global.tas.keep_x = false
+	global.tas.keep_y = false
+	global.tas.diagonal = false
 
-if steps[global.tas.step] and steps[global.tas.step][5] and steps[global.tas.step][5] == "same_x" then
-		keep_x = true
+	if steps[global.tas.step] and steps[global.tas.step][5] and steps[global.tas.step][5] == "same_x" then
+		global.tas.keep_x = true
 	end
 
 	if steps[global.tas.step] and steps[global.tas.step][6] and steps[global.tas.step][6] == "same_y" then
-		keep_y = true
+		global.tas.keep_y = true
 	end
 
 	if steps[global.tas.step] and steps[global.tas.step][5] and steps[global.tas.step][5] == "diagonal" then
-		diagonal = true
+		global.tas.diagonal = true
 	end
 end
 
@@ -2197,10 +2188,6 @@ end
 
 local function migrate_global()
 	if not global.tas then return end
-	diagonal = global.tas.diagonal
-	keep_x = global.tas.keep_x
-	keep_y = global.tas.keep_y
-	diagonal = global.tas.diagonal
 	player_selection = global.tas.player_selection
 	destination = global.tas.destination
 	target_position = global.tas.target_position
