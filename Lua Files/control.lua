@@ -11,7 +11,6 @@ local step_executed = false
 local not_same_step = 1
 
 local step_reached = 0
-local pickup_ticks
 local mining
 
 local player
@@ -55,7 +54,6 @@ local tas_state_change = script.generate_event_name()
 
 local function save_global()
 	--if not global.tas then return end
-	global.tas.pickup_ticks = pickup_ticks
 	global.tas.mining = mining
 	global.tas.pos_pos = pos_pos
 	global.tas.pos_neg = pos_neg
@@ -1642,10 +1640,10 @@ local function handle_pretick()
 			global.tas.step = global.tas.step + 1
 		elseif steps[global.tas.step][2] == "pick" then
 			Comment(steps[global.tas.step].comment)
-			if pickup_ticks and pickup_ticks > 0 then
-				Debug(string.format("Previous pickup not completed with %d ticks left before adding %d extra.", pickup_ticks, steps[global.tas.step][3]))
+			if global.tas.pickup_ticks and global.tas.pickup_ticks > 0 then
+				Debug(string.format("Previous pickup not completed with %d ticks left before adding %d extra.", global.tas.pickup_ticks, steps[global.tas.step][3]))
 			end
-			pickup_ticks = pickup_ticks + steps[global.tas.step][3] - 1
+			global.tas.pickup_ticks = global.tas.pickup_ticks + steps[global.tas.step][3] - 1
 			player.picking_state = true
 			global.tas.step = global.tas.step + 1
 		elseif (steps[global.tas.step][2] == "pause") then
@@ -1686,9 +1684,9 @@ local function handle_pretick()
 end
 
 local function handle_ontick()
-	if pickup_ticks > 0 then
+	if global.tas.pickup_ticks > 0 then
 		player.picking_state = true
-		pickup_ticks = pickup_ticks - 1
+		global.tas.pickup_ticks = global.tas.pickup_ticks - 1
 	end
 	if global.riding_duration > 0 then
 		player.riding_state = global.riding_state
@@ -1857,7 +1855,7 @@ local function handle_posttick()
 		global.last_step = global.tas.step
 	end
 
-	if walking.walking or mining ~= 0 or global.tas.idle ~= 0 or pickup_ticks ~= 0 then
+	if walking.walking or mining ~= 0 or global.tas.idle ~= 0 or global.tas.pickup_ticks ~= 0 then
 		-- we wait to finish the previous step before we end the run
 	elseif steps[global.tas.step] == nil or steps[global.tas.step][1] == "break" then
 		Message(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", player_position.x, player_position.y, player.online_time / 60, player.online_time))
@@ -1910,9 +1908,9 @@ local function backwards_compatibility()
 		save(steps[global.tas.step-1][1][1], steps[global.tas.step-1][3])
 	end
 
-	if pickup_ticks > 0 then
+	if global.tas.pickup_ticks > 0 then
 		player.picking_state = true
-		pickup_ticks = pickup_ticks - 1
+		global.tas.pickup_ticks = global.tas.pickup_ticks - 1
 	end
 
 	walking = walk()
@@ -2211,7 +2209,6 @@ end
 
 local function migrate_global()
 	if not global.tas then return end
-	pickup_ticks = global.tas.pickup_ticks
 	mining = global.tas.mining
 	pos_pos = global.tas.pos_pos
 	pos_neg = global.tas.pos_neg
