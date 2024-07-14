@@ -11,7 +11,6 @@ local step_executed = false
 local not_same_step = 1
 
 local step_reached = 0
-local idle
 local pickup_ticks
 local mining
 
@@ -56,7 +55,6 @@ local tas_state_change = script.generate_event_name()
 
 local function save_global()
 	--if not global.tas then return end
-	global.tas.idle = idle
 	global.tas.pickup_ticks = pickup_ticks
 	global.tas.mining = mining
 	global.tas.pos_pos = pos_pos
@@ -1511,7 +1509,7 @@ local function doStep(current_step)
 		return true
 
 	elseif current_step[2] == "idle" then
-		idle = current_step[3]
+		global.tas.idle = current_step[3]
 		return true
 
 	elseif current_step[2] == "launch" then
@@ -1657,13 +1655,13 @@ local function handle_pretick()
 				Debug(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", player_position.x, player_position.y, player.online_time / 60, player.online_time))
 			end
 			change_step(1)
-		elseif(steps[global.tas.step][2] == "walk" and (walking.walking == false or global.walk_towards_state) and idle < 1 and global.riding_duration < 1) then
+		elseif(steps[global.tas.step][2] == "walk" and (walking.walking == false or global.walk_towards_state) and global.tas.idle < 1 and global.riding_duration < 1) then
 			update_destination_position(steps[global.tas.step][3][1], steps[global.tas.step][3][2])
 			global.walk_towards_state = steps[global.tas.step].walk_towards
 			find_walking_pattern()
 			walking = walk()
 			change_step(1)
-		elseif(steps[global.tas.step][2] == "drive" and (not global.riding_state or walking.walking == false or global.walk_towards_state) and idle < 1 and global.riding_duration < 1) then
+		elseif(steps[global.tas.step][2] == "drive" and (not global.riding_state or walking.walking == false or global.walk_towards_state) and global.tas.idle < 1 and global.riding_duration < 1) then
 			global.riding_duration = steps[global.tas.step][3]
 			global.riding_state = {acceleration = steps[global.tas.step][4], direction = steps[global.tas.step][5]}
 			player.riding_state = global.riding_state
@@ -1699,13 +1697,13 @@ local function handle_ontick()
 	end
 
 	if walking.walking == false and player.driving == false then
-		if idle > 0 then
-			idle = idle - 1
+		if global.tas.idle > 0 then
+			global.tas.idle = global.tas.idle - 1
 			idled = idled + 1
 
 			Debug(string.format("Step: %s, Action: %s, Step: %s - idled for %d", steps[global.tas.step][1][1]-1, steps[global.tas.step][1][2], global.tas.step-1, idled))
 
-			if idle == 0 then
+			if global.tas.idle == 0 then
 				idled = 0
 				Comment(steps[global.tas.step].comment)
 
@@ -1841,7 +1839,7 @@ local function handle_posttick()
 		end
 
 		if global.state.keep_walking then
-			if walking.walking or mining ~= 0 or idle ~= 0 then
+			if walking.walking or mining ~= 0 or global.tas.idle ~= 0 then
 				end_state_warning_mode(warnings.keep_walking)
 			else
 				global[warnings.keep_walking] = global[warnings.keep_walking] or {step = global.tas.step, start = game.tick}
@@ -1859,7 +1857,7 @@ local function handle_posttick()
 		global.last_step = global.tas.step
 	end
 
-	if walking.walking or mining~=0 or idle~=0 or pickup_ticks~=0 then
+	if walking.walking or mining ~= 0 or global.tas.idle ~= 0 or pickup_ticks ~= 0 then
 		-- we wait to finish the previous step before we end the run
 	elseif steps[global.tas.step] == nil or steps[global.tas.step][1] == "break" then
 		Message(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", player_position.x, player_position.y, player.online_time / 60, player.online_time))
@@ -1919,13 +1917,13 @@ local function backwards_compatibility()
 
 	walking = walk()
 	if walking.walking == false then
-		if idle > 0 then
-			idle = idle - 1
+		if global.tas.idle > 0 then
+			global.tas.idle = global.tas.idle - 1
 			idled = idled + 1
 
 			Debug(string.format("Step: %s, Action: %s, Step: %s - idled for %d", steps[global.tas.step][1][1]-1, steps[global.tas.step][1][2], global.tas.step-1, idled))
 
-			if idle == 0 then
+			if global.tas.idle == 0 then
 				idled = 0
 			end
 		elseif steps[global.tas.step][2] == "walk" then
@@ -2213,7 +2211,6 @@ end
 
 local function migrate_global()
 	if not global.tas then return end
-	idle = global.tas.idle
 	pickup_ticks = global.tas.pickup_ticks
 	mining = global.tas.mining
 	pos_pos = global.tas.pos_pos
