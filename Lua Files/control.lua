@@ -8,7 +8,6 @@ local run = true
 
 local step_reached = 0
 
-local player_position
 local font_size = 0.15 --best guess estimate of fontsize for flying text
 
 local drop_item
@@ -652,8 +651,9 @@ local function build()
 end
 
 local function walk_pos_pos()
+	local _player_position = global.tas.player.position
 	if global.tas.keep_x then
-		if player_position.y > global.tas.destination.y then
+		if _player_position.y > global.tas.destination.y then
 			return {walking = true, direction = defines.direction.north}
 		else
 			return {walking = false, direction = global.tas.walking.direction}
@@ -661,7 +661,7 @@ local function walk_pos_pos()
 	end
 
 	if global.tas.keep_y then
-		if player_position.x > global.tas.destination.x then
+		if _player_position.x > global.tas.destination.x then
 			return {walking = true, direction = defines.direction.west}
 		else
 			return {walking = false, direction = global.tas.walking.direction}
@@ -669,21 +669,21 @@ local function walk_pos_pos()
 	end
 
 	if global.tas.diagonal then
-		if player_position.x > global.tas.destination.x or player_position.y > global.tas.destination.y then
+		if _player_position.x > global.tas.destination.x or _player_position.y > global.tas.destination.y then
 			return {walking = true, direction = defines.direction.northwest}
 		else
 			return {walking = false, direction = global.tas.walking.direction}
 		end
 	end
 
-	if player_position.x > global.tas.destination.x then
-		if player_position.y > global.tas.destination.y then
+	if _player_position.x > global.tas.destination.x then
+		if _player_position.y > global.tas.destination.y then
 			return {walking = true, direction = defines.direction.northwest}
 		else
 			return {walking = true, direction = defines.direction.west}
 		end
 	else
-		if player_position.y > global.tas.destination.y then
+		if _player_position.y > global.tas.destination.y then
 			return {walking = true, direction = defines.direction.north}
 		else
 			if global.tas.compatibility_mode then
@@ -696,8 +696,9 @@ local function walk_pos_pos()
 end
 
 local function walk_pos_neg()
+	local _player_position = global.tas.player.position
 	if global.tas.keep_x then
-		if player_position.y < global.tas.destination.y then
+		if _player_position.y < global.tas.destination.y then
 			return {walking = true, direction = defines.direction.south}
 		else
 			return {walking = false, direction = global.tas.walking.direction}
@@ -705,7 +706,7 @@ local function walk_pos_neg()
 	end
 
 	if global.tas.keep_y then
-		if player_position.x > global.tas.destination.x then
+		if _player_position.x > global.tas.destination.x then
 			return {walking = true, direction = defines.direction.west}
 		else
 			return {walking = false, direction = global.tas.walking.direction}
@@ -713,21 +714,21 @@ local function walk_pos_neg()
 	end
 
 	if global.tas.diagonal then
-		if player_position.x > global.tas.destination.x or player_position.y < global.tas.destination.y then
+		if _player_position.x > global.tas.destination.x or _player_position.y < global.tas.destination.y then
 			return {walking = true, direction = defines.direction.southwest}
 		else
 			return {walking = false, direction = global.tas.walking.direction}
 		end
 	end
 
-	if player_position.x > global.tas.destination.x then
-		if player_position.y < global.tas.destination.y then
+	if _player_position.x > global.tas.destination.x then
+		if _player_position.y < global.tas.destination.y then
 			return {walking = true, direction = defines.direction.southwest}
 		else
 			return {walking = true, direction = defines.direction.west}
 		end
 	else
-		if player_position.y < global.tas.destination.y then
+		if _player_position.y < global.tas.destination.y then
 			return {walking = true, direction = defines.direction.south}
 		else
 			if global.tas.compatibility_mode then
@@ -740,8 +741,9 @@ local function walk_pos_neg()
 end
 
 local function walk_neg_pos()
+	local _player_position = global.tas.player.position
 	if global.tas.keep_x then
-		if player_position.y > global.tas.destination.y then
+		if _player_position.y > global.tas.destination.y then
 			return {walking = true, direction = defines.direction.north}
 		else
 			return {walking = false, direction = global.tas.walking.direction}
@@ -749,7 +751,7 @@ local function walk_neg_pos()
 	end
 
 	if global.tas.keep_y then
-		if player_position.x < global.tas.destination.x then
+		if _player_position.x < global.tas.destination.x then
 			return {walking = true, direction = defines.direction.east}
 		else
 			return {walking = false, direction = global.tas.walking.direction}
@@ -757,21 +759,21 @@ local function walk_neg_pos()
 	end
 
 	if global.tas.diagonal then
-		if player_position.x < global.tas.destination.x or player_position.y > global.tas.destination.y then
+		if _player_position.x < global.tas.destination.x or _player_position.y > global.tas.destination.y then
 			return {walking = true, direction = defines.direction.northeast}
 		else
 			return {walking = false, direction = global.tas.walking.direction}
 		end
 	end
 
-	if player_position.x < global.tas.destination.x then
-		if player_position.y > global.tas.destination.y then
+	if _player_position.x < global.tas.destination.x then
+		if _player_position.y > global.tas.destination.y then
 			return {walking = true, direction = defines.direction.northeast}
 		else
 			return {walking = true, direction = defines.direction.east}
 		end
 	else
-		if player_position.y > global.tas.destination.y then
+		if _player_position.y > global.tas.destination.y then
 			return {walking = true, direction = defines.direction.north}
 		else
 			if global.tas.compatibility_mode then
@@ -784,8 +786,9 @@ local function walk_neg_pos()
 end
 
 local function walk_neg_neg()
+	local _player_position = global.tas.player.position
 	if global.tas.keep_x then
-		if player_position.y < global.tas.destination.y then
+		if _player_position.y < global.tas.destination.y then
 			return {walking = true, direction = defines.direction.south}
 		else
 			return {walking = false, direction = global.tas.walking.direction}
@@ -793,7 +796,7 @@ local function walk_neg_neg()
 	end
 
 	if global.tas.keep_y then
-		if player_position.x < global.tas.destination.x then
+		if _player_position.x < global.tas.destination.x then
 			return {walking = true, direction = defines.direction.east}
 		else
 			return {walking = false, direction = global.tas.walking.direction}
@@ -801,21 +804,21 @@ local function walk_neg_neg()
 	end
 
 	if global.tas.diagonal then
-		if player_position.x < global.tas.destination.x or player_position.y < global.tas.destination.y then
+		if _player_position.x < global.tas.destination.x or _player_position.y < global.tas.destination.y then
 			return {walking = true, direction = defines.direction.southeast}
 		else
 			return {walking = false, direction = global.tas.walking.direction}
 		end
 	end
 
-	if player_position.x < global.tas.destination.x then
-		if player_position.y < global.tas.destination.y then
+	if _player_position.x < global.tas.destination.x then
+		if _player_position.y < global.tas.destination.y then
 			return {walking = true, direction = defines.direction.southeast}
 		else
 			return {walking = true, direction = defines.direction.east}
 		end
 	else
-		if player_position.y < global.tas.destination.y then
+		if _player_position.y < global.tas.destination.y then
 			return {walking = true, direction = defines.direction.south}
 		else
 			if global.tas.compatibility_mode then
@@ -848,26 +851,27 @@ local function walk()
 end
 
 local function find_walking_pattern()
+	local _player_position = global.tas.player.position
 	if global.tas.compatibility_mode then
-		if (player_position.x - global.tas.destination.x >= 0) then
-			if (player_position.y - global.tas.destination.y >= 0) then
+		if (_player_position.x - global.tas.destination.x >= 0) then
+			if (_player_position.y - global.tas.destination.y >= 0) then
 				global.tas.pos_pos = true
 				global.tas.pos_neg = false
 				global.tas.neg_pos = false
 				global.tas.neg_neg = false
-			elseif (player_position.y - global.tas.destination.y < 0) then
+			elseif (_player_position.y - global.tas.destination.y < 0) then
 				global.tas.pos_neg = true
 				global.tas.pos_pos = false
 				global.tas.neg_pos = false
 				global.tas.neg_neg = false
 			end
 		else
-			if (player_position.y - global.tas.destination.y >= 0) then
+			if (_player_position.y - global.tas.destination.y >= 0) then
 				global.tas.neg_pos = true
 				global.tas.pos_pos = false
 				global.tas.pos_neg = false
 				global.tas.neg_neg = false
-			elseif (player_position.y - global.tas.destination.y < 0) then
+			elseif (_player_position.y - global.tas.destination.y < 0) then
 				global.tas.neg_neg = true
 				global.tas.pos_pos = false
 				global.tas.pos_neg = false
@@ -880,24 +884,20 @@ local function find_walking_pattern()
 		global.tas.neg_pos = false
 		global.tas.neg_neg = false
 
-		if (player_position.x - global.tas.destination.x >= 0) then
-			if (player_position.y - global.tas.destination.y >= 0) then
+		if (_player_position.x - global.tas.destination.x >= 0) then
+			if (_player_position.y - global.tas.destination.y >= 0) then
 				global.tas.pos_pos = true
 			else
 				global.tas.pos_neg = true
 			end
 		else
-			if (player_position.y - global.tas.destination.y >= 0) then
+			if (_player_position.y - global.tas.destination.y >= 0) then
 				global.tas.neg_pos = true
 			else
 				global.tas.neg_neg = true
 			end
 		end
 	end
-end
-
-local function update_player_position()
-	player_position = global.tas.player.position
 end
 
 local function update_destination_position(x, y)
@@ -1576,7 +1576,7 @@ local function handle_pretick()
 			if LOGLEVEL < 2 then
 				pause()
 				Message("Script paused")
-				Debug(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", player_position.x, player_position.y, global.tas.player.online_time / 60, global.tas.player.online_time))
+				Debug(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", global.tas.player.position.x, global.tas.player.position.y, global.tas.player.online_time / 60, global.tas.player.online_time))
 			end
 			change_step(1)
 		elseif(steps[global.tas.step][2] == "walk" and (global.tas.walking.walking == false or global.walk_towards_state) and global.tas.idle < 1 and global.riding_duration < 1) then
@@ -1784,7 +1784,7 @@ local function handle_posttick()
 	if global.tas.walking.walking or global.tas.mining ~= 0 or global.tas.idle ~= 0 or global.tas.pickup_ticks ~= 0 then
 		-- we wait to finish the previous step before we end the run
 	elseif steps[global.tas.step] == nil or steps[global.tas.step][1] == "break" then
-		Message(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", player_position.x, player_position.y, global.tas.player.online_time / 60, global.tas.player.online_time))
+		Message(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", global.tas.player.position.x, global.tas.player.position.y, global.tas.player.online_time / 60, global.tas.player.online_time))
 		run = false
 		raise_state_change()
 		return
@@ -1810,7 +1810,7 @@ end
 
 local function backwards_compatibility()
 	if steps[global.tas.step] == nil or steps[global.tas.step][1] == "break" then
-		Debug(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", player_position.x, player_position.y, global.tas.player.online_time / 60, global.tas.player.online_time))
+		Debug(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", global.tas.player.position.x, global.tas.player.position.y, global.tas.player.online_time / 60, global.tas.player.online_time))
 		debug_state = false
 		return
 	end
@@ -1818,7 +1818,7 @@ local function backwards_compatibility()
 	if (steps[global.tas.step][2] == "pause") then
 		pause()
 		Debug("Script paused")
-		Debug(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", player_position.x, player_position.y, global.tas.player.online_time / 60, global.tas.player.online_time))
+		Debug(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", global.tas.player.position.x, global.tas.player.position.y, global.tas.player.online_time / 60, global.tas.player.online_time))
 		debug_state = false
 		return
 	end
@@ -1910,10 +1910,8 @@ script.on_event(defines.events.on_tick, function(event)
     if not global.tas.player then --set some parameters on the first tick
 		global.tas.player = game.players[1]
 		global.tas.player.surface.always_day = true
-		player_position = global.tas.player.position
 		global.tas.destination = { x = global.tas.player.position.x, y = global.tas.player.position.y }
-		update_player_position()
-		update_destination_position(player_position.x, player_position.y)
+		update_destination_position(global.tas.player.position.x, global.tas.player.position.y)
 		global.tas.player.force.research_queue_enabled = true
 		global.tas.walking = {walking = false, direction = defines.direction.north}
 		global.riding_duration = 0
@@ -1948,12 +1946,10 @@ script.on_event(defines.events.on_tick, function(event)
 	end
 
 	if steps[global.tas.step] == nil or steps[global.tas.step][1] == "break" then
-		Debug(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", player_position.x, player_position.y, global.tas.player.online_time / 60, global.tas.player.online_time))
+		Debug(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", global.tas.player.position.x, global.tas.player.position.y, global.tas.player.online_time / 60, global.tas.player.online_time))
 		debug_state = false
 		return
 	end
-
-	update_player_position()
 
 	if global.tas.compatibility_mode then
 		backwards_compatibility()
@@ -2133,14 +2129,6 @@ local function create_tas_global_state()
 	}
 end
 
-local function migrate_global()
-	if not global.tas then return end
-
-	if global.tas.player then
-		player_position = global.tas.player.position
-	end
-end
-
 script.on_init(function()
     local freeplay = remote.interfaces["freeplay"] --Setup tas interface
     if freeplay then
@@ -2148,11 +2136,9 @@ script.on_init(function()
         if freeplay["set_disable_crashsite"] then remote.call("freeplay", "set_disable_crashsite", true) end --Disable crashsite
     end
 	create_tas_global_state()
-	migrate_global()
 end)
 
 script.on_load(function ()
-	migrate_global()
 	if global.tas.player then global.tas.player.clear_console() end
 end)
 
