@@ -10,9 +10,6 @@ local step_reached = 0
 
 local font_size = 0.15 --best guess estimate of fontsize for flying text
 
-local drop_item
-local drop_position
-
 local queued_save
 local tas_step_change = script.generate_event_name()
 local tas_state_change = script.generate_event_name()
@@ -1081,19 +1078,20 @@ end
 -- Drop items on the ground (like pressing the 'z' key)
 local function drop()
 	local can_reach = 10 > math.sqrt(
-		math.abs(global.tas.player.position.x - drop_position[1])^2 + math.abs(global.tas.player.position.y - drop_position[2])^2
+		math.abs(global.tas.player.position.x - global.tas.drop_position[1])^2 + math.abs(global.tas.player.position.y - global.tas.drop_position[2])^2
 	)
-	if global.tas.player.get_item_count(drop_item) > 0 and can_reach then
-		global.tas.player.surface.create_entity{name = "item-on-ground",
-								stack = {
-									name = drop_item,
-									count = 1,
-								},
-								position = drop_position,
-								force = "player",
-								spill = true
-								}
-		global.tas.player.remove_item({name = drop_item})
+	if global.tas.player.get_item_count(global.tas.drop_item) > 0 and can_reach then
+		global.tas.player.surface.create_entity{
+			name = "item-on-ground",
+			stack = {
+				name = global.tas.drop_item,
+				count = 1,
+			},
+			position = global.tas.drop_position,
+			force = "player",
+			spill = true
+		}
+		global.tas.player.remove_item({name = global.tas.drop_item})
 		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Drop: [item=%s]", global.tas.task[1], global.tas.task[2], global.tas.step, global.tas.item ))
 		return true
 	end
@@ -1424,8 +1422,8 @@ local function doStep(current_step)
 
     elseif current_step[2] == "drop" then
         global.tas.task = current_step[1]
-		drop_position = current_step[3]
-		drop_item = current_step[4]
+		global.tas.drop_position = current_step[3]
+		global.tas.drop_item = current_step[4]
 		return drop()
 
 	elseif current_step[2] == "pick" then
