@@ -5,22 +5,10 @@ local tas_generator = require("variables")
 local steps = require("steps")
 local debug_state = true
 local run = true
-local never_stop = false
-local use_all_ticks = false
-local step_executed = false
-local not_same_step = 1
 
 local step_reached = 0
 
 local player_position
-local direction
-local input
-local output
-local type
-local rev
-local duration
-local ticks_mining
-local idled
 local font_size = 0.15 --best guess estimate of fontsize for flying text
 
 local drop_item
@@ -30,22 +18,6 @@ local queued_save
 local tas_step_change = script.generate_event_name()
 local tas_state_change = script.generate_event_name()
 
-local function save_global()
-	--if not global.tas then return end
-	global.tas.direction = direction
-	global.tas.input = input
-	global.tas.output = output
-	global.tas.type = type
-	global.tas.rev = rev
-	global.tas.duration = duration
-	global.tas.ticks_mining = ticks_mining
-	global.tas.idled = idled
-
-	global.tas.never_stop = never_stop
-	global.tas.use_all_ticks = use_all_ticks
-	global.tas.step_executed = step_executed
-	global.tas.not_same_step = not_same_step
-end
 local skipintro = false
 --recreate crash site
 local on_player_created = function(event)
@@ -180,7 +152,6 @@ local function change_step(by)
 end
 
 local function save(task, nameOfSaveGame)
-	save_global()
 	if game.is_multiplayer() then
 		if PRINT_SAVEGAME then Message(string.format("Step: %s, saving game as %s", task, nameOfSaveGame)) end
 		game.server_save(nameOfSaveGame)
@@ -532,7 +503,7 @@ local function create_entity_replace()
 		["pipe-to-ground"] = {"pipe"}
 		}
 
-	local created_entity = global.tas.player.surface.create_entity{name = global.tas.item, position = global.tas.target_position, direction = direction, force="player", fast_replace=true, player=global.tas.player, raise_built = true}
+	local created_entity = global.tas.player.surface.create_entity{name = global.tas.item, position = global.tas.target_position, direction = global.tas.direction, force="player", fast_replace=true, player=global.tas.player, raise_built = true}
 	if created_entity and fast_replace_type_lookup[created_entity.name] ~= nil and created_entity.neighbours  then --connected entities eg underground belt https://lua-api.factorio.com/latest/LuaEntity.html#LuaEntity.neighbours
 		local replace_type = fast_replace_type_lookup[created_entity.name]
 
@@ -649,7 +620,7 @@ local function build()
 
 			return false
 
-		elseif global.tas.player.can_place_entity{name = global.tas.item, position = global.tas.target_position, direction = direction} then
+		elseif global.tas.player.can_place_entity{name = global.tas.item, position = global.tas.target_position, direction = global.tas.direction} then
 			end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", global.tas.task[1], global.tas.task[2], global.tas.step, global.tas.item ))
 			return create_entity_replace()
 		else
@@ -661,9 +632,9 @@ local function build()
 		end
 	else
 
-		if global.tas.player.can_place_entity{name = global.tas.item, position = global.tas.target_position, direction = direction} then
+		if global.tas.player.can_place_entity{name = global.tas.item, position = global.tas.target_position, direction = global.tas.direction} then
 			
-			if global.tas.player.surface.create_entity{name = global.tas.item, position = global.tas.target_position, direction = direction, force="player", raise_built = true} then
+			if global.tas.player.surface.create_entity{name = global.tas.item, position = global.tas.target_position, direction = global.tas.direction, force="player", raise_built = true} then
 				global.tas.player.remove_item({name = _item, count = take_4items and 4 or 1})
 				end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", global.tas.task[1], global.tas.task[2], global.tas.step, global.tas.item ))
 				return true
@@ -957,7 +928,7 @@ local function rotate()
 		return false;
 	end
 
-	if rev then
+	if global.tas.rev then
 		has_rotated = global.tas.player_selection.rotate({reverse = true})
 	else
 		has_rotated = global.tas.player_selection.rotate({reverse = false})
@@ -1066,8 +1037,8 @@ local function priority()
 		return false
 	end
 
-	global.tas.player_selection.splitter_input_priority = input
-	global.tas.player_selection.splitter_output_priority = output
+	global.tas.player_selection.splitter_input_priority = global.tas.input
+	global.tas.player_selection.splitter_output_priority = global.tas.output
 
 	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Priority", global.tas.task[1], global.tas.task[2], global.tas.step))
 	return true
@@ -1079,7 +1050,7 @@ local function filter()
 		return false
 	end
 
-	if type == "splitter" then
+	if global.tas.type == "splitter" then
 		if global.tas.item == "none" then
 			global.tas.player_selection.splitter_filter = nil
 		else
@@ -1380,7 +1351,7 @@ local function doStep(current_step)
         global.tas.task = current_step[1]
 		global.tas.target_position = current_step[3]
 		global.tas.item = current_step[4]
-		direction = current_step[5]
+		global.tas.direction = current_step[5]
 		return build()
 
 	elseif current_step[2] == "take" then
@@ -1410,7 +1381,7 @@ local function doStep(current_step)
         global.tas.task_category = "Rotate"
         global.tas.task = current_step[1]
 		global.tas.target_position = current_step[3]
-		rev = current_step[4]
+		global.tas.rev = current_step[4]
 		return rotate()
 
 	elseif current_step[2] == "tech" then
@@ -1438,8 +1409,8 @@ local function doStep(current_step)
         global.tas.task_category = "priority"
         global.tas.task = current_step[1]
 		global.tas.target_position = current_step[3]
-		input = current_step[4]
-		output = current_step[5]
+		global.tas.input = current_step[4]
+		global.tas.output = current_step[5]
 		return priority()
 
 	elseif current_step[2] == "filter" then
@@ -1448,7 +1419,7 @@ local function doStep(current_step)
 		global.tas.target_position = current_step[3]
 		global.tas.item = current_step[4]
 		global.tas.slot = current_step[5]
-		type = current_step[6]
+		global.tas.type = current_step[6]
 		return filter()
 
     elseif current_step[2] == "drop" then
@@ -1652,12 +1623,12 @@ local function handle_ontick()
 	if global.tas.walking.walking == false and global.tas.player.driving == false then
 		if global.tas.idle > 0 then
 			global.tas.idle = global.tas.idle - 1
-			idled = idled + 1
+			global.tas.idled = global.tas.idled + 1
 
-			Debug(string.format("Step: %s, Action: %s, Step: %s - idled for %d", steps[global.tas.step][1][1]-1, steps[global.tas.step][1][2], global.tas.step-1, idled))
+			Debug(string.format("Step: %s, Action: %s, Step: %s - idled for %d", steps[global.tas.step][1][1]-1, steps[global.tas.step][1][2], global.tas.step-1, global.tas.idled))
 
 			if global.tas.idle == 0 then
-				idled = 0
+				global.tas.idled = 0
 				Comment(steps[global.tas.step].comment)
 
 				if steps[global.tas.step][2] == "walk" then
@@ -1668,7 +1639,7 @@ local function handle_ontick()
 					global.tas.walking = walk()
 
 					change_step(1)
-					step_executed = true
+					global.tas.step_executed = true
 				end
 			end
 		elseif steps[global.tas.step][2] == "walk" then
@@ -1682,7 +1653,7 @@ local function handle_ontick()
 			change_step(1)
 
 		elseif steps[global.tas.step][2] == "mine" then
-			if duration and duration == 0 then Comment(steps[global.tas.step].comment) end
+			if global.tas.duration and global.tas.duration == 0 then Comment(steps[global.tas.step].comment) end
 			
 			global.tas.player.update_selected_entity(steps[global.tas.step][3])
 
@@ -1691,16 +1662,16 @@ local function handle_ontick()
 				end_use_all_ticks_warning_mode()
 			end
 
-			duration = steps[global.tas.step][4]
+			global.tas.duration = steps[global.tas.step][4]
 
-			ticks_mining = ticks_mining + 1
+			global.tas.ticks_mining = global.tas.ticks_mining + 1
 
-			if ticks_mining >= duration then
+			if global.tas.ticks_mining >= global.tas.duration then
 				if LEGACY_MINING then global.tas.player.mining_state = {mining = false, position = steps[global.tas.step][3]} end
 				change_step(1)
-				step_executed = true
+				global.tas.step_executed = true
 				global.tas.mining = 0
-				ticks_mining = 0
+				global.tas.ticks_mining = 0
 			end
 
 			global.tas.mining = global.tas.mining + 1
@@ -1715,26 +1686,26 @@ local function handle_ontick()
 		elseif doStep(steps[global.tas.step]) then
 			-- Do step while standing still
 			Comment(steps[global.tas.step].comment)
-			step_executed = true
+			global.tas.step_executed = true
 			change_step(1)
 		end
 	else
 		if global.walk_towards_state and steps[global.tas.step][2] == "mine" then
-			if duration and duration == 0 then Comment(steps[global.tas.step].comment) end
+			if global.tas.duration and global.tas.duration == 0 then Comment(steps[global.tas.step].comment) end
 			
 			global.tas.player.update_selected_entity(steps[global.tas.step][3])
 
 			global.tas.player.mining_state = {mining = true, position = steps[global.tas.step][3]}
 
-			duration = steps[global.tas.step][4]
+			global.tas.duration = steps[global.tas.step][4]
 
-			ticks_mining = ticks_mining + 1
+			global.tas.ticks_mining = global.tas.ticks_mining + 1
 
-			if ticks_mining >= duration then
+			if global.tas.ticks_mining >= global.tas.duration then
 				if LEGACY_MINING then global.tas.player.mining_state = {mining = false, position = steps[global.tas.step][3]} end
 				change_step(1)
 				global.tas.mining = 0
-				ticks_mining = 0
+				global.tas.ticks_mining = 0
 			end
 
 			global.tas.mining = global.tas.mining + 1
@@ -1749,14 +1720,14 @@ local function handle_ontick()
 			if doStep(steps[global.tas.step]) then
 				-- Do step while walking
 				Comment(steps[global.tas.step].comment)
-				step_executed = true
+				global.tas.step_executed = true
 				change_step(1)
 			end
 		elseif steps[global.tas.step][2] ~= "walk" and steps[global.tas.step][2] ~= "enter" and steps[global.tas.step][2] ~= "idle" and steps[global.tas.step][2] ~= "mine" then
 			if doStep(steps[global.tas.step]) then
 				-- Do step while walking
 				Comment(steps[global.tas.step].comment)
-				step_executed = true
+				global.tas.step_executed = true
 				change_step(1)
 			end
 		end
@@ -1872,12 +1843,12 @@ local function backwards_compatibility()
 	if global.tas.walking.walking == false then
 		if global.tas.idle > 0 then
 			global.tas.idle = global.tas.idle - 1
-			idled = idled + 1
+			global.tas.idled = global.tas.idled + 1
 
-			Debug(string.format("Step: %s, Action: %s, Step: %s - idled for %d", steps[global.tas.step][1][1]-1, steps[global.tas.step][1][2], global.tas.step-1, idled))
+			Debug(string.format("Step: %s, Action: %s, Step: %s - idled for %d", steps[global.tas.step][1][1]-1, steps[global.tas.step][1][2], global.tas.step-1, global.tas.idled))
 
 			if global.tas.idle == 0 then
-				idled = 0
+				global.tas.idled = 0
 			end
 		elseif steps[global.tas.step][2] == "walk" then
 			update_destination_position(steps[global.tas.step][3][1], steps[global.tas.step][3][2])
@@ -1894,15 +1865,15 @@ local function backwards_compatibility()
 
 			global.tas.player.mining_state = {mining = true, position = steps[global.tas.step][3]}
 
-			duration = steps[global.tas.step][4]
+			global.tas.duration = steps[global.tas.step][4]
 
-			ticks_mining = ticks_mining + 1
+			global.tas.ticks_mining = global.tas.ticks_mining + 1
 
-			if ticks_mining >= duration then
+			if global.tas.ticks_mining >= global.tas.duration then
 				global.tas.player.mining_state = {mining = false, position = steps[global.tas.step][3]}
 				change_step(1)
 				global.tas.mining = 0
-				ticks_mining = 0
+				global.tas.ticks_mining = 0
 			end
 
 			global.tas.mining = global.tas.mining + 1
@@ -1962,17 +1933,17 @@ script.on_event(defines.events.on_tick, function(event)
 		end
 	end
 
-	if steps[global.tas.step].comment and global.tas.step > not_same_step then
+	if steps[global.tas.step].comment and global.tas.step > global.tas.not_same_step then
 		if steps[global.tas.step].comment == "Never Stop" then
-			never_stop = not never_stop
+			global.tas.never_stop = not global.tas.never_stop
 
-			Message(string.format("Step: %d - Never Stop: %s", steps[global.tas.step][1][1], never_stop))
-			not_same_step = global.tas.step
+			Message(string.format("Step: %d - Never Stop: %s", steps[global.tas.step][1][1], global.tas.never_stop))
+			global.tas.not_same_step = global.tas.step
 		elseif steps[global.tas.step].comment == "Use All Ticks" then
-			use_all_ticks = not use_all_ticks
+			global.tas.use_all_ticks = not global.tas.use_all_ticks
 			
-			Message(string.format("Step: %d - Use All Ticks: %s", steps[global.tas.step][1][1], use_all_ticks))
-			not_same_step = global.tas.step
+			Message(string.format("Step: %d - Use All Ticks: %s", steps[global.tas.step][1][1], global.tas.use_all_ticks))
+			global.tas.not_same_step = global.tas.step
 		end
 	end
 
@@ -1987,14 +1958,14 @@ script.on_event(defines.events.on_tick, function(event)
 	if global.tas.compatibility_mode then
 		backwards_compatibility()
 	else
-		step_executed = false
+		global.tas.step_executed = false
 		handle_tick()
 
-		if global.use_all_ticks_warning_mode and step_executed then
+		if global.use_all_ticks_warning_mode and global.tas.step_executed then
 			end_use_all_ticks_warning_mode()
 		end
 
-		if use_all_ticks and not step_executed and global.use_all_ticks_warning_mode == nil and not global.tas.player.mining_state.mining then
+		if global.tas.use_all_ticks and not global.tas.step_executed and global.use_all_ticks_warning_mode == nil and not global.tas.player.mining_state.mining then
 			global.use_all_ticks_warning_mode = {start = game.tick, step = steps[global.tas.step][1][1]}
 		end
 	end
@@ -2003,7 +1974,7 @@ script.on_event(defines.events.on_tick, function(event)
 		end_never_stop_modifier_warning_mode()
 	end
 
-	if never_stop and global.never_stop_modifier_warning_mode == nil and global.tas.walking.walking == false then
+	if global.tas.never_stop and global.never_stop_modifier_warning_mode == nil and global.tas.walking.walking == false then
 		global.never_stop_modifier_warning_mode = {start = game.tick, step = steps[global.tas.step][1][1]}
 	end
 
@@ -2043,12 +2014,12 @@ script.on_event(defines.events.on_player_mined_entity, function(event)
 	end
 
 	--change step when tas is running and the current step is mining step
-	if run and steps[global.tas.step] and steps[global.tas.step][2] and steps[global.tas.step][2] == "mine" and (LEGACY_MINING or ticks_mining > 1) then
+	if run and steps[global.tas.step] and steps[global.tas.step][2] and steps[global.tas.step][2] == "mine" and (LEGACY_MINING or global.tas.ticks_mining > 1) then
 		change_step(1)
 	end
 
 	global.tas.mining = 0
-	ticks_mining = 0
+	global.tas.ticks_mining = 0
 
 	if global.tas.compatibility_mode then
 		return
@@ -2164,18 +2135,6 @@ end
 
 local function migrate_global()
 	if not global.tas then return end
-	direction = global.tas.direction
-	input = global.tas.input
-	output = global.tas.output
-	type = global.tas.type
-	rev = global.tas.rev
-	duration = global.tas.duration
-	ticks_mining = global.tas.ticks_mining
-	idled = global.tas.idled
-	never_stop = global.tas.never_stop or false
-	use_all_ticks = global.tas.use_all_ticks or false
-	step_executed = global.tas.step_executed or false
-	not_same_step = global.tas.not_same_step or 1
 
 	if global.tas.player then
 		player_position = global.tas.player.position
