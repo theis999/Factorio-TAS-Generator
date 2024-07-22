@@ -85,6 +85,8 @@ struct Building
 		flamethrower_turret,
 		artillery_turret,
 		radar,
+
+		stone_brick,
 	};
 
 	BuildingType type = wooden_chest;
@@ -176,6 +178,8 @@ struct Building
 		"Flamethrower turret",
 		"Artillery turret",
 		"Radar",
+
+		"Stone brick",
 	};
 
 	static inline const vector<string> BuildingLuaNames = {
@@ -255,6 +259,8 @@ struct Building
 		"flamethrower-turret",
 		"artillery-turret",
 		"radar",
+
+		"stone-brick",
 	};
 
 	struct BuildingSize
@@ -341,6 +347,8 @@ struct Building
 		{1.398438, 2.398438},
 		{2.398438, 2.398438},
 		{2.398438, 2.398438},
+
+		{1, 1},
 	};
 
 	static inline const vector<BuildingSize> OldBuildingSizes = {		
