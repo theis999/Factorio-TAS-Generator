@@ -172,10 +172,13 @@ void ProcessMiningStep(vector<Building>& buildings, int buildingsInSnapShot, Ste
 	{
 		if (step == buildings[i])
 		{
-			if (step.Modifiers.split ||
-				step.Modifiers.skip ||
-				Capitalize(step.Comment) == "Split")
+			if (step.Modifiers.skip)
 			{
+				return;
+			}
+			else if (step.Modifiers.split || Capitalize(step.Comment) == "Split")
+			{
+				step.BuildingIndex = buildings[i];
 				return;
 			}
 
