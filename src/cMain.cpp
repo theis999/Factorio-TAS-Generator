@@ -2911,10 +2911,12 @@ void cMain::UndoRedo(wxGrid* grid, vector<Step>& data_list, vector<StepBlock> be
 	}
 
 	// insert before
-	bool first = true;
-	grid->ClearSelection();
-	grid->GoToCell(before.back().row, 0);
-	grid->GoToCell(before.front().row, 0);
+	if (before.size() > 0)
+	{
+		grid->ClearSelection();
+		grid->GoToCell(before.back().row, 0);
+		grid->GoToCell(before.front().row, 0);
+	}
 	for (auto& [row, steps] : before)
 	{
 		for (int i = 0; i < steps.size(); i++)
