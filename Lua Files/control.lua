@@ -258,15 +258,15 @@ local function put()
 	end
 
 	local item_stack = global.tas.player.get_main_inventory().find_item_stack(global.tas.item)
-	local durability = 1
-	if item_stack and item_stack.is_tool then
-		durability = item_stack.durability
-	end
+	if not item_stack then Error("Item stack "..global.tas.item.." not found for put") end
+	local health, durability, ammo = item_stack.health, item_stack.is_tool and item_stack.durability or 1, item_stack.is_ammo and item_stack.ammo or 10
 
-	global.tas.amount=global.tas.target_inventory.insert{
+	global.tas.amount = global.tas.target_inventory.insert{
 		name=global.tas.item,
-		durability=durability,
 		count=global.tas.amount,
+		health=health,
+		durability=durability,
+		ammo=ammo,
 	}
 
 	if global.tas.amount < 1 then
@@ -276,8 +276,10 @@ local function put()
 
 	global.tas.amount = global.tas.player.remove_item{
 		name=global.tas.item,
-		durability=durability,
 		count=global.tas.amount,
+		health=health,
+		durability=durability,
+		ammo=ammo,
 	}
 
 	local text = string.format("-%d %s (%d)", global.tas.amount, format_name(global.tas.item), global.tas.player.get_item_count(global.tas.item)) --"-2 Iron plate (5)"
