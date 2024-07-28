@@ -492,6 +492,33 @@ end
 ---@return boolean true if an entity is created.
 local function create_entity_replace()
 
+	local stack, stack_location = global.tas.player.get_inventory(1).find_item_stack(global.tas.item)
+	if not stack or not stack.valid then
+		Error("Trying to create an entity of "..global.tas.item.." but couldn't find an stack of them in players inventory")
+		return false
+	end
+	--[[ Using player.build_from_cursor
+	
+	global.tas.player.clear_cursor()
+	global.tas.player.cursor_stack.swap_stack(stack)
+	global.tas.player.hand_location = {inventory = 1, slot = stack_location}
+	
+	if global.tas.player.can_build_from_cursor{position = global.tas.target_position, direction = global.tas.direction, } then
+		global.tas.player.build_from_cursor{position = global.tas.target_position, direction = global.tas.direction, }
+		global.tas.player.clear_cursor()
+		--if old_cursor then global.tas.player.cursor_stack.swap_stack(old_cursor) else global.tas.player.clear_cursor() end
+		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", global.tas.task[1], global.tas.task[2], global.tas.step, global.tas.item ))
+		return true
+	else
+		--global.tas.player.clear_cursor()
+		--global.tas.player.cursor_stack.set_stack(old_cursor)
+		if not global.tas.player.walking.walking or not global.tas.player.driving then
+			--idk
+		end
+
+		return false
+	end]]
+
 	local fast_replace_type_lookup = {
 		["underground-belt"] = {"transport-belt", "fast-transport-belt", "express-transport-belt"},
 		["fast-underground-belt"] = {"transport-belt", "fast-transport-belt", "express-transport-belt"},
@@ -499,7 +526,8 @@ local function create_entity_replace()
 		["pipe-to-ground"] = {"pipe"}
 		}
 
-	local created_entity = global.tas.player.surface.create_entity{name = global.tas.item, position = global.tas.target_position, direction = global.tas.direction, force="player", fast_replace=true, player=global.tas.player, raise_built = true}
+	local created_entity = global.tas.player.surface.create_entity{name = global.tas.item, position = global.tas.target_position, direction = global.tas.direction, force="player", fast_replace=true, player=global.tas.player, raise_built = true, item = stack}
+	created_entity.health = stack.health * created_entity.health
 	if created_entity and fast_replace_type_lookup[created_entity.name] ~= nil and created_entity.neighbours  then --connected entities eg underground belt https://lua-api.factorio.com/latest/LuaEntity.html#LuaEntity.neighbours
 		local replace_type = fast_replace_type_lookup[created_entity.name]
 
