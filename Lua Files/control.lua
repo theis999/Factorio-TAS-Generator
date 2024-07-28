@@ -257,28 +257,35 @@ local function put()
 		return false
 	end
 
-	local item_stack = global.tas.player.get_main_inventory().find_item_stack(global.tas.item)
-	local durability = 1
-	if item_stack and item_stack.is_tool then
-		durability = item_stack.durability
+	local c = global.tas.amount
+	while c > 0 do
+		local item_stack = global.tas.player.get_main_inventory().find_item_stack(global.tas.item)
+		if not item_stack then Error("Item stack "..global.tas.item.." not found for put") return false end
+		local health, durability, ammo = item_stack.health, item_stack.is_tool and item_stack.durability or 1, item_stack.is_ammo and item_stack.ammo or 10
+		local count = global.tas.amount < item_stack.count and global.tas.amount or item_stack.count
+		c = c - count
+
+		global.tas.amount = global.tas.target_inventory.insert{
+			name=global.tas.item,
+			count=count,
+			health=health,
+			durability=durability,
+			ammo=ammo,
+		}
+
+		if global.tas.amount < 1 then
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Put: %s can not be transferred. Amount: %d Removalable: %d Insertable: %d", global.tas.task[1], global.tas.task[2], global.tas.step, global.tas.item:gsub("-", " "):gsub("^%l", string.upper), global.tas.amount, removalable_items, insertable_items))
+			return false
+		end
+
+		global.tas.amount = global.tas.player.remove_item{
+			name=global.tas.item,
+			count=count,
+			health=health,
+			durability=durability,
+			ammo=ammo,
+		}
 	end
-
-	global.tas.amount=global.tas.target_inventory.insert{
-		name=global.tas.item,
-		durability=durability,
-		count=global.tas.amount,
-	}
-
-	if global.tas.amount < 1 then
-		Warning(string.format("Step: %s, Action: %s, Step: %d - Put: %s can not be transferred. Amount: %d Removalable: %d Insertable: %d", global.tas.task[1], global.tas.task[2], global.tas.step, global.tas.item:gsub("-", " "):gsub("^%l", string.upper), global.tas.amount, removalable_items, insertable_items))
-		return false
-	end
-
-	global.tas.amount = global.tas.player.remove_item{
-		name=global.tas.item,
-		durability=durability,
-		count=global.tas.amount,
-	}
 
 	local text = string.format("-%d %s (%d)", global.tas.amount, format_name(global.tas.item), global.tas.player.get_item_count(global.tas.item)) --"-2 Iron plate (5)"
 	local pos = {x = global.tas.target_inventory.entity_owner.position.x + #text/2 * font_size, y = global.tas.target_inventory.entity_owner.position.y }
@@ -306,14 +313,14 @@ local function take_all()
 	local contents = global.tas.target_inventory.get_contents()
 	for name, count in pairs(contents or global.tas.target_inventory) do
 		local item_stack = global.tas.target_inventory.find_item_stack(name)
-		local durability = 1
-		if item_stack.is_tool then
-			durability = item_stack.durability
-		end
-
+		if not item_stack then Error("Item stack "..global.tas.item.." not found for put") return false end
+		local health, durability, ammo = item_stack.health, item_stack.is_tool and item_stack.durability or 1, item_stack.is_ammo and item_stack.ammo or 10
+		
 		global.tas.amount = global.tas.player.insert{
 			name=name,
 			durability=durability,
+			health=health,
+			ammo=ammo,
 			count=global.tas.target_inventory.remove{name=name, count=count, durability=durability}
 		}
 
@@ -374,15 +381,15 @@ local function take()
 	end
 
 	local item_stack = global.tas.target_inventory.find_item_stack(global.tas.item)
-	local durability = 1
-	if item_stack.is_tool then
-		durability = item_stack.durability
-	end
+	if not item_stack then Error("Item stack "..global.tas.item.." not found for put") return false end
+	local health, durability, ammo = item_stack.health, item_stack.is_tool and item_stack.durability or 1, item_stack.is_ammo and item_stack.ammo or 10
 
 	global.tas.amount = global.tas.player.insert{
 		name=global.tas.item,
 		durability=durability,
-		count=global.tas.target_inventory.remove{name=global.tas.item, count=global.tas.amount, durability=durability}
+		health=health,
+		ammo=ammo,
+		count=global.tas.target_inventory.remove{name=global.tas.item, count=global.tas.amount, durability=durability, health=health, ammo=ammo}
 	}
 
 	local text = string.format("+%d %s (%d)", global.tas.amount, format_name(global.tas.item), global.tas.player.get_item_count(global.tas.item)) --"+2 Iron plate (5)"
@@ -492,6 +499,33 @@ end
 ---@return boolean true if an entity is created.
 local function create_entity_replace()
 
+	local stack, stack_location = global.tas.player.get_inventory(1).find_item_stack(global.tas.item)
+	if not stack or not stack.valid then
+		Error("Trying to create an entity of "..global.tas.item.." but couldn't find an stack of them in players inventory")
+		return false
+	end
+	--[[ Using player.build_from_cursor
+	
+	global.tas.player.clear_cursor()
+	global.tas.player.cursor_stack.swap_stack(stack)
+	global.tas.player.hand_location = {inventory = 1, slot = stack_location}
+	
+	if global.tas.player.can_build_from_cursor{position = global.tas.target_position, direction = global.tas.direction, } then
+		global.tas.player.build_from_cursor{position = global.tas.target_position, direction = global.tas.direction, }
+		global.tas.player.clear_cursor()
+		--if old_cursor then global.tas.player.cursor_stack.swap_stack(old_cursor) else global.tas.player.clear_cursor() end
+		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", global.tas.task[1], global.tas.task[2], global.tas.step, global.tas.item ))
+		return true
+	else
+		--global.tas.player.clear_cursor()
+		--global.tas.player.cursor_stack.set_stack(old_cursor)
+		if not global.tas.player.walking.walking or not global.tas.player.driving then
+			--idk
+		end
+
+		return false
+	end]]
+
 	local fast_replace_type_lookup = {
 		["underground-belt"] = {"transport-belt", "fast-transport-belt", "express-transport-belt"},
 		["fast-underground-belt"] = {"transport-belt", "fast-transport-belt", "express-transport-belt"},
@@ -499,7 +533,8 @@ local function create_entity_replace()
 		["pipe-to-ground"] = {"pipe"}
 		}
 
-	local created_entity = global.tas.player.surface.create_entity{name = global.tas.item, position = global.tas.target_position, direction = global.tas.direction, force="player", fast_replace=true, player=global.tas.player, raise_built = true}
+	local created_entity = global.tas.player.surface.create_entity{name = global.tas.item, position = global.tas.target_position, direction = global.tas.direction, force="player", fast_replace=true, player=global.tas.player, raise_built = true, item = stack}
+	created_entity.health = stack.health * created_entity.health
 	if created_entity and fast_replace_type_lookup[created_entity.name] ~= nil and created_entity.neighbours  then --connected entities eg underground belt https://lua-api.factorio.com/latest/LuaEntity.html#LuaEntity.neighbours
 		local replace_type = fast_replace_type_lookup[created_entity.name]
 
@@ -1227,10 +1262,12 @@ local function equip()
 			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - As the character does not hold enough in their inventory.", global.tas.task[1], global.tas.task[2], global.tas.step, global.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 			return false
 		end
+		local _stack = main_inventory.find_item_stack(global.tas.item)
+		local ammo = _stack.is_ammo and _stack.ammo or 10
 		local main_removed = main_inventory.remove({
 			name = global.tas.item,
 			count = global.tas.amount})
-		local c = stack.set_stack({ name = global.tas.item, count = main_removed})
+		local c = stack.set_stack({ name = global.tas.item, count = main_removed, ammo = ammo})
 		if not c then
 			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - Maybe the corresponding ammo/weapon slot is not clear.", global.tas.task[1], global.tas.task[2], global.tas.step, global.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 			main_inventory.insert({
@@ -1273,14 +1310,16 @@ local function equip()
 		end
 	
 	elseif stack.count < global.tas.amount then -- add more items to the slot
-		if main_count - stack.count < global.tas.amount then
+		if main_count + stack.count < global.tas.amount then
 			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - As the character does not hold enough in their inventory.", global.tas.task[1], global.tas.task[2], global.tas.step, global.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 			return false
 		end
+		local _stack = main_inventory.find_item_stack(global.tas.item)
+		local ammo = _stack.is_ammo and _stack.ammo or 10
 		local main_removed = main_inventory.remove({
 			name = global.tas.item,
 			count = global.tas.amount - stack.count})
-		local c = stack.transfer_stack({ name = global.tas.item, count = main_removed})
+		local c = stack.transfer_stack({ name = global.tas.item, count = main_removed, ammo = ammo})
 		if not c then
 			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - Unknown error.", global.tas.task[1], global.tas.task[2], global.tas.step, global.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 			return false
@@ -1288,7 +1327,8 @@ local function equip()
 	elseif stack.count > global.tas.amount then -- remove items from the slot
 		local main_inserted = main_inventory.insert({
 			name = global.tas.item,
-			count = stack.count - global.tas.amount
+			count = stack.count - global.tas.amount,
+			ammo = stack.is_ammo and stack.ammo or 10,
 		})
 		stack.clear()
 		local c = stack.set_stack({ name = global.tas.item, count = global.tas.amount})
