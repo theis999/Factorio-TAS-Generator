@@ -1262,10 +1262,12 @@ local function equip()
 			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - As the character does not hold enough in their inventory.", global.tas.task[1], global.tas.task[2], global.tas.step, global.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 			return false
 		end
+		local _stack = main_inventory.find_item_stack(global.tas.item)
+		local ammo = _stack.is_ammo and _stack.ammo or 10
 		local main_removed = main_inventory.remove({
 			name = global.tas.item,
 			count = global.tas.amount})
-		local c = stack.set_stack({ name = global.tas.item, count = main_removed})
+		local c = stack.set_stack({ name = global.tas.item, count = main_removed, ammo = ammo})
 		if not c then
 			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - Maybe the corresponding ammo/weapon slot is not clear.", global.tas.task[1], global.tas.task[2], global.tas.step, global.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 			main_inventory.insert({
@@ -1308,14 +1310,16 @@ local function equip()
 		end
 	
 	elseif stack.count < global.tas.amount then -- add more items to the slot
-		if main_count - stack.count < global.tas.amount then
+		if main_count + stack.count < global.tas.amount then
 			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - As the character does not hold enough in their inventory.", global.tas.task[1], global.tas.task[2], global.tas.step, global.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 			return false
 		end
+		local _stack = main_inventory.find_item_stack(global.tas.item)
+		local ammo = _stack.is_ammo and _stack.ammo or 10
 		local main_removed = main_inventory.remove({
 			name = global.tas.item,
 			count = global.tas.amount - stack.count})
-		local c = stack.transfer_stack({ name = global.tas.item, count = main_removed})
+		local c = stack.transfer_stack({ name = global.tas.item, count = main_removed, ammo = ammo})
 		if not c then
 			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - Unknown error.", global.tas.task[1], global.tas.task[2], global.tas.step, global.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 			return false
@@ -1323,7 +1327,8 @@ local function equip()
 	elseif stack.count > global.tas.amount then -- remove items from the slot
 		local main_inserted = main_inventory.insert({
 			name = global.tas.item,
-			count = stack.count - global.tas.amount
+			count = stack.count - global.tas.amount,
+			ammo = stack.is_ammo and stack.ammo or 10,
 		})
 		stack.clear()
 		local c = stack.set_stack({ name = global.tas.item, count = global.tas.amount})
