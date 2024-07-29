@@ -390,6 +390,7 @@ local function take()
 		if not item_stack then Error("Item stack "..global.tas.item.." not found for put") return false end
 		local health, durability, ammo = item_stack.health, item_stack.is_tool and item_stack.durability or 1, item_stack.is_ammo and item_stack.ammo or 10
 		local stack_count = item_stack.count
+		stack_count = stack_count < c and stack_count or c
 		c = c - stack_count
 
 		if stack_count ~= global.tas.player.insert{
