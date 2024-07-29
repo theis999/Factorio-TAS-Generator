@@ -543,13 +543,17 @@ local function create_entity_replace()
 		["fast-underground-belt"] = {"transport-belt", "fast-transport-belt", "express-transport-belt"},
 		["express-underground-belt"] = {"transport-belt", "fast-transport-belt", "express-transport-belt"},
 		["pipe-to-ground"] = {"pipe"}
-		}
+	}
 
 	local created_entity = global.tas.player.surface.create_entity{name = global.tas.item, position = global.tas.target_position, direction = global.tas.direction, force="player", fast_replace=true, player=global.tas.player, raise_built = true, item = stack}
-	created_entity.health = stack.health * created_entity.health
-	if created_entity and fast_replace_type_lookup[created_entity.name] ~= nil and created_entity.neighbours  then --connected entities eg underground belt https://lua-api.factorio.com/latest/LuaEntity.html#LuaEntity.neighbours
-		local replace_type = fast_replace_type_lookup[created_entity.name]
 
+	if created_entity and fast_replace_type_lookup[created_entity.name] ~= nil and created_entity.neighbours  then --connected entities eg underground belt https://lua-api.factorio.com/latest/LuaEntity.html#LuaEntity.neighbours
+		created_entity.create_build_effect_smoke()
+		created_entity.surface.play_sound{path="entity-build/"..created_entity.prototype.name, position=created_entity.position}
+
+		created_entity.health = stack.health * created_entity.health
+
+		local replace_type = fast_replace_type_lookup[created_entity.name]
 		local neighbour_position = nil
 		if (#created_entity.neighbours == 0) then 
 			neighbour_position = created_entity.neighbours.position
