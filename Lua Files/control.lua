@@ -257,15 +257,16 @@ local function put()
 		return false
 	end
 
+	local _amount = 0
 	local c = global.tas.amount
 	while c > 0 do
 		local item_stack = global.tas.player.get_main_inventory().find_item_stack(global.tas.item)
 		if not item_stack then Error("Item stack "..global.tas.item.." not found for put") return false end
 		local health, durability, ammo = item_stack.health, item_stack.is_tool and item_stack.durability or 1, item_stack.is_ammo and item_stack.ammo or 10
-		local count = global.tas.amount < item_stack.count and global.tas.amount or item_stack.count
+		local count = c < item_stack.count and c or item_stack.count
 		c = c - count
 
-		global.tas.amount = global.tas.target_inventory.insert{
+		_amount = global.tas.target_inventory.insert{
 			name=global.tas.item,
 			count=count,
 			health=health,
@@ -273,26 +274,29 @@ local function put()
 			ammo=ammo,
 		}
 
-		if global.tas.amount < 1 then
+		if _amount ~= count then
 			Warning(string.format("Step: %s, Action: %s, Step: %d - Put: %s can not be transferred. Amount: %d Removalable: %d Insertable: %d", global.tas.task[1], global.tas.task[2], global.tas.step, global.tas.item:gsub("-", " "):gsub("^%l", string.upper), global.tas.amount, removalable_items, insertable_items))
 			return false
 		end
 
-		global.tas.amount = global.tas.player.remove_item{
+		_amount = global.tas.player.remove_item{
 			name=global.tas.item,
 			count=count,
 			health=health,
 			durability=durability,
 			ammo=ammo,
 		}
+
+		if _amount ~= count then
+			Warning(string.format("Step: %s, Action: %s, Step: %d - Put: %s can not be transferred. Amount: %d Removalable: %d Insertable: %d", global.tas.task[1], global.tas.task[2], global.tas.step, global.tas.item:gsub("-", " "):gsub("^%l", string.upper), global.tas.amount, removalable_items, insertable_items))
+			return false
+		end
 	end
 
 	local text = string.format("-%d %s (%d)", global.tas.amount, format_name(global.tas.item), global.tas.player.get_item_count(global.tas.item)) --"-2 Iron plate (5)"
 	local pos = {x = global.tas.target_inventory.entity_owner.position.x + #text/2 * font_size, y = global.tas.target_inventory.entity_owner.position.y }
 	global.tas.player.play_sound{path="utility/inventory_move"}
-	global.tas.player.create_local_flying_text{
-		text=text,
-		position=pos}
+	global.tas.player.create_local_flying_text{ text=text, position=pos}
 
 	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Put: [item=%s]", global.tas.task[1], global.tas.task[2], global.tas.step, global.tas.item ))
 	return true
