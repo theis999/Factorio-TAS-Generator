@@ -288,7 +288,7 @@ local function put()
 		}
 
 		if _amount ~= count then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Put: %s can not be transferred. Amount: %d Removalable: %d Insertable: %d", global.tas.task[1], global.tas.task[2], global.tas.step, global.tas.item:gsub("-", " "):gsub("^%l", string.upper), global.tas.amount, removalable_items, insertable_items))
+			Error(string.format("Step: %s, Action: %s, Step: %d - Put: %s can not be transferred. Amount: %d Removalable: %d Insertable: %d", global.tas.task[1], global.tas.task[2], global.tas.step, global.tas.item:gsub("-", " "):gsub("^%l", string.upper), global.tas.amount, removalable_items, insertable_items))
 			return false
 		end
 	end
@@ -384,17 +384,25 @@ local function take()
 		return false
 	end
 
-	local item_stack = global.tas.target_inventory.find_item_stack(global.tas.item)
-	if not item_stack then Error("Item stack "..global.tas.item.." not found for put") return false end
-	local health, durability, ammo = item_stack.health, item_stack.is_tool and item_stack.durability or 1, item_stack.is_ammo and item_stack.ammo or 10
+	local c = global.tas.amount
+	while c > 0 do
+		local item_stack = global.tas.target_inventory.find_item_stack(global.tas.item)
+		if not item_stack then Error("Item stack "..global.tas.item.." not found for put") return false end
+		local health, durability, ammo = item_stack.health, item_stack.is_tool and item_stack.durability or 1, item_stack.is_ammo and item_stack.ammo or 10
+		local stack_count = item_stack.count
+		c = c - stack_count
 
-	global.tas.amount = global.tas.player.insert{
-		name=global.tas.item,
-		durability=durability,
-		health=health,
-		ammo=ammo,
-		count=global.tas.target_inventory.remove{name=global.tas.item, count=global.tas.amount, durability=durability, health=health, ammo=ammo}
-	}
+		if stack_count ~= global.tas.player.insert{
+			name=global.tas.item,
+			durability=durability,
+			health=health,
+			ammo=ammo,
+			count=global.tas.target_inventory.remove{name=global.tas.item, count=stack_count, durability=durability, health=health, ammo=ammo}
+		} then
+			Error(string.format("Step: %s, Action: %s, Step: %d - Take: %s can not be transferred. Amount: %d Removalable: %d Insertable: %d", global.tas.task[1], global.tas.task[2], global.tas.step, global.tas.item:gsub("-", " "):gsub("^%l", string.upper), global.tas.amount, removalable_items, insertable_items))
+			return false
+		end
+	end
 
 	local text = string.format("+%d %s (%d)", global.tas.amount, format_name(global.tas.item), global.tas.player.get_item_count(global.tas.item)) --"+2 Iron plate (5)"
 	local pos = {x = global.tas.target_inventory.entity_owner.position.x + #text/2 * font_size, y = global.tas.target_inventory.entity_owner.position.y }
