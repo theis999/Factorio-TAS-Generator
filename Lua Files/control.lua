@@ -617,6 +617,11 @@ local function create_entity_replace()
 
 	--no special fast replace handling
 	if created_entity then
+		created_entity.create_build_effect_smoke()
+		created_entity.surface.play_sound{path="entity-build/"..created_entity.prototype.name, position=created_entity.position}
+
+		created_entity.health = stack.health * created_entity.health
+
 		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", global.tas.task[1], global.tas.task[2], global.tas.step, global.tas.item ))
 		global.tas.player.remove_item({name = global.tas.item, count = 1})
 	end
