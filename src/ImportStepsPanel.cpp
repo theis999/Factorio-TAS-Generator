@@ -76,6 +76,7 @@ bool ImportStepsPanel::extract_steps(wxString steps_text, vector<Step>& steps, v
 		step.Buildings = size >= 8 && segments[8] != "" ? stoi(segments[8]) : 1;
 		step.Comment = size >= 9 ? segments[9] : "";
 		step.colour = size >= 10 && segments[10] != "" ? wxColour(segments[10]) : wxNullColour;
+		step.Modifiers.FromString(size >= 11 && segments[11] != "" ? segments[11] : "");
 
 		try
 		{
