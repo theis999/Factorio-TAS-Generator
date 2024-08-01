@@ -121,6 +121,9 @@ bool ImportStepsPanel::extract_steps(wxString steps_text, vector<Step>& steps, v
 				// Only here to populate extra parameters in step. Actual validation will be done on script generation
 				BuildingExists(buildingSnapshot, buildingsInSnapShot, step);
 				break;
+			case e_equip:
+				step.inventory = GetInventoryType(segments[5]);
+				break;
 			default:
 				break;
 		}
