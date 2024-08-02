@@ -3,6 +3,7 @@
 #include "cMain.h"
 #include "ShortcutChanger.h"
 #include "SteptypeColour.h"
+#include "Technology.h"
 
 cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSize(1840, 950))
 {
@@ -16,55 +17,38 @@ cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSi
 		BuildingsSnapShot.emplace_back(invalidX);
 	}
 
-	part_assembly_recipes.insert(part_assembly_recipes.end(), handcrafted_list.begin(), handcrafted_list.end());
-	part_assembly_recipes.insert(part_assembly_recipes.end(), assemply_level1_list.begin(), assemply_level1_list.end());
-
-	full_assembly_recipes.insert(full_assembly_recipes.end(), part_assembly_recipes.begin(), part_assembly_recipes.end());
-	full_assembly_recipes.insert(full_assembly_recipes.end(), assemply_level2_list.begin(), assemply_level2_list.end());
-	full_assembly_recipes.insert(full_assembly_recipes.end(), assemply_level2_extra_list.begin(), assemply_level2_extra_list.end());
-
-	full_chemical_plant_recipes.insert(full_chemical_plant_recipes.end(), chemical_plant_list.begin(), chemical_plant_list.end());
-	full_chemical_plant_recipes.insert(full_chemical_plant_recipes.end(), chemical_plant_extra_list.begin(), chemical_plant_extra_list.end());
-
-	all_recipes.insert(all_recipes.end(), full_assembly_recipes.begin(), full_assembly_recipes.end());
-	all_recipes.insert(all_recipes.end(), centrifuge_list.begin(), centrifuge_list.end());
-	all_recipes.insert(all_recipes.end(), full_chemical_plant_recipes.begin(), full_chemical_plant_recipes.end());
-	all_recipes.insert(all_recipes.end(), oil_refinery_list.begin(), oil_refinery_list.end());
-
-	for (auto& s : all_recipes)
+	recipe_choices.reserve(Recipes.size());
+	for (auto& recipe : Recipe::RecipeNames)
 	{
-		recipe_choices.Add(s);
+		recipe_choices.Add(recipe);
 	}
-
-	all_items.insert(all_items.end(), handcrafted_list.begin(), handcrafted_list.end());
-	all_items.insert(all_items.end(), assemply_level1_list.begin(), assemply_level1_list.end());
-	all_items.insert(all_items.end(), assemply_level2_list.begin(), assemply_level2_list.end());
-	all_items.insert(all_items.end(), chemical_plant_list.begin(), chemical_plant_list.end());
-	all_items.insert(all_items.end(), filter_take_put_drop_extra_list.begin(), filter_take_put_drop_extra_list.end());
-	all_items.insert(all_items.end(), raw_resource_list.begin(), raw_resource_list.end());
-	all_items.insert(all_items.end(), furnace_list.begin(), furnace_list.end());
 
 	for (auto it = building_size_list.begin(); it != building_size_list.end(); ++it)
 	{
 		all_buildings.push_back(it->first);
+		building_choices.Add(it->first);
 	}
 
-	for (auto& s : all_items)
-	{
-		item_choices.Add(s);
-	}
+	inventory_choices.Add(inventory_types.input);
+	inventory_choices.Add(inventory_types.output);
+	inventory_choices.Add(inventory_types.fuel);
+	inventory_choices.Add(inventory_types.modules);
+	inventory_choices.Add(inventory_types.chest);
+	inventory_choices.Add(inventory_types.wreck);
+	inventory_choices.Add(inventory_types.vehicle_trunk);
+	inventory_choices.Add(inventory_types.ammo_1);
+	inventory_choices.Add(inventory_types.ammo_2);
+	inventory_choices.Add(inventory_types.ammo_3);
+	
+	equip_inventory_choices.Add(inventory_types.armor);
+	equip_inventory_choices.Add(inventory_types.ammo_1);
+	equip_inventory_choices.Add(inventory_types.ammo_2);
+	equip_inventory_choices.Add(inventory_types.ammo_3);
+	equip_inventory_choices.Add(inventory_types.weapon_1);
+	equip_inventory_choices.Add(inventory_types.weapon_2);
+	equip_inventory_choices.Add(inventory_types.weapon_3);
 
-	for (auto& s : all_buildings)
-	{
-		building_choices.Add(s);
-	}
-
-	for (auto& s : inventory_types_list)
-	{
-		take_from_choices.Add(s);
-	}
-
-	for (auto& s : tech_list)
+	for (auto& s : Technology::TechnologyNames)
 	{
 		tech_choices.Add(s);
 	}
@@ -79,9 +63,10 @@ cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSi
 		input_output_choices.Add(s);
 	}
 
-	for (auto& s : handcrafted_list)
+	for (auto& recipe : Recipes)
 	{
-		handcrafted_choices.Add(s);
+		if (recipe.IsMadeBy(CRAFTING::Character))
+			handcrafted_choices.Add(recipe.Name());
 	}
 
 	// set walk as default value and disable inputs not used
@@ -101,11 +86,23 @@ cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSi
 	cmb_direction_to_build->AutoComplete(building_orientation_choices);
 
 	cmb_item->Clear();
-	for (auto it = all_items.begin(); it < all_items.end(); it++)
+	for (auto& item : Item::names)
 	{
-		cmb_item->Append(*it);
+		cmb_item->Append(item);
+		item_choices.Add(item);
+		auto i = Item::MapStringToItem(item);
+		if (i.category.IsCategory(Item::Category::c_ammo) || 
+			i.category.IsCategory(Item::Category::c_armor) ||
+			i.category.IsCategory(Item::Category::c_weapon))
+		{
+			equip_choices.Add(item);
+		}
+		if (i.category.IsCategory(Item::Category::c_capsule))
+		{
+			throw_choices.Add(item);
+		}
 	}
-	cmb_item->SetValue(*all_items.begin());
+	cmb_item->SetValue(Item::names[1]);
 	cmb_item->AutoComplete(item_choices);
 
 	cmb_from_into->Clear();
@@ -114,7 +111,7 @@ cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSi
 		cmb_from_into->Append(*it);
 	}
 	cmb_from_into->SetValue(*inventory_types_list.begin());
-	cmb_from_into->AutoComplete(take_from_choices);
+	cmb_from_into->AutoComplete(inventory_choices);
 
 	// set steps grid formatting
 	grid_steps->SetColFormatFloat(1, 4, 2);
@@ -152,81 +149,6 @@ cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSi
 	TemplatePageStartup();
 }
 
-void cMain::OnStepsFocusCheckbox(wxCommandEvent& event)
-{
-	const int row_count = grid_steps->GetNumberRows();
-	auto selectedRows = grid_steps->GetSelectedRows();
-	const int first_row_index = grid_steps->IsSelection() ? selectedRows[0] : row_count - 1;
-
-	steps_focus_checkbox->Disable();
-	{
-		HandleFocusMode(event.IsChecked(), true);
-		if (first_row_index != -1)
-		{
-			grid_steps->GoToCell(row_count - 1, 0);
-			grid_steps->GoToCell(first_row_index - (first_row_index > 4 ? 3 : 0), 0); // move the grid to first selected row
-		}
-	}
-	steps_focus_checkbox->Enable();
-}
-
-void cMain::HandleFocusMode(bool checked, bool changed)
-{
-	const int row_count = grid_steps->GetNumberRows();
-
-	if (checked)
-	{
-		int last_save = 0;
-		for (int i = StepGridData.size() - 1; i >= 0; i--)
-		{
-			if (StepGridData[i].type == StepType::e_save && !StepGridData[i].Modifiers.skip)
-			{
-				last_save = i;
-				break;
-			}
-		}
-		if (last_save > 0)
-		{
-			grid_steps->BeginBatch();
-			{
-				for (int i = 0; i < last_save; i++)
-				{
-					grid_steps->HideRow(i);
-					if (changed && i % 800 == 799)
-					{
-						grid_steps->EndBatch();
-						this->Update();
-						grid_steps->BeginBatch();
-					}
-				}
-			}
-			grid_steps->EndBatch();
-		
-
-			for (int i = last_save; i < row_count; i++)
-				grid_steps->ShowRow(i);
-		}
-	}
-	else
-	{
-		grid_steps->BeginBatch();
-		{
-			for (int i = 0; i < row_count; i++)
-			{
-				grid_steps->ShowRow(i);
-				if (changed && i % 800 == 799)
-				{
-					grid_steps->GoToCell(row_count - 1, 0);
-					grid_steps->EndBatch();
-					this->Update();
-					grid_steps->BeginBatch();
-				}
-			}
-		}
-		grid_steps->EndBatch();
-	}
-}
-
 void cMain::OnStepsGridCellChange(wxGridEvent& event)
 {
 	auto row = event.GetRow();
@@ -235,8 +157,7 @@ void cMain::OnStepsGridCellChange(wxGridEvent& event)
 	auto new_string = grid_steps->GetCellValue(row, col);
 	bool success = false;
 
-	vector< tuple<int, Step>> change{};
-	change.push_back({ row, StepGridData[row] });
+	vector<StepLine> before{{ row, StepGridData[row] }};
 
 	Step& step = StepGridData[row];
 	switch (col) {
@@ -257,35 +178,63 @@ void cMain::OnStepsGridCellChange(wxGridEvent& event)
 		
 	case 4:
 	{
-		auto new_item = new_string.ToStdString();
-		auto items = &all_items;
+		string new_item = new_string.ToStdString();
+		Recipe recipe{};
+		Item type{};
+
 		switch (step.type) {
 		case e_build: 
-			items = &all_buildings;  break;
-		case e_craft:
+			for (auto& item : all_buildings)
+			{
+				if (new_item == item) {
+					step.Item = new_item;
+					success = true;
+					break;
+				}
+			}
+			break;
+
+		[[likely]] case e_craft:
+		[[likely]] case e_recipe:
 		case e_cancel_crafting:
-			items = &handcrafted_list; 
+			if (success = Recipe::MapStringToRecipeType(new_item, recipe.type))
+				step.Item = new_item;
+			break;
+
+		case e_take:
+		case e_put:
+		case e_equip:
+		case e_drop:
+		case e_filter:
+		case e_throw:
+			if (success = Item::MapStringToItem(new_string, type))
+				step.Item = new_item; 
+			break;
+
+		case e_tech:
+			for (auto& item : Technology::TechnologyNames)
+			{
+				if (new_item == item)
+				{
+					step.Item = new_item;
+					success = true;
+					break;
+				}
+			}
 			break;
 		}
-		for (auto& item : *items)
-		{
-			if (new_item == item) {
-				step.Item = new_item;
-				success = true;
-				break;
-			}
-		}
-		break;
 	}
+		break;
 
 	case 5:
 		switch (step.type)
 		{
 		case e_build:
-			success = MapStringToOrientation(new_string, step.orientation);
+			success = MapStringToOrientation(new_string.ToStdString(), step.orientation);
 			break;
 		case e_put:
 		case e_take:
+		case e_equip:
 			try {
 				step.inventory = GetInventoryType(new_string.ToStdString());
 				success = true;
@@ -301,7 +250,7 @@ void cMain::OnStepsGridCellChange(wxGridEvent& event)
 		break;
 		
 	case 7:
-		success = MapStringToOrientation(new_string, step.Direction);
+		success = MapStringToOrientation(new_string.ToStdString(), step.Direction);
 		break;
 
 	case 8:
@@ -321,11 +270,9 @@ void cMain::OnStepsGridCellChange(wxGridEvent& event)
 	if (!success) grid_steps->SetCellValue(row, col, old_string);
 	else {
 		no_changes = false;
-		change.push_back({ row, step });
 		stack.Push({
-			.row = row,
-			.type = T_MODIFY,
-			.rows = change
+				.before = before,
+				.after = {{row, step}},
 			}
 		);
 	}
@@ -375,6 +322,7 @@ void cMain::OnReorderReorderButtonClicked(wxCommandEvent& event)
 {
 	vector<ReorderStruct> list{};
 	if (!OnReorderTextValidate(list)) return;
+	Command change;
 	
 	// find scope in the current step list
 	int min = grid_steps->GetNumberRows(), max = 0;
@@ -389,6 +337,7 @@ void cMain::OnReorderReorderButtonClicked(wxCommandEvent& event)
 	for (int i = min; i <= max; i++) 
 	{
 		Step& step = StepGridData[i];
+		change.before.push_back({i, step});
 		for (int j = 0; j < step.Buildings; j++) // unroll multibuild
 		{
 			if (step.type == e_rotate && step.amount != 3)
@@ -406,7 +355,7 @@ void cMain::OnReorderReorderButtonClicked(wxCommandEvent& event)
 		step.step.OriginalY = step.step.Y;
 		step.step.Buildings = 1;
 		step.step.amount = step.step.type == e_rotate && step.step.amount != 3 ? 1 : step.step.amount ;
-		step.step.Modifiers.force = false;
+		step.step.Modifiers.no_order = false;
 	}
 	
 	// reorder the existing steps using the new order
@@ -436,13 +385,17 @@ void cMain::OnReorderReorderButtonClicked(wxCommandEvent& event)
 	for (int i = min; i < min + steplist.size(); i++)
 	{
 		Step& step = StepGridData[i];
+		change.after.push_back({i, step});
 		GridEntry gridEntry = PrepareStepForGrid(&step);
 		PopulateGrid(grid_steps, i, &gridEntry);
-		BackgroundColorUpdate(grid_steps, i, step.type);
+		BackgroundColorUpdate(grid_steps, i, step);
 	}
 
 	if (reorder_text_input_clear_checkbox->GetValue())
 		reorder_text_input->SetValue("");
+
+	stack.Push(change);
+	no_changes = false;
 }
 void cMain::OnReorderLocatorButtonClicked(wxCommandEvent& event)
 {
@@ -566,90 +519,40 @@ bool cMain::CheckBeforeClose()
 	return true;
 }
 
-void cMain::MoveRow(wxGrid* grid, bool up)
+Command cMain::MoveRows(wxGrid* grid, int move_by)
 {
-	for (const auto& block : grid->GetSelectedRowBlocks())
+	Command change;
+	auto blocks = grid->GetSelectedRowBlocks();
+
+	{	// truncate 'by' to fit within the grid
+		auto move_up = move_by < 0;
+		auto exceeed_top_row = blocks.front().GetTopRow() + move_by < 0;
+		auto exceeed_bottom_row = blocks.back().GetBottomRow() + move_by >= grid->GetNumberRows();
+
+		move_by = move_up ?
+			(exceeed_top_row ?
+				-blocks.front().GetTopRow() : move_by) :
+			(exceeed_bottom_row ?
+				grid->GetNumberRows() - blocks.back().GetBottomRow() - 1 : move_by);
+
+		if (move_by == 0) return change;
+	}
+
+	for (const auto& block : blocks)
 	{
-		auto rowNum = block.GetTopRow();
-		auto rowCount = block.GetBottomRow() - rowNum + 1;
-
-		if (up)
+		for (int i = block.GetTopRow(); i <= block.GetBottomRow(); i++)
 		{
-			if (rowNum == 0)
-			{
-				continue;
-			}
-
-			auto row = rowNum - 1;
-			auto moveTo = rowNum + rowCount;
-
-			grid->InsertRows(moveTo);
-
-			GridTransfer(grid, row, grid, moveTo);
-
-			BackgroundColorUpdate(grid, moveTo, ToStepType(grid->GetCellValue(moveTo, 0).ToStdString()));
-
-			if (StepGridData[row].colour != wxNullColour)
-			{
-				wxColour colour = StepGridData[row].colour;
-				grid->SetCellBackgroundColour(moveTo, 1, colour);
-				grid->SetCellBackgroundColour(moveTo, 2, colour);
-				grid->SetCellBackgroundColour(moveTo, 3, colour);
-			}
-
-			grid->DeleteRows(row);
-
-			auto it1 = StepGridData.begin();
-			it1 += row;
-
-			auto data = *it1;
-			StepGridData.erase(it1);
-
-			auto it2 = StepGridData.begin();
-			it2 += moveTo - 1;
-
-			StepGridData.insert(it2, data);
-		}
-		else
-		{
-			if ((rowNum + rowCount) == (grid->GetNumberRows()))
-			{
-				continue;
-			}
-
-			auto row = rowNum + rowCount;
-			auto moveTo = rowNum;
-
-			grid->InsertRows(moveTo);
-
-			GridTransfer(grid, row + 1, grid, moveTo);
-
-			grid->DeleteRows(row + 1);
-
-			BackgroundColorUpdate(grid, moveTo, ToStepType(grid->GetCellValue(moveTo, 0).ToStdString()));
-			
-			if (StepGridData[row].colour != wxNullColour)
-			{
-				wxColour colour = StepGridData[row].colour;
-				grid->SetCellBackgroundColour(moveTo, 1, colour);
-				grid->SetCellBackgroundColour(moveTo, 2, colour);
-				grid->SetCellBackgroundColour(moveTo, 3, colour);
-			}
-
-			auto it1 = StepGridData.begin();
-			it1 += row;
-
-			auto it2 = StepGridData.begin();
-			it2 += moveTo;
-
-			auto data = *it1;
-			StepGridData.erase(it1);
-			StepGridData.insert(it2, data);
+			change.before.push_back({i, StepGridData[i]});
+			change.after.push_back({i + move_by, StepGridData[i]});
 		}
 	}
 
+	UndoRedo(grid, StepGridData, StepLineToStepBlock(change.after), StepLineToStepBlock(change.before));
+
 	HandleFocusMode(steps_focus_checkbox->IsChecked());
 	no_changes = false;
+
+	return change;
 }
 
 bool cMain::DeleteRow(wxGrid* grid, wxComboBox* cmb, map<string, vector<Step>>& map)
@@ -664,6 +567,13 @@ bool cMain::DeleteRow(wxGrid* grid, wxComboBox* cmb, map<string, vector<Step>>& 
 
 	auto rowNum = 0;
 	auto rowCount = 0;
+	std::string map_name = cmb->GetValue().ToStdString();
+	Command change{.template_name = map_name};
+	auto rows = grid->GetSelectedRows();
+	for (auto row : rows)
+	{
+		change.before.push_back({row, map[map_name][row]});
+	}
 
 	for (const auto& block : grid->GetSelectedRowBlocks())
 	{
@@ -686,15 +596,10 @@ bool cMain::DeleteRow(wxGrid* grid, wxComboBox* cmb, map<string, vector<Step>>& 
 
 		if (!map.empty())
 		{
-			std::string map_name = cmb->GetValue().ToStdString();
-
 			if (map.find(map_name) != map.end())
 			{
-				auto it1 = map[map_name].begin();
-				auto it2 = map[map_name].begin();
-
-				it1 += rowNum;
-				it2 += rowNum + rowCount;
+				auto it1 = map[map_name].begin() + rowNum;
+				auto it2 = map[map_name].begin() + rowNum + rowCount;
 
 				map[map_name].erase(it1, it2);
 			}
@@ -703,6 +608,7 @@ bool cMain::DeleteRow(wxGrid* grid, wxComboBox* cmb, map<string, vector<Step>>& 
 		rowsDeleted += rowCount;
 	}
 
+	stack.Push(change);
 	no_changes = false;
 	return true;
 }
@@ -726,20 +632,26 @@ bool cMain::ChangeRow(wxGrid* grid, Step step)
 
 	PopulateGrid(grid, rowNum, &gridEntry);
 
-	BackgroundColorUpdate(grid, rowNum, step.type);
+	BackgroundColorUpdate(grid, rowNum, step);
 
 	no_changes = false;
 	return true;
 }
 
-void cMain::BackgroundColorUpdate(wxGrid* grid, int row, StepType step)
+void cMain::BackgroundColorUpdate(wxGrid* grid, int row, Step& step)
 {
-	grid->SetCellBackgroundColour(row, 0, SteptypeColourHandler::GetStepColourOrDefault(step));
+	grid->SetCellBackgroundColour(row, 0, SteptypeColourHandler::GetStepColourOrDefault(step.type));
+	if (grid == grid_steps) 
+	{
+		grid->SetCellBackgroundColour(row, 1, step.colour);
+		grid->SetCellBackgroundColour(row, 2, step.colour);
+		grid->SetCellBackgroundColour(row, 3, step.colour);
+	}
 }
 
 void cMain::OnAddStepClicked(wxCommandEvent& event)
 {
-	vector<tuple<int, Step>> change;
+	vector<StepLine> change;
 	if (grid_steps->IsSelection())
 	{
 		if (!grid_steps->GetSelectedRows().begin())
@@ -748,27 +660,18 @@ void cMain::OnAddStepClicked(wxCommandEvent& event)
 		}
 
 		change = AddStep(*grid_steps->GetSelectedRows().begin(), ExtractStep());
-		if (change.size() > 0)
-		{
-			stack.Push({
-				.row = *grid_steps->GetSelectedRows().begin() - 1,
-				.type = T_ADD,
-				.rows = change,
-			});
-		}
 	}
 	else
 	{
 		int row = grid_steps->GetNumberRows();
 		change = AddStep(row, ExtractStep());
-		if (change.size() > 0)
-		{
-			stack.Push({
-				.row = row,
-				.type = T_ADD,
-				.rows = change,
-			});
-		}
+	}
+
+	if (change.size() > 0)
+	{
+		stack.Push({
+			.after = change,
+		});
 	}
 	
 	no_changes = false;
@@ -777,7 +680,7 @@ void cMain::OnAddStepClicked(wxCommandEvent& event)
 
 void cMain::OnAddStepRightClicked(wxMouseEvent& event)
 {
-	vector<tuple<int, Step>> change;
+	vector<StepLine> change;
 	if (grid_steps->IsSelection())
 	{
 		if (!grid_steps->GetSelectedRows().Last())
@@ -786,36 +689,28 @@ void cMain::OnAddStepRightClicked(wxMouseEvent& event)
 		}
 
 		change = AddStep(grid_steps->GetSelectedRows().Last() + 1, ExtractStep());
-		if (change.size() > 0)
-		{
-			stack.Push({
-				.row = grid_steps->GetSelectedRows().Last() + 1,
-				.type = T_ADD,
-				.rows = change,
-			});
-		}
+		
 	}
 	else
 	{
 		int row = grid_steps->GetNumberRows();
 		change = AddStep(row, ExtractStep());
-		if (change.size() > 0)
-		{
-			stack.Push({
-				.row = row,
-				.type = T_ADD,
-				.rows = change,
-			});
-		}
+	}
+
+	if (change.size() > 0)
+	{
+		stack.Push({
+			.after = change,
+		});
 	}
 
 	no_changes = false;
 	event.Skip();
 }
 
-vector<tuple<int, Step>> cMain::AddStep(int row, Step step, bool auto_put)
+vector<StepLine> cMain::AddStep(int row, Step step, bool auto_put)
 {
-	vector<tuple<int, Step>> returnValue;
+	vector<StepLine> returnValue;
 
 	if (!ValidateStep(row, step))
 	{
@@ -831,16 +726,12 @@ vector<tuple<int, Step>> cMain::AddStep(int row, Step step, bool auto_put)
 
 			if (!steps_focus_checkbox->IsChecked() || modifier_skip_checkbox->IsChecked()) return returnValue;
 
-			grid_steps->BeginBatch();
-			{
-				for (int i = 0; i < row; i++)
-					grid_steps->HideRow(i);
-			}
-			grid_steps->EndBatch();
+			HandleFocusMode(true, false);
+
 			return returnValue;
 
 		case e_build:
-			step.BuildingIndex = BuildingNameToType[step.Item];
+			step.BuildingIndex = Building::Map_BuildingName_to_BuildingType[step.Item];
 
 			UpdateStepGrid(row , &step);
 			returnValue.push_back({row, step});
@@ -851,7 +742,7 @@ vector<tuple<int, Step>> cMain::AddStep(int row, Step step, bool auto_put)
 			step.amount = 1;
 			if (auto_put)
 			{
-				if (check_furnace->IsChecked() && (to_check == struct_auto_put_furnace_list.stone || to_check == struct_auto_put_furnace_list.steel))
+				if (auto_put_furnace->IsChecked() && (to_check == struct_auto_put_furnace_list.stone || to_check == struct_auto_put_furnace_list.steel))
 				{
 					step.Item = struct_fuel_list.coal;
 					step.inventory = Fuel;
@@ -861,7 +752,7 @@ vector<tuple<int, Step>> cMain::AddStep(int row, Step step, bool auto_put)
 					return returnValue;
 				}
 
-				if (check_burner->IsChecked() && (to_check == struct_auto_put_burner_list.burner_mining_drill || to_check == struct_auto_put_burner_list.burner_inserter || to_check == struct_auto_put_burner_list.boiler))
+				if (auto_put_burner->IsChecked() && (to_check == struct_auto_put_burner_list.burner_mining_drill || to_check == struct_auto_put_burner_list.burner_inserter || to_check == struct_auto_put_burner_list.boiler))
 				{
 					step.Item = struct_fuel_list.coal;
 					step.inventory = Fuel;
@@ -871,7 +762,7 @@ vector<tuple<int, Step>> cMain::AddStep(int row, Step step, bool auto_put)
 					return returnValue;
 				}
 
-				if (check_lab->IsChecked() && to_check == struct_science_list.lab)
+				if (auto_put_lab->IsChecked() && to_check == struct_science_list.lab)
 				{
 					step.Item = "Automation science pack";
 					step.inventory = Input;
@@ -893,16 +784,16 @@ vector<tuple<int, Step>> cMain::AddStep(int row, Step step, bool auto_put)
 			
 			int multiplier = step.amount;
 
-			if (auto_put && 0 < multiplier && check_recipe->IsChecked())
-			{
-				vector<string> recipe = recipes.find(to_check)->second;
+			Recipe recipe = Recipes[Recipe::MapStringToRecipeType(step.Item)];
 
-				for (int i = 0; i < recipe.size(); i += 2)
+			if (auto_put && 0 < multiplier && auto_put_recipe->IsChecked())
+			{
+				for (auto& ingredient : recipe.GetItemIngredients())
 				{
 					step.type = e_put;
-					step.amount = stoi(recipe[i + 1]) * multiplier;
-					step.Item = recipe[i];
 					step.inventory = Input;
+					step.amount = ingredient.count * multiplier;
+					step.Item = ingredient.Name();
 
 					UpdateStepGrid(row + 1, &step);
 					returnValue.push_back({row + 1, step});
@@ -964,24 +855,20 @@ void cMain::OnChangeStepInternal(wxArrayInt& rows, int row)
 		return;
 	};
 
-	stack.Push({
-		.row = row,
-		.type = T_MODIFY,
-		.rows = ChangeStep(row, step)
-	});
+	stack.Push(ChangeStep(row, step));
 
 	grid_steps->SelectRow(row);
 	HandleFocusMode(steps_focus_checkbox->IsChecked());
 	no_changes = false;
 }
 
-vector< tuple<int, Step>> cMain::ChangeStep(int row, Step step)
+Command cMain::ChangeStep(int row, Step step)
 {
-	vector< tuple<int, Step>> change{};
+	Command change{};
 	
 	if (step.type == e_build)
 	{
-		step.BuildingIndex = BuildingNameToType[step.Item];
+		step.BuildingIndex = Building::Map_BuildingName_to_BuildingType[step.Item];
 	}
 	else if (step.type != StepGridData[row].type)
 	{
@@ -990,13 +877,13 @@ vector< tuple<int, Step>> cMain::ChangeStep(int row, Step step)
 
 	GridEntry gridEntry = PrepareStepForGrid(&step);
 
-	change.push_back({row, StepGridData[row]});
-	change.push_back({row, step});
+	change.before.push_back({row, StepGridData[row]});
+	change.after.push_back({row, step});
 
 	StepGridData[row] = step;
 	PopulateGrid(grid_steps, row, &gridEntry);
 
-	BackgroundColorUpdate(grid_steps, row, step.type);
+	BackgroundColorUpdate(grid_steps, row, step);
 	HandleFocusMode(steps_focus_checkbox->IsChecked());
 	return change;
 }
@@ -1040,12 +927,16 @@ void cMain::OnDeleteStepRightClicked(wxMouseEvent& event)
 void cMain::OnDeleteStepInternal(wxArrayInt& rows, bool auto_confirm)
 {
 	int startRow = rows.at(0);
-	auto steps = DeleteSteps(rows, auto_confirm);
-	stack.Push({
-		.row = rows[0],
-		.type = T_DELETE,
-		.rows = steps
-	});
+	Command change = DeleteSteps(rows, auto_confirm);
+	if (change.before.empty())
+	{
+		return;
+	}
+	else 
+	{
+		stack.Push(change);
+		no_changes = false;
+	}
 
 	// The row after the deleted row(s) are selected
 	if (startRow < grid_steps->GetNumberRows())
@@ -1056,53 +947,51 @@ void cMain::OnDeleteStepInternal(wxArrayInt& rows, bool auto_confirm)
 	{
 		grid_steps->SelectRow(startRow - 1);
 	}
-
-	no_changes = false;
 }
 
-vector< tuple<int, Step>> cMain::DeleteSteps(wxArrayInt steps, bool auto_confirmed)
+Command cMain::DeleteSteps(wxArrayInt rows, bool auto_confirmed)
 {
-	vector< tuple<int, Step>> return_list{};
+	Command change;
 	bool confirmed = auto_confirmed;
 
-	for (const auto step : steps)
+	for (const auto row : rows)
 	{
 		if (confirmed) break;
-		if (StepGridData[step].type == e_build)
+		if (StepGridData[row].type == e_build)
 		{
 			if (wxMessageBox("At least one of the rows selected is a build step - are you sure you want to delete the rows selected?\nEnsure that you delete associated steps.", 
 				"The build step(s) you are deleting could be associated with future step", 
 				wxICON_WARNING | wxYES_NO, this) != wxYES)
 			{
-				return return_list;
+				return change;
 			}
 			break;
 		}
 	}
 
-	for (const auto step : steps)
+	for (const auto row : rows)
 	{
-		type_panel->IncrementStateCounter(StepGridData[step].type); break;
+		type_panel->IncrementStateCounter(StepGridData[row].type); break;
 	}
 
-	return_list.reserve(steps.size());
-	return_list.push_back({steps[0], StepGridData.at(steps[0])});
+	change.before.reserve(rows.size());
+	change.before.push_back({rows[0], StepGridData.at(rows[0])});
 	
-	pair<int, int> current_block = {steps[0], 1};
+	pair<int, int> current_block = {rows[0], 1};
 	vector<pair<int, int>> blocks{};
-	blocks.reserve(steps.size());
-	for (int i = 1; i < steps.size(); i++)
+	blocks.reserve(rows.size());
+	for (int i = 1; i < rows.size(); i++)
 	{
-		return_list.push_back({steps[i], StepGridData.at(steps[i])});
+		change.before.push_back({rows[i], StepGridData.at(rows[i])});
 		int block_size = current_block.first + current_block.second;
-		if (steps[i] == block_size)
+		if (rows[i] == block_size)
 		{
 			current_block.second = current_block.second + 1;
 		}
 		else
 		{
 			blocks.push_back(current_block);
-			current_block = {steps[i], 1};
+			current_block = {rows[i], 1};
 		}
 	}
 	blocks.push_back(current_block);
@@ -1120,7 +1009,7 @@ vector< tuple<int, Step>> cMain::DeleteSteps(wxArrayInt steps, bool auto_confirm
 
 	HandleFocusMode(steps_focus_checkbox->IsChecked());
 
-	return return_list;
+	return change;
 }
 
 tuple<int, Step> cMain::GetRowTuple(int index)
@@ -1147,12 +1036,7 @@ void cMain::OnMoveUpClicked(wxCommandEvent& event)
 		return;
 	}
 	
-	MoveRow(grid_steps, true);
-	stack.Push({
-		.row = *grid_steps->GetSelectedRows().begin(),
-		.type = T_MOVE_UP,
-		.rows = GetSelectedRowTuples(),
-	});
+	stack.Push(MoveRows(grid_steps, -1));
 	event.Skip();
 }
 
@@ -1164,12 +1048,7 @@ void cMain::OnMoveDownClicked(wxCommandEvent& event)
 		return;
 	}
 
-	MoveRow(grid_steps, false);	
-	stack.Push({
-		.row = *grid_steps->GetSelectedRows().begin(),
-		.type = T_MOVE_DOWN,
-		.rows = GetSelectedRowTuples(),
-	});
+	stack.Push(MoveRows(grid_steps, 1));
 	event.Skip();
 }
 
@@ -1180,10 +1059,7 @@ void cMain::OnMoveUpFiveClicked(wxMouseEvent& event)
 		wxMessageBox("Please select row(s) to move", "Select row(s)");
 	}
 
-	for (int i = 0; i < 5; i++)
-	{
-		MoveRow(grid_steps, true);
-	}
+	stack.Push(MoveRows(grid_steps, -5));
 
 	event.Skip();
 }
@@ -1195,30 +1071,16 @@ void cMain::OnMoveDownFiveClicked(wxMouseEvent& event)
 		wxMessageBox("Please select row(s) to move", "Select row(s)");
 	}
 
-	for (int i = 0; i < 5; i++)
-	{
-		MoveRow(grid_steps, false);
-	}
-
+	stack.Push(MoveRows(grid_steps, 5));
+	
 	event.Skip();
 }
 
-void cMain::OnStepsGridDoubleLeftClick(wxGridEvent& event)
+void cMain::OnStepsGridRightClick(wxGridEvent& event)
 {
 	auto gridEntry = ExtractGridEntry(grid_steps, event.GetRow());
 
 	UpdateParameters(&gridEntry, event);
-
-	event.Skip();
-}
-
-void cMain::OnStepsGridDoubleRightClick(wxGridEvent& event)
-{
-	auto gridEntry = ExtractGridEntry(grid_steps, event.GetRow());
-
-	UpdateParameters(&gridEntry, event, false);
-
-	event.Skip();
 }
 
 void cMain::OnStepsGridRangeSelect(wxGridRangeSelectEvent& event)
@@ -1243,6 +1105,9 @@ void cMain::OnStepsGridRangeSelect(wxGridRangeSelectEvent& event)
 		modifier_force_checkbox->Show();
 		modifier_force_button->Hide();
 		sizer_force->Layout();
+		modifier_vehicle_checkbox->Show();
+		modifier_vehicle_button->Hide();
+		sizer_vehicle->Layout();
 		btn_change_step->Enable();
 	}
 	else
@@ -1256,6 +1121,9 @@ void cMain::OnStepsGridRangeSelect(wxGridRangeSelectEvent& event)
 		modifier_force_checkbox->Hide();
 		modifier_force_button->Show();
 		sizer_force->Layout();
+		modifier_vehicle_checkbox->Hide();
+		modifier_vehicle_button->Show();
+		sizer_vehicle->Layout();
 		btn_change_step->Disable();
 	}	
 	HandleSplitOrMergeToggle(rows);
@@ -1265,22 +1133,26 @@ void cMain::OnStepColourPickerColourChanged(wxColourPickerEvent& event)
 {
 	if (!grid_steps->IsSelection())
 	{
-		wxMessageBox("No step is chosen - please select row(s) in the step list", "Cannot change colour of steps");
+		wxMessageBox("No step is chosen - please select one or more rows in the step list", "Cannot change colour of no steps");
 		return;
 	}
+	Command change;
 	const wxColour colour = step_colour_picker->GetColour();
 	wxGridBlockCoordsVector rowsBlocks = grid_steps->GetSelectedRowBlocks();
 	for (wxGridBlockCoords block : rowsBlocks)
 	{
 		for (int row = block.GetTopRow(); row <= block.GetBottomRow(); row++)
 		{
+			change.before.push_back({row, StepGridData[row]});
 			StepGridData.at(row).colour = colour;
 			grid_steps->SetCellBackgroundColour(row, 1, colour);
 			grid_steps->SetCellBackgroundColour(row, 2, colour);
 			grid_steps->SetCellBackgroundColour(row, 3, colour);
+			change.after.push_back({row, StepGridData[row]});
 		}
 	}
-	event.Skip();
+	stack.Push(change);
+	no_changes = false;
 }
 
 void cMain::HandleSplitOrMergeToggle(wxArrayInt& rows)
@@ -1309,10 +1181,13 @@ void cMain::OnSplitMultibuildRightClicked(wxMouseEvent& event)
 void cMain::SplitMultibuildStep(int row)
 {
 	Step data = StepGridData[row];
+	Command change;
+	change.before.push_back({row, data});
 	vector<Step> new_rows;
 	const int buildings = data.Buildings - 1;
 	data.Buildings = 1;
 	StepGridData[row].Buildings = 1;
+	change.after.push_back({row, StepGridData[row]});
 	new_rows.reserve(buildings);
 
 	for (int i = 0; i < buildings; i++)
@@ -1321,6 +1196,7 @@ void cMain::SplitMultibuildStep(int row)
 		data.OriginalX = data.X;
 		data.OriginalY = data.Y;
 		new_rows.push_back(data);
+		change.after.push_back({row+i+1, data});
 	}
 
 	StepGridData.insert(StepGridData.begin() + row + 1, new_rows.begin(), new_rows.end());
@@ -1332,18 +1208,13 @@ void cMain::SplitMultibuildStep(int row)
 
 		PopulateGrid(grid_steps, i, &gridEntry);
 
-		BackgroundColorUpdate(grid_steps, i, StepGridData[i].type);
-
-		if (StepGridData[i].colour != wxNullColour)
-		{
-			wxColour colour = StepGridData[i].colour;
-			grid_steps->SetCellBackgroundColour(i, 1, colour);
-			grid_steps->SetCellBackgroundColour(i, 2, colour);
-			grid_steps->SetCellBackgroundColour(i, 3, colour);
-		}
+		BackgroundColorUpdate(grid_steps, i, StepGridData[i]);
 
 		grid_steps->SelectRow(i, true);
 	}
+
+	stack.Push(change);
+	no_changes;
 }
 
 void cMain::UpdateMapWithNewSteps(wxGrid* grid, wxComboBox* cmb, map<string, vector<Step>>& map)
@@ -1373,6 +1244,8 @@ void cMain::UpdateMapWithNewSteps(wxGrid* grid, wxComboBox* cmb, map<string, vec
 		moveTo = *grid->GetSelectedRows().begin();
 	}
 
+	Command change{.template_name = cmb->GetValue().ToStdString()};
+
 	vector<Step> steps = it->second;
 	for (const auto& block : grid_steps->GetSelectedRowBlocks())
 	{
@@ -1387,18 +1260,20 @@ void cMain::UpdateMapWithNewSteps(wxGrid* grid, wxComboBox* cmb, map<string, vec
 		{
 			GridTransfer(grid_steps, i, grid, moveTo);
 
-			BackgroundColorUpdate(grid, moveTo, StepGridData[i].type);
+			BackgroundColorUpdate(grid, moveTo, StepGridData[i]);
 
 			auto it1 = steps.begin();
 			it1 += moveTo;
 
 			steps.insert(it1, StepGridData[i]);
+			change.after.push_back({moveTo, StepGridData[i]});
 
 			moveTo += 1;
 		}
 	}
 
 	it->second = steps;
+	stack.Push(change);
 	no_changes = false;
 }
 
@@ -1488,18 +1363,22 @@ void cMain::Open(std::ifstream * file)
 	if (result->goal == goal_steelaxe_text)
 	{
 		menu_goals->GetMenuItems()[0]->Check();
+		rbtn_next->Disable();
 	}
 	else if (result->goal == goal_GOTLAP_text)
 	{
 		menu_goals->GetMenuItems()[1]->Check();
+		rbtn_next->Disable();
 	}
 	else if (result->goal == goal_any_percent_text || result->goal == goal_any_percent_text_old)
 	{
 		menu_goals->GetMenuItems()[2]->Check();
+		rbtn_next->Disable();
 	}
 	else if (result->goal == goal_debug_text)
 	{
 		menu_goals->GetMenuItems()[0]->Check();
+		rbtn_next->Disable();
 	}
 	else if (result->goal == scenario_supply_challenge_text)
 	{
@@ -1536,10 +1415,10 @@ void cMain::Open(std::ifstream * file)
 	menu_auto_close->GetMenuItems()[3]->Check(result->auto_close.save_as);
 	auto_close_save_as = result->auto_close.save_as;
 
-	check_furnace->SetValue(result->auto_put.furnace);
-	check_burner->SetValue(result->auto_put.burner);
-	check_lab->SetValue(result->auto_put.lab);
-	check_recipe->SetValue(result->auto_put.recipe);
+	auto_put_furnace->Check(result->auto_put.furnace);
+	auto_put_burner->Check(result->auto_put.burner);
+	auto_put_lab->Check(result->auto_put.lab);
+	auto_put_recipe->Check(result->auto_put.recipe);
 
 	PopulateStepGrid();
 
@@ -1595,7 +1474,7 @@ void cMain::Open(std::ifstream * file)
 		if (row_count > 0 && first_row_index < row_count)
 		{
 			wxGridEvent mock_event = wxGridEvent(0, wxEVT_GRID_CELL_LEFT_DCLICK, 0, first_row_index);
-			OnStepsGridDoubleLeftClick(mock_event); // load first row into detail panel
+			OnStepsGridRightClick(mock_event); // load first row into detail panel
 			grid_steps->GoToCell(row_count-1, 0);
 			grid_steps->GoToCell(first_row_index - (first_row_index > 4 ? 3 : 0), 0); // move the grid to first selected row
 
@@ -1675,15 +1554,7 @@ void cMain::PopulateStepGrid()
 
 		PopulateGrid(grid_steps, i, &gridEntry);
 
-		BackgroundColorUpdate(grid_steps, i, StepGridData[i].type);
-
-		if (StepGridData[i].colour != wxNullColour)
-		{
-			wxColour colour = StepGridData[i].colour;
-			grid_steps->SetCellBackgroundColour(i, 1, colour);
-			grid_steps->SetCellBackgroundColour(i, 2, colour);
-			grid_steps->SetCellBackgroundColour(i, 3, colour);
-		}
+		BackgroundColorUpdate(grid_steps, i, StepGridData[i]);
 	}
 	grid_steps->EndBatch();
 }
@@ -2007,11 +1878,23 @@ void cMain::UpdateParametersChangeType(wxCommandEvent& event, StepType step)
 		case e_shoot:
 			OnShootMenuSelected(event);
 			break;
+		case e_equip:
+			OnEquipMenuSelected(event);
+			break;
 		case e_throw:
 			OnThrowMenuSelected(event);
 			break;
 		case e_cancel_crafting:
 			OnCancelCraftingMenuSelected(event);
+			break;
+		case e_enter:
+			OnEnterExitMenuSelected(event);
+			break;
+		case e_drive:
+			OnDriveMenuSelected(event);
+			break;
+		case e_send:
+			OnSendMenuSelected(event);
 			break;
 		default:
 			break;
@@ -2029,6 +1912,7 @@ void cMain::UpdateParameters(GridEntry* gridEntry, wxCommandEvent& event, bool c
 	modifier_force_checkbox->SetValue(modifiers.find("force") != std::string::npos);
 	modifier_split_checkbox->SetValue(modifiers.find("split") != std::string::npos);
 	modifier_all_checkbox->SetValue(modifiers.find("all") != std::string::npos);
+	modifier_vehicle_checkbox->SetValue(modifiers.find("vehicle") != std::string::npos);
 
 	StepType type = ToStepType(gridEntry->Step.ToStdString());
 	int parameters = listStepTypeToParameterChoices[type];
@@ -2045,12 +1929,20 @@ void cMain::UpdateParameters(GridEntry* gridEntry, wxCommandEvent& event, bool c
 	if (parameters & amount) 
 		spin_amount->SetValue(
 			type == e_game_speed ? to_string(stoi(gridEntry->Amount.ToStdString())) :
-			gridEntry->Amount == "All" ? "0" : gridEntry->Amount.ToStdString()
+			gridEntry->Amount == "All" || gridEntry->Amount == "None" ? "0" : gridEntry->Amount.ToStdString()
 		);
 	if (parameters & item) cmb_item->SetValue(gridEntry->Item);
 	if (parameters & from_to) cmb_from_into->SetValue(gridEntry->BuildingOrientation);
-	if (parameters & input) radio_input->Select(Priority::MapNameToType[orientation_string.substr(0, pos)]);
-	if (parameters & output) radio_output->Select(Priority::MapNameToType[orientation_string.substr(pos + 1)]);
+	if (type == e_drive)
+	{
+		radio_acceleration->Select(Riding::MapStringToAcceleration[orientation_string.substr(0, pos)]);
+		radio_output->Select(Riding::MapStringToDirection[orientation_string.substr(pos + 1)]);
+	}
+	else
+	{
+		if (parameters & input) radio_input->Select(Priority::MapNameToType[orientation_string.substr(0, pos)]);
+		if (parameters & output) radio_output->Select(Priority::MapNameToType[orientation_string.substr(pos + 1)]);
+	}
 	if (parameters & building_orientation) cmb_building_orientation->SetValue(gridEntry->BuildingOrientation);
 	if (parameters & direction_to_build) cmb_direction_to_build->SetValue(gridEntry->DirectionToBuild);
 	if (parameters & building_size) spin_building_size->SetValue(gridEntry->BuildingSize);
@@ -2072,10 +1964,10 @@ bool cMain::Save(string filename, bool save_as, bool set_last_location)
 		menu_auto_close->GetMenuItems()[1]->IsChecked(),
 		menu_auto_close->GetMenuItems()[2]->IsChecked(),
 		menu_auto_close->GetMenuItems()[3]->IsChecked(),
-		check_furnace->IsChecked(),
-		check_burner->IsChecked(),
-		check_lab->IsChecked(),
-		check_recipe->IsChecked(),
+		auto_put_furnace->IsChecked(),
+		auto_put_burner->IsChecked(),
+		auto_put_lab->IsChecked(),
+		auto_put_recipe->IsChecked(),
 		auto_close_save_as,
 		auto_close_save,
 	};
@@ -2153,12 +2045,23 @@ Step cMain::ExtractStep()
 	step.amount = ExtractAmount();
 	step.Item = Capitalize(cmb_item->GetValue(), true);
 	step.inventory = GetInventoryType(Capitalize(cmb_from_into->GetValue()));
-	step.orientation = MapStringToOrientation(cmb_building_orientation->GetValue());
-	step.Direction = MapStringToOrientation(cmb_direction_to_build->GetValue());
+	step.orientation = MapStringToOrientation(cmb_building_orientation->GetValue().ToStdString());
+	step.Direction = MapStringToOrientation(cmb_direction_to_build->GetValue().ToStdString());
 	step.Size = spin_building_size->GetValue();
 	step.Buildings = spin_building_amount->GetValue();
-	step.priority.input = (Priority::Type) radio_input->GetSelection();
-	step.priority.output = (Priority::Type) radio_output->GetSelection();
+	if (step.type == e_drive)
+	{
+		step.riding = {
+			.acceleration = (Riding::Acceleration)radio_acceleration->GetSelection(),
+			.direction = (Riding::Direction)radio_output->GetSelection(),
+		};
+	}
+	else
+	{
+		step.priority.input = (Priority::Type) radio_input->GetSelection();
+		step.priority.output = (Priority::Type) radio_output->GetSelection();
+	}
+	
 	step.Comment = txt_comment->GetValue().ToStdString();
 
 	step.Modifiers = {
@@ -2170,6 +2073,7 @@ Step cMain::ExtractStep()
 		.split = modifier_split_checkbox->IsEnabled() && modifier_split_checkbox->GetValue(),
 		.walk_towards = modifier_walk_towards_checkbox->IsEnabled() && modifier_walk_towards_checkbox->GetValue(),
 		.all = modifier_all_checkbox->IsEnabled() && modifier_all_checkbox->GetValue(),
+		.vehicle = modifier_vehicle_checkbox->IsEnabled() && modifier_vehicle_checkbox->GetValue(),
 	};
 
 	step.colour = step_colour_picker->GetColour();
@@ -2241,6 +2145,12 @@ GridEntry cMain::PrepareStepForGrid(Step* step)
 			gridEntry.Amount = step->AmountGrid();
 			break;
 
+		case e_equip:
+			gridEntry.Amount = step->AmountGrid();
+			gridEntry.Item = step->Item;
+			gridEntry.Inventory = inventory_types_list[step->inventory];
+			break;
+
 		case e_walk:
 		case e_launch:
 			gridEntry.X = std::to_string(step->X);
@@ -2248,9 +2158,9 @@ GridEntry cMain::PrepareStepForGrid(Step* step)
 			break;
 
 		case e_mine:
-			if (step->BuildingIndex != 0)
+			if (step->BuildingIndex.has_value())
 			{
-				gridEntry.Item = FindBuildingName(step->BuildingIndex);
+				gridEntry.Item = step->BuildingIndex.value().Name();
 				step->Item = gridEntry.Item;
 			}
 
@@ -2264,7 +2174,7 @@ GridEntry cMain::PrepareStepForGrid(Step* step)
 			gridEntry.X = std::to_string(step->X);
 			gridEntry.Y = std::to_string(step->Y);
 			gridEntry.Amount = step->AmountGrid();
-			gridEntry.Item = FindBuildingName(step->BuildingIndex);
+			gridEntry.Item = step->BuildingIndex.value().Name();
 			gridEntry.DirectionToBuild = orientation_list[step->Direction];
 			gridEntry.BuildingSize = std::to_string(step->Size);
 			gridEntry.AmountOfBuildings = std::to_string(step->Buildings);
@@ -2341,6 +2251,34 @@ GridEntry cMain::PrepareStepForGrid(Step* step)
 			gridEntry.BuildingSize = std::to_string(step->Size);
 			gridEntry.AmountOfBuildings = std::to_string(step->Buildings);
 			break;
+
+		case e_drive:
+
+			gridEntry.Amount = step->AmountGrid();
+			gridEntry.Priority = step->riding.ToString();
+			break;
+
+		default:
+		{
+			using enum choice_bit_vector;
+			auto param = listStepTypeToParameterChoices[step->type];
+			if (param & x_coordinate) gridEntry.X = std::to_string(step->X);
+			if (param & y_coordinate) gridEntry.Y = std::to_string(step->Y);
+			if (param & amount) gridEntry.Amount = step->AmountGrid();
+			if (param & item) gridEntry.Item = step->Item;
+			if (param & building_orientation) gridEntry.BuildingOrientation = orientation_list[step->orientation];
+
+			if (param & priority_io) gridEntry.Priority = step->priority.ToString();
+
+			if (param & multi_build)
+			{
+				gridEntry.DirectionToBuild = orientation_list[step->Direction];
+				gridEntry.BuildingSize = std::to_string(step->Size);
+				gridEntry.AmountOfBuildings = std::to_string(step->Buildings);
+			}
+		}
+			
+
 	}
 
 	return gridEntry;
@@ -2358,7 +2296,7 @@ void cMain::UpdateStepGrid(int row, Step* step)
 	it1 += row;
 	StepGridData.insert(it1, *step);
 
-	BackgroundColorUpdate(grid_steps, row, step->type);
+	BackgroundColorUpdate(grid_steps, row, *step);
 }
 
 int cMain::GenerateBuildingSnapShot(int end_row)
@@ -2425,7 +2363,11 @@ bool cMain::ValidateStep(const int& row, Step& step, bool validateBuildSteps)
 		case e_keep_walking:
 		case e_shoot:
 		case e_throw:
+		case e_equip:
 		case e_next:
+		case e_enter:
+		case e_drive:
+		case e_send:
 			return true;
 
 		case e_build:
@@ -2465,7 +2407,7 @@ bool cMain::ValidateStep(const int& row, Step& step, bool validateBuildSteps)
 
 		case e_put:
 		case e_take:
-			if (step.inventory != Wreck && !BuildingExists(BuildingsSnapShot, amountOfBuildings, step))
+			if (step.inventory != Wreck && !step.Modifiers.vehicle && !BuildingExists(BuildingsSnapShot, amountOfBuildings, step))
 			{
 				wxMessageBox("Building location doesn't exist.\n1. Please use exactly the same coordinates as you used to build \n2. Check that you have not removed the building(s)\n3. Check that you are not putting this step before the Build step", "Please use the same coordinates");
 				return false;
@@ -2480,14 +2422,15 @@ bool cMain::ValidateStep(const int& row, Step& step, bool validateBuildSteps)
 			return true;
 
 		default:
-
-			if (!BuildingExists(BuildingsSnapShot, amountOfBuildings, step))
+			if (step.inventory == Wreck || step.Modifiers.vehicle)
+				return true;
+			else if (!BuildingExists(BuildingsSnapShot, amountOfBuildings, step))
 			{
 				wxMessageBox("Building location doesn't exist.\n1. Please use exactly the same coordinates as you used to build \n2. Check that you have not removed the building(s)\n3. Check that you are not putting this step before the Build step", "Please use the same coordinates");
 				return false;
-			};
-
-			return ExtraBuildingChecks(step);
+			}
+			else
+				return ExtraBuildingChecks(step);
 	}
 }
 
@@ -2504,61 +2447,50 @@ bool cMain::IsValidBuildStep(Step& step)
 
 bool cMain::IsValidRecipeStep(Step& step)
 {
-	switch (step.BuildingIndex)
+	Recipe recipe = Recipes[Recipe::MapStringToRecipeType(step.Item)];
+
+	switch (step.BuildingIndex.value().type)
 	{
-		case AssemblingMachine1:
-			if (check_input(step.Item, part_assembly_recipes))
-			{
-				return true;
-			}
+		[[likely]] case Building::assembling_machine_1:
+			if (recipe.IsMadeBy(CRAFTING::AssemblingMachine1)) return true;
 
 			wxMessageBox("The item chosen is not a valid recipe for an assembling machine 1", "Item chosen is not valid");
 			return false;
 
-		case AssemblingMachine2:
-		case AssemblingMachine3:
-			if (check_input(step.Item, full_assembly_recipes))
-			{
-				return true;
-			}
+		[[likely]] case Building::assembling_machine_2:
+			if (recipe.IsMadeBy(CRAFTING::AssemblingMachine2)) return true;
+		case Building::assembling_machine_3:
+			if (recipe.IsMadeBy(CRAFTING::AssemblingMachine3)) return true;
 
 			wxMessageBox("The item chosen is not a valid recipe for an assembling machine", "Item chosen is not valid");
 			return false;
 
-		case OilRefinery:
-			if (check_input(step.Item, oil_refinery_list))
-			{
-				return true;
-			}
+		case Building::oil_refinery:
+			if (recipe.IsMadeBy(CRAFTING::OilRefinery)) return true;
 
 			wxMessageBox("The item chosen is not a valid recipe for an oil refinery", "Item chosen is not valid");
 			return false;
 
-		case ChemicalPlant:
-			if (check_input(step.Item, full_chemical_plant_recipes))
-			{
-				return true;
-			}
+		case Building::chemical_plant:
+			if (recipe.IsMadeBy(CRAFTING::ChemicalPlant)) return true;
 
 			wxMessageBox("The item chosen is not a valid recipe for a chemical plant", "Item chosen is not valid");
 			return false;
 
-		case Centrifuge:
-			if (check_input(step.Item, centrifuge_list))
-			{
-				return true;
-			}
+		[[unlikely]] case Building::centrifuge:
+			if (recipe.IsMadeBy(CRAFTING::Centrifuge)) return true;
 
 			wxMessageBox("The item chosen is not a valid recipe for a centrifuge", "Item chosen is not valid");
 			return false;
 
-		case StoneFurnace:
-		case SteelFurnace:
-		case ElectricFurnace:
-			if (check_input(step.Item, furnace_list))
-			{
-				return true;
-			}
+		[[likely]] case Building::stone_furnace:
+			if (recipe.IsMadeBy(CRAFTING::StoneFurnace)) return true;
+			[[fallthrough]];
+		[[likely]] case Building::steel_furnace:
+			if (recipe.IsMadeBy(CRAFTING::SteelFurnace)) return true;
+			[[fallthrough]];
+		[[unlikely]] case Building::electric_furnace:
+			if (recipe.IsMadeBy(CRAFTING::ElectricFurnace)) return true;
 
 			wxMessageBox("The item chosen is not a valid recipe for a furnace", "Item chosen is not valid");
 			return false;
@@ -2570,13 +2502,9 @@ bool cMain::IsValidRecipeStep(Step& step)
 
 bool cMain::IsValidCraftStep(Step& step)
 {
-	if (!check_input(step.Item, handcrafted_list))
-	{
-		wxMessageBox("The item chosen is not valid - please try again", "Please use the item dropdown menu");
-		return false;
-	}
+	Recipe recipe = Recipes[Recipe::MapStringToRecipeType(step.Item)];
 
-	return true;
+	return recipe.IsMadeBy(CRAFTING::Character);
 }
 
 bool cMain::IsValidPutTakeStep(Step& step)
@@ -2591,7 +2519,8 @@ bool cMain::IsValidPutTakeStep(Step& step)
 
 bool cMain::IsValidTechnologyStep(Step& step)
 {
-	if (!check_input(step.Item, tech_list))
+	Technology t{};
+	if (!Technology::MapStringToTech(step.Item, t))
 	{
 		wxMessageBox("The tech is not valid - please try again", "Please use the tech dropdown menu");
 		return false;
@@ -2604,12 +2533,12 @@ bool cMain::CheckTakePut(Step& step)
 {
 	InventoryType to_check = step.inventory;
 
-	if (to_check == Wreck)
+	if (to_check == Wreck || step.Modifiers.vehicle)
 	{
 		return true;
 	}
 
-	string building = FindBuildingName(step.BuildingIndex);
+	string building = step.BuildingIndex.value().Name();
 	if (check_input(building, chest_list))
 	{
 		step.inventory = Chest;
@@ -2701,7 +2630,7 @@ bool cMain::CheckTakePut(Step& step)
 
 bool cMain::ExtraBuildingChecks(Step& step)
 {
-	auto buildingName = FindBuildingName(step.BuildingIndex);
+	auto buildingName = step.BuildingIndex.value().Name();
 
 	switch (step.type)
 	{
@@ -2748,7 +2677,7 @@ bool cMain::ValidateAllSteps()
 		switch (step.type)
 		{
 			case e_build:
-				step.BuildingIndex = BuildingNameToType.find(step.Item)->second;
+				step.BuildingIndex = Building(step.X, step.Y, Building::Map_BuildingName_to_BuildingType[step.Item], step.orientation);
 				buildingsInSnapShot = ProcessBuildStep(BuildingsSnapShot, buildingsInSnapShot, step);
 				break;
 
@@ -2761,7 +2690,7 @@ bool cMain::ValidateAllSteps()
 			case e_rotate:
 			case e_priority:
 			case e_launch:
-				if (!BuildingExists(BuildingsSnapShot, buildingsInSnapShot, step))
+				if (!step.Modifiers.vehicle && !BuildingExists(BuildingsSnapShot, buildingsInSnapShot, step))
 				{
 					string message = "Step " + to_string(i + 1) + " is not connected to a building. Ensure that the step is not placed before the build step.";
 					wxMessageBox(message, "Step not connected to building");
@@ -2772,7 +2701,7 @@ bool cMain::ValidateAllSteps()
 			case e_limit:
 			case e_put:
 			case e_take:
-				if (step.inventory != Wreck && !BuildingExists(BuildingsSnapShot, buildingsInSnapShot, step))
+				if (step.inventory != Wreck && !step.Modifiers.vehicle && !BuildingExists(BuildingsSnapShot, buildingsInSnapShot, step))
 				{
 					string message = "Step " + to_string(i + 1) + " is not connected to a building. Ensure that the step is not placed before the build step.";
 					wxMessageBox(message, "Step not connected to building");
@@ -2823,17 +2752,23 @@ void cMain::NoOrderButtonHandle(bool force)
 			}
 		}
 	}
+	Command change;
 	bool modifier_value = StepGridData.at(rows.front()).Modifiers.no_order;
 	for (int row : rows)
 	{
 		auto& step = StepGridData.at(row);
+		change.before.push_back({row, step});
 		if (step.Modifiers.no_order == modifier_value && 
 			modifier_types.no_order.contains(step.type))
 		{
 			step.Modifiers.no_order = !modifier_value;
 			grid_steps->SetCellValue(row, 6, step.Modifiers.ToString());
 		}
+		change.after.push_back({row, step});
 	}
+
+	stack.Push(change);
+	no_changes = false;
 }
 
 void cMain::OnForceRightClicked(wxMouseEvent& event)
@@ -2861,17 +2796,67 @@ void cMain::ForceButtonHandle(bool force)
 			}
 		}
 	}
+	Command change;
 	bool modifier_value = StepGridData.at(rows.front()).Modifiers.force;
 	for (int row : rows)
 	{
 		auto& step = StepGridData.at(row);
+		change.before.push_back({row, step});
 		if (step.Modifiers.force == modifier_value &&
 			modifier_types.force.contains(step.type))
 		{
 			step.Modifiers.force = !modifier_value;
 			grid_steps->SetCellValue(row, 6, step.Modifiers.ToString());
 		}
+		change.after.push_back({row, step});
 	}
+
+	stack.Push(change);
+	no_changes = false;
+}
+
+void cMain::OnVehicleRightClicked(wxMouseEvent& event)
+{
+	VehicleButtonHandle(true);
+}
+void cMain::OnVehicleClicked(wxCommandEvent& event)
+{
+	VehicleButtonHandle();
+}
+void cMain::VehicleButtonHandle(bool force)
+{
+	wxArrayInt rows = grid_steps->GetSelectedRows();
+	if (rows.size() < 2) return;
+	if (!force)
+	{
+		for (int row : rows)
+		{
+			StepType e = StepGridData.at(row).type;
+			if (!modifier_types.vehicle.contains(e))
+			{
+				wxMessageBox(std::format("Step {} is unable to be assigned the Vehicle modifier. \n As it is of the type {}.", row + 1, StepNames[e]),
+					"One or more steps can't be assigned Vehicle modifier");
+				return;
+			}
+		}
+	}
+	Command change;
+	bool modifier_value = StepGridData.at(rows.front()).Modifiers.vehicle;
+	for (int row : rows)
+	{
+		auto& step = StepGridData.at(row);
+		change.before.push_back({row, step});
+		if (step.Modifiers.vehicle == modifier_value &&
+			modifier_types.vehicle.contains(step.type))
+		{
+			step.Modifiers.vehicle = !modifier_value;
+			grid_steps->SetCellValue(row, 6, step.Modifiers.ToString());
+		}
+		change.after.push_back({row, step});
+	}
+
+	stack.Push(change);
+	no_changes = false;
 }
 
 void cMain::OnSkipClicked(wxCommandEvent& event)
@@ -2879,16 +2864,22 @@ void cMain::OnSkipClicked(wxCommandEvent& event)
 	wxArrayInt rows = grid_steps->GetSelectedRows();
 	if (rows.size() < 2) return;
 
+	Command change;
 	bool modifier_value = StepGridData.at(rows.front()).Modifiers.skip;
 	for (int row : rows)
 	{
 		auto& step = StepGridData.at(row);
+		change.before.push_back({row, step});
 		if (step.Modifiers.skip == modifier_value)
 		{
 			step.Modifiers.skip = !modifier_value;
 			grid_steps->SetCellValue(row, 6, step.Modifiers.ToString());
 		}
+		change.after.push_back({row, step});
 	}
+
+	stack.Push(change);
+	no_changes = false;
 }
 
 void cMain::SelectRowsInGrid(vector<tuple<int, Step>> rows)
@@ -2900,103 +2891,86 @@ void cMain::SelectRowsInGrid(vector<tuple<int, Step>> rows)
 	}
 }
 
-void cMain::OnUndoMenuSelected(wxCommandEvent& event)
+void cMain::UndoRedo(wxGrid* grid, vector<Step>& data_list, vector<StepBlock> before, vector<StepBlock> after)
 {
-	auto current_selected = grid_steps->GetSelectedRows();
-	
-	Command command = stack.Pop();
-
-	switch (command.type)
+	// delete after
+	for (auto it = after.rbegin(); it != after.rend(); ++it)
 	{
-		case T_NULL:
-			break;
-		case T_ADD:
-		{
-			wxArrayInt rows{};
-			for (auto& [row, _] : command.rows)
-			{
-				rows.Add(row);
-			}
-			DeleteSteps(rows, true);
-		}
-			break;
-		case T_DELETE:
-			for (auto& [row, step] : command.rows)
-			{
-				AddStep(row, step, false);
-			}
-			break;
-		case T_MODIFY:
-			{
-				auto& [row, param] = command.rows[0];
-				ChangeStep(command.row, param);
-			}
-			break;
-		case T_MOVE_UP:
-		{
-			SelectRowsInGrid(command.rows);
-			MoveRow(grid_steps, false);
-		}
-			break;
-		case T_MOVE_DOWN:
-		{
-			SelectRowsInGrid(command.rows);
-			MoveRow(grid_steps, true);
-		}
-			break;
-
-		default:
-			break;
+		auto& [row, steps] = *it;
+		data_list.erase(data_list.begin() + row, data_list.begin() + row + steps.size());
+		grid->DeleteRows(row, steps.size());
 	}
+
+	// make room for before
+	for (auto it = before.begin(); it != before.end(); ++it)
+	{
+		auto& [row, steps] = *it;
+		auto t_row = data_list.begin() + row;
+		data_list.insert(t_row, steps.begin(), steps.end());
+		grid->InsertRows(row, steps.size());
+	}
+
+	// insert before
+	if (before.size() > 0)
+	{
+		grid->ClearSelection();
+		grid->GoToCell(before.back().row, 0);
+		grid->GoToCell(before.front().row, 0);
+	}
+	for (auto& [row, steps] : before)
+	{
+		for (int i = 0; i < steps.size(); i++)
+		{
+			int currentrow = row + i;
+			auto gridEntry = PrepareStepForGrid(&data_list[currentrow]);
+			PopulateGrid(grid, currentrow, &gridEntry);
+			BackgroundColorUpdate(grid, currentrow, data_list[currentrow]);
+			grid->SelectRow(currentrow, true);
+		}
+	}
+
+	// upkeeep 
+	if (grid == grid_steps)
+	{
+		for (auto& [row, steps] : after) for (auto& step : steps) type_panel->IncrementStateCounter(step.type);
+		for (auto& [row, steps] : before) for (auto& step : steps) type_panel->IncrementStateCounter(step.type);
+		HandleFocusMode(steps_focus_checkbox->IsChecked());
+	}
+	no_changes = false;
 }
 
+void cMain::UndoRedoHandleTemplate(Command command, vector<StepBlock> before, vector<StepBlock> after)
+{
+	if (command.template_name != "")
+	{
+		if (!template_map.contains(command.template_name))
+		{
+			template_choices.Add(command.template_name);
+			template_choices.Sort();
+			cmb_choose_template->Clear();
+			cmb_choose_template->Append(template_choices);
+			cmb_choose_template->SetValue(command.template_name);
+			cmb_choose_template->AutoComplete(template_choices);
+			template_map.insert(pair<string, vector<Step>>(command.template_name, {}));
+		}
+		UpdateTemplateGrid(template_map[command.template_name]);
+		cmb_choose_template->SetValue(command.template_name);
+	}
+	auto grid = command.template_name == "" ? grid_steps : grid_template;
+	auto& list = command.template_name == "" ? StepGridData : template_map[command.template_name];
+	grid->BeginBatch();
+	{
+		UndoRedo(grid, list, before, after);
+	}
+	grid->EndBatch();
+}
+void cMain::OnUndoMenuSelected(wxCommandEvent& event)
+{
+	Command command = stack.Pop();
+	UndoRedoHandleTemplate(command, StepLineToStepBlock(command.before), StepLineToStepBlock(command.after));
+}
 void cMain::OnRedoMenuSelected(wxCommandEvent& event)
 {
 	Command command = stack.PopBack();
-
-	switch (command.type)
-	{
-		case T_NULL:
-			break;
-		case T_ADD:
-			{
-				for (auto& [row, step] : command.rows)
-				{
-					AddStep(row, step, false);
-				}
-			}
-			break;
-		case T_DELETE:
-			{
-				wxArrayInt rows{};
-				for (auto& [row, _] : command.rows)
-				{
-					rows.Add(row);
-				}
-				DeleteSteps(rows, true);
-			}
-			break;
-		case T_MODIFY:
-			{
-				auto& [row, param] = command.rows[1];
-				ChangeStep(command.row, param);
-			}
-			break;
-		case T_MOVE_UP:
-			{
-				SelectRowsInGrid(command.rows);
-				MoveRow(grid_steps, true);
-			}
-			break;
-		case T_MOVE_DOWN:
-			{
-				SelectRowsInGrid(command.rows);
-				MoveRow(grid_steps, false);
-			}
-			break;
-
-		default:
-			break;
-	}
+	UndoRedoHandleTemplate(command, StepLineToStepBlock(command.after), StepLineToStepBlock(command.before));
 }
-

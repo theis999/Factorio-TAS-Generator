@@ -1,13 +1,9 @@
 #pragma once
 
-#include <unordered_map>
-#include <string>
-#include <vector>
+#include "../StdUtil.h"
+
 #include <set>
 
-using std::unordered_map;
-using std::string;
-using std::vector;
 using std::set;
 
 /// <summary> Enumaration of all step types </summary>
@@ -39,8 +35,12 @@ enum StepType
 	e_keep_walking, 
 	e_keep_on_path, 
 	e_keep_crafting,
-	e_shoot, 
-	e_throw
+	e_shoot,
+	e_equip,
+	e_throw,
+	e_enter,
+	e_drive,
+	e_send,
 };
 
 /// <summary> Contains every step name, aligned with StepType </summary>
@@ -71,71 +71,16 @@ static const vector<string> StepNames = {
 	"Keep walking", 
 	"Keep on path", 
 	"Keep crafting",
-	"Shoot", 
-	"Throw"
+	"Shoot",
+	"Equip",
+	"Throw",
+	"Enter",
+	"Drive",
+	"Send",
 };
 
 /// <summary> Maps StepName::string to StepType::enum </summary>
-static const unordered_map<string, StepType> MapStepNameToStepType = {
-	{"Stop", e_stop}, 
-	{"Build", e_build}, 
-	{"Craft", e_craft}, 
-	{"Game speed", e_game_speed}, 
-	{"Pause", e_pause}, 
-	{"Save", e_save},
-	{"Recipe", e_recipe}, 
-	{"Limit", e_limit}, 
-	{"Filter", e_filter},
-	{"Rotate", e_rotate}, 
-	{"Priority", e_priority}, 
-	{"Put", e_put}, 
-	{"Take", e_take},
-	{"Mine", e_mine}, 
-	{"Launch", e_launch},
-	{"Next", e_next},
-	{"Walk", e_walk}, 
-	{"Tech", e_tech}, 
-	{"Drop", e_drop},
-	{"Pick up", e_pick_up}, 
-	{"Idle", e_idle}, 
-	{"Cancel", e_cancel_crafting},
-	{"Never idle", e_never_idle},
-	{"Keep walking", e_keep_walking}, 
-	{"Keep on path", e_keep_on_path}, 
-	{"Keep crafting", e_keep_crafting},
-	{"Shoot", e_shoot},
-	{"Throw", e_throw},
-
-	//lowercase
-	{"stop", e_stop},
-	{"build", e_build},
-	{"craft", e_craft},
-	{"game speed", e_game_speed},
-	{"pause", e_pause},
-	{"save", e_save},
-	{"recipe", e_recipe},
-	{"limit", e_limit},
-	{"filter", e_filter},
-	{"rotate", e_rotate},
-	{"priority", e_priority},
-	{"put", e_put},
-	{"take", e_take},
-	{"mine", e_mine},
-	{"launch", e_launch},
-	{"next", e_next},
-	{"walk", e_walk},
-	{"tech", e_tech},
-	{"drop", e_drop},
-	{"pick up", e_pick_up},
-	{"idle", e_idle},
-	{"cancel", e_cancel_crafting},
-	{"never idle", e_never_idle},
-	{"keep walking", e_keep_walking},
-	{"keep on path", e_keep_on_path},
-	{"keep crafting", e_keep_crafting},
-	{"shoot", e_shoot},
-	{"throw", e_throw}
-};
+static const map<string, StepType> MapStepNameToStepType = convert_vector_to_enummap<StepType>(StepNames);
 
 /// <summary> Fast way to convert string to step type - however throws an error instead of returning not found </summary>
 static inline const StepType ToStepType(const string step)
@@ -165,6 +110,7 @@ static struct ModifierTypeSets{
 		e_tech,
 		e_drop,
 		e_cancel_crafting,
+		e_equip,
 	};
 	set<StepType> cancel{
 		e_tech,
@@ -174,11 +120,39 @@ static struct ModifierTypeSets{
 		e_recipe,
 		e_craft,
 	};
-	set<StepType> skip{
-		//all
-		e_stop, e_build, e_craft, e_game_speed, e_pause, e_save, e_recipe, e_limit,
-		e_filter, e_rotate, e_priority, e_put, e_take, e_mine, e_launch, e_next, e_walk, e_tech, e_drop, e_pick_up, e_idle, e_cancel_crafting,
-		e_never_idle, e_keep_walking, e_keep_on_path, e_keep_crafting
+	set<StepType> skip{ //all		
+		e_stop,
+		e_build,
+		e_craft,
+		e_game_speed,
+		e_pause,
+		e_save,
+		e_recipe,
+		e_limit,
+		e_filter,
+		e_rotate,
+		e_priority,
+		e_put,
+		e_take,
+		e_mine,
+		e_launch,
+		e_next,
+		e_walk,
+		e_tech,
+		e_drop,
+		e_pick_up,
+		e_idle,
+		e_cancel_crafting,
+		e_never_idle,
+		e_keep_walking,
+		e_keep_on_path,
+		e_keep_crafting,
+		e_shoot,
+		e_equip,
+		e_throw,
+		e_enter,
+		e_drive,
+		e_send,
 	};
 	set<StepType> force{
 		//character steps
@@ -196,6 +170,13 @@ static struct ModifierTypeSets{
 		e_rotate,
 	};
 	set<StepType> split{
+		e_mine,
+	};
+	set<StepType> vehicle{
+		e_take,
+		e_put,
+		e_limit,
+		e_filter,
 		e_mine,
 	};
 } modifier_types;

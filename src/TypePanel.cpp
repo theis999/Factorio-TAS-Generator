@@ -42,11 +42,16 @@ void TypePanel::SetType(wxRadioButton * choosen_btn)
 		parent->rbtn_keep_crafting,
 		parent->rbtn_keep_on_path,
 		parent->rbtn_shoot,
+		parent->rbtn_equip,
 		parent->rbtn_throw,
+		parent->rbtn_enter_exit,
+		parent->rbtn_drive,
+		parent->rbtn_send,
 	};
 	parent->rbtn_character_panel_hidden->SetValue(true);
 	parent->rbtn_building_panel_hidden->SetValue(true);
 	parent->rbtn_game_panel_hidden->SetValue(true);
+	parent->rbtn_vehicle_panel_hidden->SetValue(true);
 	for (auto btn : radio_buttons)
 	{
 		btn->SetValue(btn == choosen_btn);
@@ -112,7 +117,15 @@ void TypePanel::SwitchStep(StepType type)
 			break;
 		case e_shoot: SetType(parent->rbtn_shoot);
 			break;
+		case e_equip: SetType(parent->rbtn_equip);
+			break;
 		case e_throw: SetType(parent->rbtn_throw);
+			break;
+		case e_enter: SetType(parent->rbtn_enter_exit);
+			break;
+		case e_drive: SetType(parent->rbtn_drive);
+			break;
+		case e_send: SetType(parent->rbtn_send);
 			break;
 		default:
 			// ERROR: You have done something wrong
@@ -153,7 +166,7 @@ void cMain::setup_paramters(const int parameters)
 	spin_amount->Enable(parameters & amount);
 	cmb_item->Enable(parameters & item);
 	cmb_from_into->Enable(parameters & from_to);
-	radio_input->Enable((bool)(input == (parameters & input)));
+	radio_input->Enable((bool)(input == (parameters & input))); radio_acceleration->Enable((bool)(input == (parameters & input)));
 	radio_output->Enable((bool)(output == (parameters & output)));
 	cmb_building_orientation->Enable(parameters & building_orientation);
 	cmb_direction_to_build->Enable(parameters & direction_to_build);
@@ -261,30 +274,47 @@ string cMain::ExtractSteptypeName()
 	if (rbtn_shoot->GetValue())
 		return StepNames[e_shoot];
 
+	if (rbtn_equip->GetValue())
+		return StepNames[e_equip];
+
 	if (rbtn_throw->GetValue())
 		return StepNames[e_throw];
+
+	if (rbtn_enter_exit->GetValue())
+		return StepNames[e_enter];
+	if (rbtn_drive->GetValue())
+		return StepNames[e_drive];
+	if (rbtn_send->GetValue())
+		return StepNames[e_send];
 
 	return "not found";
 }
 
 void cMain::UpdateCmbItem(wxArrayString* new_list)
 {
-	if (new_list != current.cmb_item)
+	UpdateCmb(cmb_item, new_list);
+}
+void cMain::UpdateCmb(wxComboBox* control, wxArrayString* new_list)
+{
+	auto id = control->GetId();
+	if (new_list != current.cmb_list[id])
 	{
-		if (!current.map_last_item.contains(new_list)) // if map_last_item does not contain new_list, add it
-			current.map_last_item.insert(std::pair(new_list, *new_list->begin()));
-		const wxString current_value = cmb_item->GetValue();
+		// if map_last_item does not contain new_list, add it
+		current.map_last_item.emplace(std::pair(new_list, *new_list->begin()));
+
+		const wxString current_value = control->GetValue();
 		// either the new list contains the current value or default to the new list's last value
 		wxString last = ListContains(new_list, current_value) ? current_value : current.map_last_item[new_list];
-		current.map_last_item[current.cmb_item] = current_value; // update last item of the list we leave
+		current.map_last_item[current.cmb_list[id]] = current_value; // update last item of the list we leave
 
-		current.cmb_item = new_list;
-		cmb_item->Clear();
-		cmb_item->Append(*new_list);
-		cmb_item->SetValue(last);
-		cmb_item->AutoComplete(*new_list);
+		current.cmb_list[id] = new_list;
+		control->Clear();
+		control->Append(*new_list);
+		control->SetValue(last);
+		control->AutoComplete(*new_list);
 	}
 }
+
 void cMain::UpdateLabelItem(const wxString* new_text)
 {
 	if (new_text != current.label_item)
@@ -312,8 +342,6 @@ void cMain::OnBuildChosen(wxCommandEvent& event)
 
 	UpdateCmbItem(&building_choices);
 	UpdateLabelItem(&TypePanel::item);
-
-	event.Skip();
 }
 
 void cMain::OnTakeChosen(wxCommandEvent& event)
@@ -323,12 +351,12 @@ void cMain::OnTakeChosen(wxCommandEvent& event)
 	SetupModifiers(e_take);
 
 	UpdateCmbItem(&item_choices);
+	UpdateCmb(cmb_from_into, &inventory_choices);
 	UpdateLabelItem(&TypePanel::item);
 	UpdateLabelFromInto(&TypePanel::from);
 
-	cmb_from_into->SetValue(TypePanel::output); // set default to output on take step
 
-	event.Skip();
+	cmb_from_into->SetValue(TypePanel::output); // set default to output on take step
 }
 
 void cMain::OnPutChosen(wxCommandEvent& event)
@@ -338,12 +366,11 @@ void cMain::OnPutChosen(wxCommandEvent& event)
 	SetupModifiers(e_put);
 
 	UpdateCmbItem(&item_choices);
+	UpdateCmb(cmb_from_into, &inventory_choices);
 	UpdateLabelItem(&TypePanel::item);
 	UpdateLabelFromInto(&TypePanel::into);
 
 	cmb_from_into->SetValue(TypePanel::input); // set default to input on put step
-
-	event.Skip();
 }
 
 void cMain::OnCraftChosen(wxCommandEvent& event)
@@ -354,8 +381,6 @@ void cMain::OnCraftChosen(wxCommandEvent& event)
 
 	UpdateCmbItem(&handcrafted_choices);
 	UpdateLabelItem(&TypePanel::item);
-
-	event.Skip();
 }
 
 void cMain::OnRotateChosen(wxCommandEvent& event)
@@ -363,7 +388,6 @@ void cMain::OnRotateChosen(wxCommandEvent& event)
 	type_panel->SetType(rbtn_rotate);
 	setup_paramters(parameter_choices.rotate);
 	SetupModifiers(e_rotate);
-	event.Skip();
 }
 
 void cMain::OnfilterChosen(wxCommandEvent& event)
@@ -375,7 +399,8 @@ void cMain::OnfilterChosen(wxCommandEvent& event)
 	UpdateCmbItem(&item_choices);
 	UpdateLabelItem(&TypePanel::item);
 
-	event.Skip();
+	label_input->SetLabelText("Input:");
+	label_output->SetLabelText("Output:");
 }
 
 void cMain::OnRecipeChosen(wxCommandEvent& event)
@@ -386,8 +411,6 @@ void cMain::OnRecipeChosen(wxCommandEvent& event)
 
 	UpdateCmbItem(&recipe_choices);
 	UpdateLabelItem(&TypePanel::recipe);
-
-	event.Skip();
 }
 
 void cMain::OnTechChosen(wxCommandEvent& event)
@@ -398,8 +421,6 @@ void cMain::OnTechChosen(wxCommandEvent& event)
 
 	UpdateCmbItem(&tech_choices);
 	UpdateLabelItem(&TypePanel::tech);
-
-	event.Skip();
 }
 
 void cMain::OnLaunchChosen(wxCommandEvent& event)
@@ -407,7 +428,6 @@ void cMain::OnLaunchChosen(wxCommandEvent& event)
 	type_panel->SetType(rbtn_launch);
 	setup_paramters(parameter_choices.launch);
 	SetupModifiers(e_launch);
-	event.Skip();
 }
 
 void cMain::OnNextChosen(wxCommandEvent& event)
@@ -415,7 +435,6 @@ void cMain::OnNextChosen(wxCommandEvent& event)
 	type_panel->SetType(rbtn_next);
 	setup_paramters(parameter_choices.next);
 	SetupModifiers(e_next);
-	event.Skip();
 }
 
 void cMain::OnSaveChosen(wxCommandEvent& event)
@@ -423,7 +442,6 @@ void cMain::OnSaveChosen(wxCommandEvent& event)
 	type_panel->SetType(rbtn_save);
 	setup_paramters(parameter_choices.save);
 	SetupModifiers(e_save);
-	event.Skip();
 }
 
 void cMain::OnCancelCraftingChosen(wxCommandEvent& event)
@@ -434,8 +452,6 @@ void cMain::OnCancelCraftingChosen(wxCommandEvent& event)
 
 	UpdateCmbItem(&handcrafted_choices);
 	UpdateLabelItem(&TypePanel::item);
-
-	event.Skip();
 }
 
 void cMain::OnPriorityChosen(wxCommandEvent& event)
@@ -443,7 +459,10 @@ void cMain::OnPriorityChosen(wxCommandEvent& event)
 	type_panel->SetType(rbtn_priority);
 	setup_paramters(parameter_choices.priority);
 	SetupModifiers(e_priority);
-	event.Skip();
+
+	radio_input->Show();
+	radio_acceleration->Hide();
+	detail_sizer_Input->Layout();
 }
 
 void cMain::OnLimitChosen(wxCommandEvent& event)
@@ -451,14 +470,12 @@ void cMain::OnLimitChosen(wxCommandEvent& event)
 	type_panel->SetType(rbtn_limit);
 	setup_paramters(parameter_choices.limit);
 	SetupModifiers(e_limit);
-	event.Skip();
 }
 
 void cMain::OnIdleChosen(wxCommandEvent& event)
 {
 	setup_paramters(parameter_choices.idle);
 	SetupModifiers(e_idle);
-	event.Skip();
 }
 
 void cMain::OnShootChosen(wxCommandEvent& event)
@@ -466,7 +483,18 @@ void cMain::OnShootChosen(wxCommandEvent& event)
 	type_panel->SetType(rbtn_shoot);
 	setup_paramters(parameter_choices.shoot);
 	SetupModifiers(e_shoot);
-	event.Skip();
+}
+
+void cMain::OnEquipChosen(wxCommandEvent& event)
+{
+	type_panel->SetType(rbtn_equip);
+	setup_paramters(parameter_choices.equip);
+	SetupModifiers(e_equip);
+
+	UpdateCmbItem(&equip_choices);
+	UpdateLabelItem(&TypePanel::item);
+	UpdateCmb(cmb_from_into, &equip_inventory_choices);
+	UpdateLabelFromInto(&TypePanel::into);
 }
 
 void cMain::OnThrowChosen(wxCommandEvent& event)
@@ -474,7 +502,8 @@ void cMain::OnThrowChosen(wxCommandEvent& event)
 	type_panel->SetType(rbtn_throw);
 	setup_paramters(parameter_choices._throw);
 	SetupModifiers(e_throw);
-	event.Skip();
+
+	UpdateCmbItem(&throw_choices);
 }
 
 void cMain::OnPickUpChosen(wxCommandEvent& event)
@@ -482,7 +511,6 @@ void cMain::OnPickUpChosen(wxCommandEvent& event)
 	type_panel->SetType(rbtn_pick_up);
 	setup_paramters(parameter_choices.pick);
 	SetupModifiers(e_pick_up);
-	event.Skip();
 }
 
 void cMain::OnDropChosen(wxCommandEvent& event)
@@ -493,8 +521,6 @@ void cMain::OnDropChosen(wxCommandEvent& event)
 
 	UpdateCmbItem(&item_choices);
 	UpdateLabelItem(&TypePanel::item);
-
-	event.Skip();
 }
 
 void cMain::OnPauseChosen(wxCommandEvent& event)
@@ -502,7 +528,6 @@ void cMain::OnPauseChosen(wxCommandEvent& event)
 	type_panel->SetType(rbtn_pause);
 	setup_paramters(parameter_choices.Pause);
 	SetupModifiers(e_pause);
-	event.Skip();
 }
 
 void cMain::OnStopChosen(wxCommandEvent& event)
@@ -510,7 +535,6 @@ void cMain::OnStopChosen(wxCommandEvent& event)
 	type_panel->SetType(rbtn_stop);
 	setup_paramters(parameter_choices.stop);
 	SetupModifiers(e_stop);
-	event.Skip();
 }
 
 void cMain::OnWalkChosen(wxCommandEvent& event)
@@ -518,7 +542,6 @@ void cMain::OnWalkChosen(wxCommandEvent& event)
 	type_panel->SetType(rbtn_walk);
 	setup_paramters(parameter_choices.walk);
 	SetupModifiers(e_walk);
-	event.Skip();
 }
 
 void cMain::OnMineChosen(wxCommandEvent& event)
@@ -526,7 +549,6 @@ void cMain::OnMineChosen(wxCommandEvent& event)
 	type_panel->SetType(rbtn_mine);
 	setup_paramters(parameter_choices.mining);
 	SetupModifiers(e_mine);
-	event.Skip();
 }
 
 void cMain::OnGameSpeedChosen(wxCommandEvent& event)
@@ -534,7 +556,6 @@ void cMain::OnGameSpeedChosen(wxCommandEvent& event)
 	type_panel->SetType(rbtn_game_speed);
 	setup_paramters(parameter_choices.game_speed);
 	SetupModifiers(e_game_speed);
-	event.Skip();
 }
 
 void cMain::OnNeverIdleChosen(wxCommandEvent& event)
@@ -542,7 +563,6 @@ void cMain::OnNeverIdleChosen(wxCommandEvent& event)
 	type_panel->SetType(rbtn_never_idle);
 	setup_paramters(parameter_choices.never_idle);
 	SetupModifiers(e_never_idle);
-	event.Skip();
 }
 
 void cMain::OnKeepWalkingChosen(wxCommandEvent& event)
@@ -550,7 +570,6 @@ void cMain::OnKeepWalkingChosen(wxCommandEvent& event)
 	type_panel->SetType(rbtn_keep_walking);
 	setup_paramters(parameter_choices.keep_walking);
 	SetupModifiers(e_keep_walking);
-	event.Skip();
 }
 
 void cMain::OnKeepOnPathChosen(wxCommandEvent& event)
@@ -558,7 +577,6 @@ void cMain::OnKeepOnPathChosen(wxCommandEvent& event)
 	type_panel->SetType(rbtn_keep_on_path);
 	setup_paramters(parameter_choices.keep_on_path);
 	SetupModifiers(e_keep_on_path);
-	event.Skip();
 }
 
 void cMain::OnKeepCraftingChosen(wxCommandEvent& event)
@@ -566,8 +584,34 @@ void cMain::OnKeepCraftingChosen(wxCommandEvent& event)
 	type_panel->SetType(rbtn_keep_crafting);
 	setup_paramters(parameter_choices.keep_crafting);
 	SetupModifiers(e_keep_crafting);
-	event.Skip();
 }
+
+void cMain::OnEnterExitChosen(wxCommandEvent& event)
+{
+	type_panel->SetType(rbtn_enter_exit);
+	setup_paramters(parameter_choices.enter);
+	SetupModifiers(e_enter);
+}
+
+void cMain::OnDriveChosen(wxCommandEvent& event)
+{
+	type_panel->SetType(rbtn_drive);
+	setup_paramters(parameter_choices.drive);
+	radio_input->Hide();
+	radio_acceleration->Show();
+	detail_sizer_Input->Layout();
+	label_input->SetLabelText("Speed:");
+	label_output->SetLabelText("Steering:");
+	SetupModifiers(e_drive);
+}
+
+void cMain::OnSendChosen(wxCommandEvent& event)
+{
+	type_panel->SetType(rbtn_send);
+	setup_paramters(parameter_choices.send);
+	SetupModifiers(e_send);
+}
+
 #pragma endregion
 
 #pragma region cMain Menu eventhandlers
@@ -596,6 +640,13 @@ void cMain::OnShootMenuSelected(wxCommandEvent& event)
 {
 	type_panel->SwitchStep(e_shoot);
 	OnShootChosen(event);
+	event.Skip();
+}
+
+void cMain::OnEquipMenuSelected(wxCommandEvent& event)
+{
+	type_panel->SwitchStep(e_equip);
+	OnEquipChosen(event);
 	event.Skip();
 }
 
@@ -757,6 +808,27 @@ void cMain::OnPauseMenuSelected(wxCommandEvent& event)
 {
 	type_panel->SwitchStep(e_pause);
 	OnPauseChosen(event);
+	event.Skip();
+}
+
+void cMain::OnEnterExitMenuSelected(wxCommandEvent& event)
+{
+	type_panel->SwitchStep(e_enter);
+	OnEnterExitChosen(event);
+	event.Skip();
+}
+
+void cMain::OnDriveMenuSelected(wxCommandEvent& event)
+{
+	type_panel->SwitchStep(e_drive);
+	OnDriveChosen(event);
+	event.Skip();
+}
+
+void cMain::OnSendMenuSelected(wxCommandEvent& event)
+{
+	type_panel->SwitchStep(e_send);
+	OnSendChosen(event);
 	event.Skip();
 }
 #pragma endregion

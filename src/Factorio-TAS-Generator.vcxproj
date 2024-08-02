@@ -135,9 +135,13 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX20_CISO646_REMOVED_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(WXWIN)\include; $(WXWIN)\include\msvc</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <TreatSpecificWarningsAsErrors>4715</TreatSpecificWarningsAsErrors>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <MinimalRebuild>false</MinimalRebuild>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <BuildStlModules>true</BuildStlModules>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -155,9 +159,10 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(WXWIN)\include; $(WXWIN)\include\msvc</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <TreatSpecificWarningsAsErrors>4715</TreatSpecificWarningsAsErrors>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -170,19 +175,26 @@
   <ItemGroup>
     <ClCompile Include="cApp.cpp" />
     <ClCompile Include="cMain.cpp" />
+    <ClCompile Include="cMain_Focus.cpp" />
     <ClCompile Include="CommandStack.cpp" />
     <ClCompile Include="DialogProgressBar.cpp" />
     <ClCompile Include="GenerateScript.cpp" />
     <ClCompile Include="GUI_Base.cpp" />
     <ClCompile Include="ImportStepsPanel.cpp" />
+    <ClCompile Include="Item.cpp" />
+    <ClCompile Include="Recipe.cpp" />
+    <ClCompile Include="Riding.h" />
     <ClCompile Include="Shared functions\Functions.cpp" />
     <ClCompile Include="Shared functions\StringFunctions.cpp" />
     <ClCompile Include="ShortcutChanger.cpp" />
     <ClCompile Include="SearchUtil.cpp" />
+    <ClCompile Include="StdUtil.cpp" />
     <ClCompile Include="SteptypeColour.cpp" />
+    <ClCompile Include="Structures\Building.cpp" />
     <ClCompile Include="Structures\Step.cpp" />
     <ClCompile Include="TAS save file\OpenTas.cpp" />
     <ClCompile Include="TAS save file\SaveTas.cpp" />
+    <ClCompile Include="Technology.cpp" />
     <ClCompile Include="TemplatePage.cpp" />
     <ClCompile Include="TypePanel.cpp" />
     <ClCompile Include="WalkPanel.cpp" />
@@ -191,13 +203,14 @@
     <ClInclude Include="cApp.h" />
     <ClInclude Include="cMain.h" />
     <ClInclude Include="CommandStack.h" />
-    <ClInclude Include="Data\BuildingNames.h" />
     <ClInclude Include="Data\Inventory.h" />
     <ClInclude Include="Data\utils.h" />
     <ClInclude Include="GenerateScript.h" />
     <ClInclude Include="GUI_Base.h" />
     <ClInclude Include="ImportStepsPanel.h" />
+    <ClInclude Include="Item.h" />
     <ClInclude Include="nlohmann\json.hpp" />
+    <ClInclude Include="Recipe.h" />
     <ClInclude Include="SearchUtil.h" />
     <ClInclude Include="Shared functions\Functions.h" />
     <ClInclude Include="Shared functions\StringFunctions.h" />
@@ -205,6 +218,8 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="DialogProgressBar.h" />
     <ClInclude Include="Settings.h" />
+    <ClInclude Include="StdUtil.h" />
+    <ClInclude Include="StepLine.h" />
     <ClInclude Include="SteptypeColour.h" />
     <ClInclude Include="Structures\Building.h" />
     <ClInclude Include="Structures\GridEntry.h" />
@@ -217,6 +232,7 @@
     <ClInclude Include="TAS save file\OpenTas.h" />
     <ClInclude Include="TAS save file\SaveTas.h" />
     <ClInclude Include="TAS save file\TasFileConstants.h" />
+    <ClInclude Include="Technology.h" />
     <ClInclude Include="TypePanel.h" />
   </ItemGroup>
   <ItemGroup>

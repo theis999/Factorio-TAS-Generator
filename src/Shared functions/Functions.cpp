@@ -85,10 +85,15 @@ string Capitalize(const wxString& stringToCapitalize, const bool isItem)
 	return Capitalize(stringToCapitalize.ToStdString(), isItem);
 }
 
+static bool ichar_equals(char a, char b)
+{
+	return std::tolower(static_cast<unsigned char>(a)) ==
+		std::tolower(static_cast<unsigned char>(b));
+}
+
 bool equals_ignore_case(const std::string_view& lhs, const std::string_view& rhs)
 {
-	auto to_lower{std::ranges::views::transform(std::tolower)};
-	return std::ranges::equal(lhs | to_lower, rhs | to_lower);
+	return std::ranges::equal(lhs , rhs, ichar_equals);
 }
 
 bool starts_with_ignore_case(const std::string& base, const std::string& start)
@@ -122,19 +127,6 @@ bool starts_with_ignore_case_anyword(const wxString& base, const wxString& start
 	return false;
 }
 
-bool is_number(const std::string& str)
-{
-	for (auto s : str)
-	{
-		if (!std::isdigit(s))
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
-
 vector<string> get_keys(map<string, vector<Step>> map)
 {
 	vector<string> keys;
@@ -150,8 +142,8 @@ int ProcessBuildStep(vector<Building>& buildings, int buildingsInSnapShot, Step&
 {
 	buildings[buildingsInSnapShot].X = step.X;
 	buildings[buildingsInSnapShot].Y = step.Y;
-	buildings[buildingsInSnapShot].type = step.BuildingIndex;
-	buildings[buildingsInSnapShot].OrientationEnum = step.orientation;
+	buildings[buildingsInSnapShot].type = (Building::BuildingType) step.BuildingIndex.value().type;
+	buildings[buildingsInSnapShot].orientation = step.orientation;
 	buildingsInSnapShot++;
 
 	if (step.Buildings == 1)
@@ -165,8 +157,8 @@ int ProcessBuildStep(vector<Building>& buildings, int buildingsInSnapShot, Step&
 		
 		buildings[buildingsInSnapShot].X = step.X;
 		buildings[buildingsInSnapShot].Y = step.Y;
-		buildings[buildingsInSnapShot].type = step.BuildingIndex;
-		buildings[buildingsInSnapShot].OrientationEnum = step.orientation;
+		buildings[buildingsInSnapShot].type = (Building::BuildingType)step.BuildingIndex.value().type;
+		buildings[buildingsInSnapShot].orientation = step.orientation;
 		buildingsInSnapShot++;
 	}
 
@@ -180,13 +172,17 @@ void ProcessMiningStep(vector<Building>& buildings, int buildingsInSnapShot, Ste
 	{
 		if (step == buildings[i])
 		{
-			if (step.Modifiers.split ||
-				step.Modifiers.skip ||
-				Capitalize(step.Comment) == "Split")
+			if (step.Modifiers.skip)
 			{
 				return;
 			}
+			else if (step.Modifiers.split || Capitalize(step.Comment) == "Split")
+			{
+				step.BuildingIndex = buildings[i];
+				return;
+			}
 
+			step.BuildingIndex = buildings[i];
 			buildings[i].X = -0.4523543; // Invalidate the building
 			return;
 		}
@@ -206,10 +202,11 @@ bool BuildingExists(vector<Building>& buildings, int buildingsInSnapShot, Step& 
 			{
 				if (buildingsFound == 0)
 				{
-					firstOrientation = buildings[j].OrientationEnum;
+					firstOrientation = buildings[j].orientation;
 				}
 
 				buildingsFound++;
+				step.BuildingIndex = buildings[j];
 				break;
 			}
 		}
@@ -225,6 +222,7 @@ bool BuildingExists(vector<Building>& buildings, int buildingsInSnapShot, Step& 
 	}
 
 	step.Reset();
+	step.BuildingIndex = {};
 	return false;
 }
 

@@ -26,7 +26,7 @@ int cMain::AddWalkScanStartRow()
 		if (!control_types.contains(StepGridData[i].type))
 			return i;
 		
-	return 0;
+	return -1;
 }
 pair<double, double> cMain::AddWalkScanCurrentPosition()
 {
@@ -45,11 +45,7 @@ void cMain::CreateWalkStep(int x_modifier, int y_modifier)
 
 	auto step = Step(x + increment * x_modifier, y + increment * y_modifier);
 	step.type = e_walk;
-	stack.Push({
-		.row = row,
-		.type = T_ADD,
-		.rows = AddStep(row, step),
-	});
+	stack.Push({.after = AddStep(row, step)});
 
 	grid_steps->SelectRow(row);
 	grid_steps->GoToCell(row, 0);

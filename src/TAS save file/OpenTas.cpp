@@ -213,7 +213,7 @@ Step OpenTas::ReadStep(const size_t segment_size, int& buildingsInSnapShot, std:
 	switch (step.type)
 	{
 		case e_build:
-			step.BuildingIndex = BuildingNameToType[step.Item];
+			step.BuildingIndex = Building(step.X, step.Y, Building::Map_BuildingName_to_BuildingType[step.Item], step.orientation);
 			if (buildingsInSnapShot > -1) buildingsInSnapShot = ProcessBuildStep(buildingSnapshot, buildingsInSnapShot, step);
 			break;
 
@@ -226,6 +226,10 @@ Step OpenTas::ReadStep(const size_t segment_size, int& buildingsInSnapShot, std:
 
 			// Only here to populate extra parameters in step. Actual validation will be done on script generation
 			if (buildingsInSnapShot > -1) BuildingExists(buildingSnapshot, buildingsInSnapShot, step);
+			break;
+
+		case e_drive:
+			step.riding.FromString(step_segments[5]);
 			break;
 
 		case e_limit:
@@ -242,6 +246,10 @@ Step OpenTas::ReadStep(const size_t segment_size, int& buildingsInSnapShot, std:
 		case e_launch:
 			// Only here to populate extra parameters in step. Actual validation will be done on script generation
 			if (buildingsInSnapShot > -1) BuildingExists(buildingSnapshot, buildingsInSnapShot, step);
+			break;
+
+		case e_equip:
+			step.inventory = GetInventoryType(step_segments[5]);
 			break;
 
 		case e_never_idle:

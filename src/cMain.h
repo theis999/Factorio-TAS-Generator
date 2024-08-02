@@ -22,7 +22,6 @@
 
 #include "Data\utils.h"
 #include "Data\Inventory.h"
-#include "Data\BuildingNames.h"
 
 #include "Structures\Building.h"
 #include "Structures\ParameterChoices.h"
@@ -39,6 +38,9 @@
 
 #include "../icon.xpm"
 #include "CommandStack.h"
+
+#include "Recipe.h"
+#include "Item.h"
 
 using std::string;
 using std::vector;
@@ -88,6 +90,7 @@ protected:
 	void OnMineMenuSelected(wxCommandEvent& event);
 	void OnThrowMenuSelected(wxCommandEvent& event);
 	void OnShootMenuSelected(wxCommandEvent& event);
+	void OnEquipMenuSelected(wxCommandEvent& event);
 
 	void OnTakeMenuSelected(wxCommandEvent& event);
 	void OnPutMenuSelected(wxCommandEvent& event);
@@ -107,6 +110,10 @@ protected:
 	void OnKeepWalkingMenuSelected(wxCommandEvent& event);
 	void OnKeepOnPathMenuSelected(wxCommandEvent& event);
 	void OnKeepCraftingMenuSelected(wxCommandEvent& event);
+
+	void OnEnterExitMenuSelected(wxCommandEvent& event);
+	void OnDriveMenuSelected(wxCommandEvent& event);
+	void OnSendMenuSelected(wxCommandEvent& event);
 
 	// Shortcut menu
 	void OnChangeShortcutMenuSelected(wxCommandEvent& event);
@@ -149,6 +156,7 @@ protected:
 	void OnLimitChosen(wxCommandEvent& event);
 	void OnIdleChosen(wxCommandEvent& event);
 	void OnShootChosen(wxCommandEvent& event);
+	void OnEquipChosen(wxCommandEvent& event);
 	void OnThrowChosen(wxCommandEvent& event);
 	void OnPickUpChosen(wxCommandEvent& event);
 	void OnDropChosen(wxCommandEvent& event);
@@ -158,6 +166,9 @@ protected:
 	void OnKeepWalkingChosen(wxCommandEvent& event);
 	void OnKeepOnPathChosen(wxCommandEvent& event);
 	void OnKeepCraftingChosen(wxCommandEvent& event);
+	void OnEnterExitChosen(wxCommandEvent& event);
+	void OnDriveChosen(wxCommandEvent& event);
+	void OnSendChosen(wxCommandEvent& event);
 
 	// Modifiers
 	void OnNoOrderClicked(wxCommandEvent& event);
@@ -167,6 +178,9 @@ protected:
 	void OnForceClicked(wxCommandEvent& event);
 	void OnForceRightClicked(wxMouseEvent& event);
 	void ForceButtonHandle(bool force = false);
+	void OnVehicleClicked(wxCommandEvent& event);
+	void OnVehicleRightClicked(wxMouseEvent& event);
+	void VehicleButtonHandle(bool force = false);
 
 	// walk panel
 	void SetupWalkPanelUnicodeCharacters();
@@ -197,8 +211,7 @@ protected:
 	void OnMoveUpFiveClicked(wxMouseEvent& event);
 	void OnMoveDownFiveClicked(wxMouseEvent& event);
 
-	void OnStepsGridDoubleLeftClick(wxGridEvent& event);
-	void OnStepsGridDoubleRightClick(wxGridEvent& event);
+	void OnStepsGridRightClick(wxGridEvent& event);
 	void OnStepsGridRangeSelect(wxGridRangeSelectEvent& event);
 	void OnStepColourPickerColourChanged(wxColourPickerEvent& event);
 	void HandleSplitOrMergeToggle(wxArrayInt& rows);
@@ -209,6 +222,9 @@ protected:
 
 	void OnStepsFocusCheckbox(wxCommandEvent & event);
 	void HandleFocusMode(bool checked, bool changed = false);
+	int HandleFocusMode_FindLastSaveStep(const int from);
+	void HandleFocusMode_HideSteps(const int to, const bool changed, const int row_count);
+	void HandleFocusMode_ShowSteps(const bool changed, const int row_count);
 
 	void OnStepsGridCellChange(wxGridEvent& event);
 	void OnStepsGridEditorShown(wxGridEvent& event);
@@ -295,7 +311,10 @@ private:
 	
 	// Arrays used to populate combo boxes
 	wxArrayString item_choices;
-	wxArrayString take_from_choices;
+	wxArrayString equip_choices;
+	wxArrayString throw_choices;
+	wxArrayString inventory_choices, // standard inventory choices
+		equip_inventory_choices; // specific inventory choices for equip
 	wxArrayString tech_choices;
 	wxArrayString building_orientation_choices;
 	wxArrayString direction_to_build_choices;
@@ -309,6 +328,8 @@ private:
 	map<string, vector<Step>> template_map;
 
 	// Undo and redo
+	void UndoRedo(wxGrid* grid, vector<Step>& date_list, vector<StepBlock> before, vector<StepBlock> after);
+	void UndoRedoHandleTemplate(Command command, vector<StepBlock> before, vector<StepBlock> after);
 	void OnUndoMenuSelected(wxCommandEvent& event);
 	void OnRedoMenuSelected(wxCommandEvent& event);
 	CommandStack stack;
@@ -320,12 +341,13 @@ private:
 	bool ChecksBeforeResetWindow();
 	bool CheckBeforeClose();
 
-	void MoveRow(wxGrid* grid, bool up = false);
+	// if by is possitive then moves the rows down, and negative moves rows up
+	Command MoveRows(wxGrid* grid, int by = 1);
 	void TemplateMoveRow(wxGrid* grid, wxComboBox* cmb, bool up, map<string, vector<Step>>& map);
 	bool DeleteRow(wxGrid* grid, wxComboBox* cmb, map<string, vector<Step>>& map);
 	bool ChangeRow(wxGrid* grid, Step step);
 
-	void BackgroundColorUpdate(wxGrid* grid, int row, StepType step);
+	void BackgroundColorUpdate(wxGrid* grid, int row, Step& step);
 
 	void UpdateMapWithNewSteps(wxGrid* grid, wxComboBox* cmb, map<string, vector<Step>>& map);
 	void UpdateTemplateGrid(vector<Step>& steps);
@@ -354,9 +376,9 @@ private:
 	int GenerateBuildingSnapShot(int end_row);
 	void PopulateStepGrid();
 
-	vector<tuple<int, Step>> AddStep(int row, Step step, bool auto_put = true);
-	vector< tuple<int, Step>> ChangeStep(int row, Step step);
-	vector< tuple<int, Step>> DeleteSteps(wxArrayInt steps, bool auto_confirm = false);
+	vector<StepLine> AddStep(int row, Step step, bool auto_put = true);
+	Command ChangeStep(int row, Step step);
+	Command DeleteSteps(wxArrayInt steps, bool auto_confirm = false);
 	void GridTransfer(wxGrid* from, const int& fromRow, wxGrid* to, const int& toRow);
 	GridEntry ExtractGridEntry(wxGrid* grid, const int& row);
 
@@ -373,24 +395,20 @@ private:
 	bool ValidateAllSteps();
 
 	vector<string> all_buildings;
-	vector<string> all_items;
-	vector<string> part_assembly_recipes;
-	vector<string> full_assembly_recipes;
-	vector<string> full_chemical_plant_recipes;
-	vector<string> all_recipes;
 	vector<Step> StepGridData;
 	vector<Building> BuildingsSnapShot;
 
 	// holds the current state of some gui elements
 	struct
 	{
-		wxArrayString* cmb_item;
+		map<wxWindowID, wxArrayString*> cmb_list;
 		const wxString* label_item;
 		const wxString* label_from_into;
 		map<wxArrayString*, wxString> map_last_item;
-	}current; 
+	}current;
 
 	void UpdateCmbItem(wxArrayString* new_list);
+	void UpdateCmb(wxComboBox* control, wxArrayString* new_list);
 	void UpdateLabelItem(const wxString* new_text);
 	void UpdateLabelFromInto(const wxString* new_text);
 };

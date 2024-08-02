@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version 3.10.1-234-gd93c9fc0)
+// C++ code generated with wxFormBuilder (version 4.2.1-16-g4b3fa447)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO *NOT* EDIT THIS FILE!
@@ -96,6 +96,10 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	shortcut_shoot = new wxMenuItem( menu_steptypes, wxID_ANY, wxString( wxT("Shoot") ) , wxEmptyString, wxITEM_NORMAL );
 	menu_steptypes->Append( shortcut_shoot );
 
+	wxMenuItem* shortcut_equip;
+	shortcut_equip = new wxMenuItem( menu_steptypes, wxID_ANY, wxString( wxT("Equip") ) , wxEmptyString, wxITEM_NORMAL );
+	menu_steptypes->Append( shortcut_equip );
+
 	menu_steptypes->AppendSeparator();
 
 	wxMenuItem* shortcut_take;
@@ -167,6 +171,20 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	wxMenuItem* shortcut_keep_crafting;
 	shortcut_keep_crafting = new wxMenuItem( menu_steptypes, wxID_ANY, wxString( wxT("Keep crafting") ) , wxEmptyString, wxITEM_NORMAL );
 	menu_steptypes->Append( shortcut_keep_crafting );
+
+	menu_steptypes->AppendSeparator();
+
+	wxMenuItem* shortcut_enter_exit;
+	shortcut_enter_exit = new wxMenuItem( menu_steptypes, wxID_ANY, wxString( wxT("Enter exit vehicle") ) , wxEmptyString, wxITEM_NORMAL );
+	menu_steptypes->Append( shortcut_enter_exit );
+
+	wxMenuItem* shortcut_drive;
+	shortcut_drive = new wxMenuItem( menu_steptypes, wxID_ANY, wxString( wxT("Drive vehicle") ) , wxEmptyString, wxITEM_NORMAL );
+	menu_steptypes->Append( shortcut_drive );
+
+	wxMenuItem* shortcut_send;
+	shortcut_send = new wxMenuItem( menu_steptypes, wxID_ANY, wxString( wxT("Send train") ) , wxEmptyString, wxITEM_NORMAL );
+	menu_steptypes->Append( shortcut_send );
 
 	main_menubar->Append( menu_steptypes, wxT("Step types") );
 
@@ -302,6 +320,23 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	main_menubar->Append( menu_auto_close, wxT("Auto-close") );
 
+	menu_auto_put = new wxMenu();
+	auto_put_furnace = new wxMenuItem( menu_auto_put, wxID_ANY, wxString( wxT("Furnace") ) , wxEmptyString, wxITEM_CHECK );
+	menu_auto_put->Append( auto_put_furnace );
+	auto_put_furnace->Check( true );
+
+	auto_put_burner = new wxMenuItem( menu_auto_put, wxID_ANY, wxString( wxT("Burner") ) , wxEmptyString, wxITEM_CHECK );
+	menu_auto_put->Append( auto_put_burner );
+
+	auto_put_lab = new wxMenuItem( menu_auto_put, wxID_ANY, wxString( wxT("Lab") ) , wxEmptyString, wxITEM_CHECK );
+	menu_auto_put->Append( auto_put_lab );
+	auto_put_lab->Check( true );
+
+	auto_put_recipe = new wxMenuItem( menu_auto_put, wxID_ANY, wxString( wxT("Recipe") ) , wxEmptyString, wxITEM_CHECK );
+	menu_auto_put->Append( auto_put_recipe );
+
+	main_menubar->Append( menu_auto_put, wxT("Auto-put") );
+
 	menu_other = new wxMenu();
 	legacy_mining = new wxMenuItem( menu_other, wxID_ANY, wxString( wxT("Legacy mining") ) , wxT("Legacy mining is 1 tick slower."), wxITEM_CHECK );
 	menu_other->Append( legacy_mining );
@@ -317,8 +352,327 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	this->SetMenuBar( main_menubar );
 
+	type_panel = new TypePanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), wxBORDER_NONE|wxTAB_TRAVERSAL );
+	m_mgr.AddPane( type_panel, wxAuiPaneInfo() .Name( wxT("StepTypePanel") ).Top() .Caption( wxT("Step type") ).CloseButton( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxSize( 720,150 ) ).BottomDockable( false ).LeftDockable( false ).RightDockable( false ).Row( 2 ).BestSize( wxSize( 720,140 ) ).MinSize( wxSize( 710,120 ) ).Layer( 1 ) );
+
+	wxBoxSizer* type_sizer;
+	type_sizer = new wxBoxSizer( wxHORIZONTAL );
+
+	character_panel = new wxPanel( type_panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_THEME|wxTAB_TRAVERSAL );
+	wxFlexGridSizer* fgSizer4;
+	fgSizer4 = new wxFlexGridSizer( 5, 3, 5, 5 );
+	fgSizer4->SetFlexibleDirection( wxBOTH );
+	fgSizer4->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+
+	rbtn_walk = new wxRadioButton( character_panel, wxID_ANY, wxT("Walk"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_walk->SetToolTip( wxT("Makes the character walk to a point") );
+
+	fgSizer4->Add( rbtn_walk, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	rbtn_craft = new wxRadioButton( character_panel, wxID_ANY, wxT("Craft"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_craft->SetToolTip( wxT("Makes the character craft an item") );
+
+	fgSizer4->Add( rbtn_craft, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	rbtn_tech = new wxRadioButton( character_panel, wxID_ANY, wxT("Tech"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_tech->SetToolTip( wxT("Adds a technologi to the research queue") );
+
+	fgSizer4->Add( rbtn_tech, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	rbtn_idle = new wxRadioButton( character_panel, wxID_ANY, wxT("Idle"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_idle->SetToolTip( wxT("Makes the character do nothing for X ticks") );
+
+	fgSizer4->Add( rbtn_idle, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	rbtn_pick_up = new wxRadioButton( character_panel, wxID_ANY, wxT("Pick Up"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_pick_up->SetToolTip( wxT("Makes the character start to pick up items on the floor, same as pressing ( f )") );
+
+	fgSizer4->Add( rbtn_pick_up, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	rbtn_drop = new wxRadioButton( character_panel, wxID_ANY, wxT("Drop"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_drop->SetToolTip( wxT("Makes the character drop an item, same as pressing ( z )") );
+
+	fgSizer4->Add( rbtn_drop, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	rbtn_cancel_crafting = new wxRadioButton( character_panel, wxID_ANY, wxT("Cancel"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_cancel_crafting->SetToolTip( wxT("Cancels items in the players crafting queue, \nreturning the ingredients to your hand") );
+
+	fgSizer4->Add( rbtn_cancel_crafting, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	rbtn_mine = new wxRadioButton( character_panel, wxID_ANY, wxT("Mine"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_mine->SetToolTip( wxT("Makes the character mine an area, if there is a building, tree or rock they will remove that instead") );
+
+	fgSizer4->Add( rbtn_mine, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	rbtn_throw = new wxRadioButton( character_panel, wxID_ANY, wxT("Throw"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_throw->SetToolTip( wxT("Makes the character throw a grenade or combat robot, at the target location.") );
+
+	fgSizer4->Add( rbtn_throw, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	rbtn_shoot = new wxRadioButton( character_panel, wxID_ANY, wxT("Shoot"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_shoot->SetToolTip( wxT("Makes the character shoot at a target for Amount ticks") );
+
+	fgSizer4->Add( rbtn_shoot, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	rbtn_equip = new wxRadioButton( character_panel, wxID_ANY, wxT("Equip"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_equip->SetToolTip( wxT("Makes the character equip a weapon, ammo or armor.\n\nDrawing items from the characters main inventory, and potentially returning them there too.\n\nThis is a set typed action, so if you Equip 3 firearm magazine into a slot where there are 5 firearm magazine items, then it will return 2.\n") );
+
+	fgSizer4->Add( rbtn_equip, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	rbtn_character_panel_hidden = new wxRadioButton( character_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_character_panel_hidden->SetValue( true );
+	rbtn_character_panel_hidden->Hide();
+
+	fgSizer4->Add( rbtn_character_panel_hidden, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	character_panel->SetSizer( fgSizer4 );
+	character_panel->Layout();
+	fgSizer4->Fit( character_panel );
+	type_sizer->Add( character_panel, 1, wxALL|wxEXPAND, 5 );
+
+	building_panel = new wxPanel( type_panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_THEME|wxTAB_TRAVERSAL );
+	wxFlexGridSizer* fgSizer5;
+	fgSizer5 = new wxFlexGridSizer( 4, 3, 5, 5 );
+	fgSizer5->SetFlexibleDirection( wxBOTH );
+	fgSizer5->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+
+	wxBoxSizer* type_sizer_Take;
+	type_sizer_Take = new wxBoxSizer( wxVERTICAL );
+
+	rbtn_take = new wxRadioButton( building_panel, wxID_ANY, wxT("Take"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_take->SetToolTip( wxT("Makes the character take items from a container [chest, furnace, assembler, etc.] and put them into their inventory") );
+
+	type_sizer_Take->Add( rbtn_take, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	fgSizer5->Add( type_sizer_Take, 1, wxEXPAND, 5 );
+
+	wxBoxSizer* type_sizer_Put;
+	type_sizer_Put = new wxBoxSizer( wxVERTICAL );
+
+	rbtn_put = new wxRadioButton( building_panel, wxID_ANY, wxT("Put"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_put->SetToolTip( wxT("Makes the character put items from his inventory into a container [chest, furnace, assembler, etc.]") );
+
+	type_sizer_Put->Add( rbtn_put, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	fgSizer5->Add( type_sizer_Put, 1, wxEXPAND, 5 );
+
+	wxBoxSizer* type_sizer_Build;
+	type_sizer_Build = new wxBoxSizer( wxVERTICAL );
+
+	rbtn_build = new wxRadioButton( building_panel, wxID_ANY, wxT("Build"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_build->SetToolTip( wxT("Makes the character build an entity") );
+
+	type_sizer_Build->Add( rbtn_build, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	fgSizer5->Add( type_sizer_Build, 1, wxEXPAND, 5 );
+
+	wxBoxSizer* type_sizer_Recipe;
+	type_sizer_Recipe = new wxBoxSizer( wxVERTICAL );
+
+	rbtn_recipe = new wxRadioButton( building_panel, wxID_ANY, wxT("Recipe"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_recipe->SetToolTip( wxT("Makes the character change the recipe for a crafting machine") );
+
+	type_sizer_Recipe->Add( rbtn_recipe, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	fgSizer5->Add( type_sizer_Recipe, 1, wxEXPAND, 5 );
+
+	wxBoxSizer* type_sizer_Limit;
+	type_sizer_Limit = new wxBoxSizer( wxVERTICAL );
+
+	rbtn_limit = new wxRadioButton( building_panel, wxID_ANY, wxT("Limit"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_limit->SetToolTip( wxT("Makes the character limit a chest to X slots") );
+
+	type_sizer_Limit->Add( rbtn_limit, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	fgSizer5->Add( type_sizer_Limit, 1, wxEXPAND, 5 );
+
+	wxBoxSizer* type_sizer_Filter;
+	type_sizer_Filter = new wxBoxSizer( wxVERTICAL );
+
+	rbtn_filter = new wxRadioButton( building_panel, wxID_ANY, wxT("Filter"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_filter->SetToolTip( wxT("Makes the character set the filter on either: a filter-inserter, a splitter or a slot in a car / train wagon") );
+
+	type_sizer_Filter->Add( rbtn_filter, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	fgSizer5->Add( type_sizer_Filter, 1, wxEXPAND, 5 );
+
+	wxBoxSizer* type_sizer_Priority;
+	type_sizer_Priority = new wxBoxSizer( wxVERTICAL );
+
+	rbtn_priority = new wxRadioButton( building_panel, wxID_ANY, wxT("Priority"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_priority->SetToolTip( wxT("Makes the character set the input and output priority on a splitter.\nNeeds to be applied before setting the filter on the splitter.") );
+
+	type_sizer_Priority->Add( rbtn_priority, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	fgSizer5->Add( type_sizer_Priority, 1, wxEXPAND, 5 );
+
+	wxBoxSizer* type_sizer_Launch;
+	type_sizer_Launch = new wxBoxSizer( wxVERTICAL );
+
+	rbtn_launch = new wxRadioButton( building_panel, wxID_ANY, wxT("Launch"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_launch->SetToolTip( wxT("Makes the character launch a rocket from a rocket silo") );
+
+	type_sizer_Launch->Add( rbtn_launch, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	fgSizer5->Add( type_sizer_Launch, 1, wxEXPAND, 5 );
+
+	wxBoxSizer* type_sizer_Rotate;
+	type_sizer_Rotate = new wxBoxSizer( wxVERTICAL );
+
+	rbtn_rotate = new wxRadioButton( building_panel, wxID_ANY, wxT("Rotate"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_rotate->SetToolTip( wxT("Makes the character rotate an entity X times.\nIf X is 3 then the entity is rotated once counter-clock-wise.") );
+
+	type_sizer_Rotate->Add( rbtn_rotate, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	fgSizer5->Add( type_sizer_Rotate, 1, wxEXPAND, 5 );
+
+	rbtn_next = new wxRadioButton( building_panel, wxID_ANY, wxT("Next"), wxDefaultPosition, wxDefaultSize, 0 );
+	fgSizer5->Add( rbtn_next, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	rbtn_building_panel_hidden = new wxRadioButton( building_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_building_panel_hidden->SetValue( true );
+	rbtn_building_panel_hidden->Hide();
+
+	fgSizer5->Add( rbtn_building_panel_hidden, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	building_panel->SetSizer( fgSizer5 );
+	building_panel->Layout();
+	fgSizer5->Fit( building_panel );
+	type_sizer->Add( building_panel, 1, wxBOTTOM|wxEXPAND|wxTOP, 5 );
+
+	game_panel = new wxPanel( type_panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_THEME|wxTAB_TRAVERSAL );
+	wxFlexGridSizer* fgSizer6;
+	fgSizer6 = new wxFlexGridSizer( 5, 2, 5, 5 );
+	fgSizer6->SetFlexibleDirection( wxBOTH );
+	fgSizer6->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+
+	wxBoxSizer* type_sizer_GameSpeed;
+	type_sizer_GameSpeed = new wxBoxSizer( wxVERTICAL );
+
+	rbtn_game_speed = new wxRadioButton( game_panel, wxID_ANY, wxT("Game Speed"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_game_speed->SetToolTip( wxT("Changes the game speed to X%") );
+
+	type_sizer_GameSpeed->Add( rbtn_game_speed, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	fgSizer6->Add( type_sizer_GameSpeed, 1, wxEXPAND, 5 );
+
+	wxBoxSizer* type_sizer_Pause;
+	type_sizer_Pause = new wxBoxSizer( wxVERTICAL );
+
+	rbtn_pause = new wxRadioButton( game_panel, wxID_ANY, wxT("Pause"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_pause->SetToolTip( wxT("Pauses the game, when all previous tasks are completed. Same as /Pause in the console, the game can be continued with /Resume") );
+
+	type_sizer_Pause->Add( rbtn_pause, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	fgSizer6->Add( type_sizer_Pause, 1, wxEXPAND, 5 );
+
+	wxBoxSizer* type_sizer_Stop;
+	type_sizer_Stop = new wxBoxSizer( wxHORIZONTAL );
+
+	rbtn_stop = new wxRadioButton( game_panel, wxID_ANY, wxT("Stop"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_stop->SetToolTip( wxT("Stops the generator from processing further. Effectively marking this as the end of the TAS instead of using the end of the file.") );
+
+	type_sizer_Stop->Add( rbtn_stop, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	fgSizer6->Add( type_sizer_Stop, 1, wxEXPAND, 5 );
+
+	wxBoxSizer* type_sizer_Save;
+	type_sizer_Save = new wxBoxSizer( wxVERTICAL );
+
+	rbtn_save = new wxRadioButton( game_panel, wxID_ANY, wxT("Save"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_save->SetToolTip( wxT("Creates a save game named by the comment, the tas can only be continued from these save games.\nIn single player the save game name has the prefix autosave-") );
+
+	type_sizer_Save->Add( rbtn_save, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	fgSizer6->Add( type_sizer_Save, 1, wxEXPAND, 5 );
+
+	rbtn_never_idle = new wxRadioButton( game_panel, wxID_ANY, wxT("Never Idle"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_never_idle->SetToolTip( wxT("Toggles that the TAS that it should execute a step in every tick.\nIf it can't it will raise a warning through the console so you can improve the script.") );
+
+	fgSizer6->Add( rbtn_never_idle, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	rbtn_keep_walking = new wxRadioButton( game_panel, wxID_ANY, wxT("Keep Walking"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_keep_walking->SetToolTip( wxT("Toggles that the TAS should never stand still in one spot.\nIf it can't it will raise a warning through the console so you can improve the script.") );
+
+	fgSizer6->Add( rbtn_keep_walking, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	rbtn_keep_on_path = new wxRadioButton( game_panel, wxID_ANY, wxT("Keep on Path"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_keep_on_path->SetToolTip( wxT("Toggles that the TAS should stay on pathing, such stone-path or concrete.\nIf it can't it will raise a warning through the console so you can improve the script.\n\nThis uses simple detection of: character speed > base speed. So it will be inaccurate if the speed is modified in other ways than tiles.") );
+
+	fgSizer6->Add( rbtn_keep_on_path, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	rbtn_keep_crafting = new wxRadioButton( game_panel, wxID_ANY, wxT("Keep Crafting"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_keep_crafting->SetToolTip( wxT("Toggles that the TAS should keep the handcrafting queued active.\nIf it can't it will raise a warning through the console so you can improve the script.") );
+
+	fgSizer6->Add( rbtn_keep_crafting, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	rbtn_game_panel_hidden = new wxRadioButton( game_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_game_panel_hidden->SetValue( true );
+	rbtn_game_panel_hidden->Hide();
+
+	fgSizer6->Add( rbtn_game_panel_hidden, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	game_panel->SetSizer( fgSizer6 );
+	game_panel->Layout();
+	fgSizer6->Fit( game_panel );
+	type_sizer->Add( game_panel, 1, wxEXPAND | wxALL, 5 );
+
+	vehicle_panel = new wxPanel( type_panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_THEME|wxTAB_TRAVERSAL );
+	wxFlexGridSizer* fgSizer61;
+	fgSizer61 = new wxFlexGridSizer( 5, 1, 5, 5 );
+	fgSizer61->SetFlexibleDirection( wxBOTH );
+	fgSizer61->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+
+	rbtn_enter_exit = new wxRadioButton( vehicle_panel, wxID_ANY, wxT("Enter"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_enter_exit->SetToolTip( wxT("Toggles between enter & exit vehicle.\nIf in proximity to the vehicle the character will enter it.\nIf inside a vehicle, the character will exit it.") );
+
+	fgSizer61->Add( rbtn_enter_exit, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	rbtn_drive = new wxRadioButton( vehicle_panel, wxID_ANY, wxT("Drive"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_drive->SetToolTip( wxT("Change the acceleration and direction of the vehicle your character is inside. ei driving.\n") );
+
+	fgSizer61->Add( rbtn_drive, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	rbtn_send = new wxRadioButton( vehicle_panel, wxID_ANY, wxT("Send"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_send->Hide();
+	rbtn_send->SetToolTip( wxT("Send a train anywhere on the map a temporary stop") );
+
+	fgSizer61->Add( rbtn_send, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+	rbtn_vehicle_panel_hidden = new wxRadioButton( vehicle_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_vehicle_panel_hidden->SetValue( true );
+	rbtn_vehicle_panel_hidden->Hide();
+
+	fgSizer61->Add( rbtn_vehicle_panel_hidden, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+
+
+	vehicle_panel->SetSizer( fgSizer61 );
+	vehicle_panel->Layout();
+	fgSizer61->Fit( vehicle_panel );
+	type_sizer->Add( vehicle_panel, 1, wxEXPAND | wxALL, 5 );
+
+
+	type_panel->SetSizer( type_sizer );
+	type_panel->Layout();
+	type_sizer->Fit( type_panel );
 	detail_panel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	m_mgr.AddPane( detail_panel, wxAuiPaneInfo() .Name( wxT("StepDetailPanel") ).Top() .Caption( wxT("Step detail") ).CloseButton( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxSize( 1010,155 ) ).BottomDockable( false ).LeftDockable( false ).RightDockable( false ).Row( 1 ).BestSize( wxSize( 650,140 ) ).MinSize( wxSize( 650,120 ) ).Layer( 1 ) );
+	m_mgr.AddPane( detail_panel, wxAuiPaneInfo() .Name( wxT("StepDetailPanel") ).Top() .Caption( wxT("Step detail") ).CloseButton( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxSize( 1010,155 ) ).BottomDockable( false ).LeftDockable( false ).RightDockable( false ).Row( 2 ).BestSize( wxSize( 650,140 ) ).MinSize( wxSize( 650,120 ) ).Layer( 1 ) );
 
 	wxBoxSizer* detail_sizer;
 	detail_sizer = new wxBoxSizer( wxHORIZONTAL );
@@ -425,7 +779,6 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	detail_sizer_col2->Add( detail_sizer_FromTo, 1, 0, 5 );
 
-	wxBoxSizer* detail_sizer_Input;
 	detail_sizer_Input = new wxBoxSizer( wxHORIZONTAL );
 
 	label_input = new wxStaticText( detail_panel, wxID_ANY, wxT("Input:"), wxDefaultPosition, wxSize( 60,-1 ), wxALIGN_RIGHT );
@@ -440,6 +793,17 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	radio_input->SetMinSize( wxSize( 180,-1 ) );
 
 	detail_sizer_Input->Add( radio_input, 0, wxLEFT|wxRIGHT, 5 );
+
+	wxString radio_accelerationChoices[] = { wxT("Idle"), wxT("Accel"), wxT("Break"), wxT("Back") };
+	int radio_accelerationNChoices = sizeof( radio_accelerationChoices ) / sizeof( wxString );
+	radio_acceleration = new wxRadioBox( detail_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, radio_accelerationNChoices, radio_accelerationChoices, 4, wxRA_SPECIFY_COLS );
+	radio_acceleration->SetSelection( 1 );
+	radio_acceleration->SetFont( wxFont( 6, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+	radio_acceleration->Hide();
+	radio_acceleration->SetToolTip( wxT("Specifies vehicle momentum") );
+	radio_acceleration->SetMinSize( wxSize( 180,-1 ) );
+
+	detail_sizer_Input->Add( radio_acceleration, 0, wxLEFT|wxRIGHT, 5 );
 
 
 	detail_sizer_col2->Add( detail_sizer_Input, 1, 0, 5 );
@@ -541,396 +905,14 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	detail_panel->SetSizer( detail_sizer );
 	detail_panel->Layout();
 	detail_sizer->Fit( detail_panel );
-	type_panel = new TypePanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), wxBORDER_NONE|wxTAB_TRAVERSAL );
-	m_mgr.AddPane( type_panel, wxAuiPaneInfo() .Name( wxT("StepTypePanel") ).Top() .Caption( wxT("Step type") ).CloseButton( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxSize( 720,150 ) ).BottomDockable( false ).LeftDockable( false ).RightDockable( false ).Row( 1 ).BestSize( wxSize( 720,140 ) ).MinSize( wxSize( 700,120 ) ).Layer( 1 ) );
-
-	wxBoxSizer* type_sizer;
-	type_sizer = new wxBoxSizer( wxHORIZONTAL );
-
-	character_panel = new wxPanel( type_panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_THEME|wxTAB_TRAVERSAL );
-	wxFlexGridSizer* fgSizer4;
-	fgSizer4 = new wxFlexGridSizer( 5, 3, 5, 10 );
-	fgSizer4->SetFlexibleDirection( wxBOTH );
-	fgSizer4->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
-
-	wxBoxSizer* type_sizer_Walk;
-	type_sizer_Walk = new wxBoxSizer( wxVERTICAL );
-
-	rbtn_walk = new wxRadioButton( character_panel, wxID_ANY, wxT("Walk"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_walk->SetToolTip( wxT("Makes the character walk to a point") );
-
-	type_sizer_Walk->Add( rbtn_walk, 0, wxALL, 5 );
-
-
-	fgSizer4->Add( type_sizer_Walk, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* type_sizer_Craft;
-	type_sizer_Craft = new wxBoxSizer( wxVERTICAL );
-
-	rbtn_craft = new wxRadioButton( character_panel, wxID_ANY, wxT("Craft"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_craft->SetToolTip( wxT("Makes the character craft an item") );
-
-	type_sizer_Craft->Add( rbtn_craft, 0, wxALL, 5 );
-
-
-	fgSizer4->Add( type_sizer_Craft, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* type_sizer_Tech;
-	type_sizer_Tech = new wxBoxSizer( wxVERTICAL );
-
-	rbtn_tech = new wxRadioButton( character_panel, wxID_ANY, wxT("Tech"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_tech->SetToolTip( wxT("Adds a technologi to the research queue") );
-
-	type_sizer_Tech->Add( rbtn_tech, 0, wxALL, 5 );
-
-
-	fgSizer4->Add( type_sizer_Tech, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* type_sizer_Idle;
-	type_sizer_Idle = new wxBoxSizer( wxVERTICAL );
-
-	rbtn_idle = new wxRadioButton( character_panel, wxID_ANY, wxT("Idle"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_idle->SetToolTip( wxT("Makes the character do nothing for X ticks") );
-
-	type_sizer_Idle->Add( rbtn_idle, 0, wxALL, 5 );
-
-
-	fgSizer4->Add( type_sizer_Idle, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* type_sizer_PickUp;
-	type_sizer_PickUp = new wxBoxSizer( wxVERTICAL );
-
-	rbtn_pick_up = new wxRadioButton( character_panel, wxID_ANY, wxT("Pick Up"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_pick_up->SetToolTip( wxT("Makes the character start to pick up items on the floor, same as pressing ( f )") );
-
-	type_sizer_PickUp->Add( rbtn_pick_up, 0, wxALL, 5 );
-
-
-	fgSizer4->Add( type_sizer_PickUp, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* type_sizer_Drop;
-	type_sizer_Drop = new wxBoxSizer( wxVERTICAL );
-
-	rbtn_drop = new wxRadioButton( character_panel, wxID_ANY, wxT("Drop"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_drop->SetToolTip( wxT("Makes the character drop an item, same as pressing ( z )") );
-
-	type_sizer_Drop->Add( rbtn_drop, 0, wxALL, 5 );
-
-
-	fgSizer4->Add( type_sizer_Drop, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* type_sizer_CancelCrafting;
-	type_sizer_CancelCrafting = new wxBoxSizer( wxVERTICAL );
-
-	rbtn_cancel_crafting = new wxRadioButton( character_panel, wxID_ANY, wxT("Cancel"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_cancel_crafting->SetToolTip( wxT("Cancels items in the players crafting queue, \nreturning the ingredients to your hand") );
-
-	type_sizer_CancelCrafting->Add( rbtn_cancel_crafting, 0, wxALL, 5 );
-
-
-	fgSizer4->Add( type_sizer_CancelCrafting, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* type_sizer_Mine;
-	type_sizer_Mine = new wxBoxSizer( wxVERTICAL );
-
-	rbtn_mine = new wxRadioButton( character_panel, wxID_ANY, wxT("Mine"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_mine->SetToolTip( wxT("Makes the character mine an area, if there is a building, tree or rock they will remove that instead") );
-
-	type_sizer_Mine->Add( rbtn_mine, 0, wxALL, 5 );
-
-
-	fgSizer4->Add( type_sizer_Mine, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* type_sizer_Throw;
-	type_sizer_Throw = new wxBoxSizer( wxVERTICAL );
-
-	rbtn_throw = new wxRadioButton( character_panel, wxID_ANY, wxT("Throw"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_throw->SetToolTip( wxT("Makes the character throw a grenade or combat robot, at the target location.") );
-
-	type_sizer_Throw->Add( rbtn_throw, 0, wxALL, 5 );
-
-
-	fgSizer4->Add( type_sizer_Throw, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* type_sizer_Shoot;
-	type_sizer_Shoot = new wxBoxSizer( wxVERTICAL );
-
-	rbtn_shoot = new wxRadioButton( character_panel, wxID_ANY, wxT("Shoot"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_shoot->SetToolTip( wxT("Makes the character shoot at a target for Amount ticks") );
-
-	type_sizer_Shoot->Add( rbtn_shoot, 0, wxALL, 5 );
-
-
-	fgSizer4->Add( type_sizer_Shoot, 1, wxEXPAND, 5 );
-
-	rbtn_character_panel_hidden = new wxRadioButton( character_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_character_panel_hidden->SetValue( true );
-	rbtn_character_panel_hidden->Hide();
-
-	fgSizer4->Add( rbtn_character_panel_hidden, 0, wxALL, 5 );
-
-
-	character_panel->SetSizer( fgSizer4 );
-	character_panel->Layout();
-	fgSizer4->Fit( character_panel );
-	type_sizer->Add( character_panel, 1, wxALL|wxEXPAND, 5 );
-
-	building_panel = new wxPanel( type_panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_THEME|wxTAB_TRAVERSAL );
-	wxFlexGridSizer* fgSizer5;
-	fgSizer5 = new wxFlexGridSizer( 4, 3, 5, 10 );
-	fgSizer5->SetFlexibleDirection( wxBOTH );
-	fgSizer5->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
-
-	wxBoxSizer* type_sizer_Take;
-	type_sizer_Take = new wxBoxSizer( wxVERTICAL );
-
-	rbtn_take = new wxRadioButton( building_panel, wxID_ANY, wxT("Take"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_take->SetToolTip( wxT("Makes the character take items from a container [chest, furnace, assembler, etc.] and put them into their inventory") );
-
-	type_sizer_Take->Add( rbtn_take, 0, wxALL, 5 );
-
-
-	fgSizer5->Add( type_sizer_Take, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* type_sizer_Put;
-	type_sizer_Put = new wxBoxSizer( wxVERTICAL );
-
-	rbtn_put = new wxRadioButton( building_panel, wxID_ANY, wxT("Put"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_put->SetToolTip( wxT("Makes the character put items from his inventory into a container [chest, furnace, assembler, etc.]") );
-
-	type_sizer_Put->Add( rbtn_put, 0, wxALL, 5 );
-
-
-	fgSizer5->Add( type_sizer_Put, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* type_sizer_Build;
-	type_sizer_Build = new wxBoxSizer( wxVERTICAL );
-
-	rbtn_build = new wxRadioButton( building_panel, wxID_ANY, wxT("Build"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_build->SetToolTip( wxT("Makes the character build an entity") );
-
-	type_sizer_Build->Add( rbtn_build, 0, wxALL, 5 );
-
-
-	fgSizer5->Add( type_sizer_Build, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* type_sizer_Recipe;
-	type_sizer_Recipe = new wxBoxSizer( wxVERTICAL );
-
-	rbtn_recipe = new wxRadioButton( building_panel, wxID_ANY, wxT("Recipe"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_recipe->SetToolTip( wxT("Makes the character change the recipe for a crafting machine") );
-
-	type_sizer_Recipe->Add( rbtn_recipe, 0, wxALL, 5 );
-
-
-	fgSizer5->Add( type_sizer_Recipe, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* type_sizer_Limit;
-	type_sizer_Limit = new wxBoxSizer( wxVERTICAL );
-
-	rbtn_limit = new wxRadioButton( building_panel, wxID_ANY, wxT("Limit"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_limit->SetToolTip( wxT("Makes the character limit a chest to X slots") );
-
-	type_sizer_Limit->Add( rbtn_limit, 0, wxALL, 5 );
-
-
-	fgSizer5->Add( type_sizer_Limit, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* type_sizer_Filter;
-	type_sizer_Filter = new wxBoxSizer( wxVERTICAL );
-
-	rbtn_filter = new wxRadioButton( building_panel, wxID_ANY, wxT("Filter"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_filter->SetToolTip( wxT("Makes the character set the filter on either: a filter-inserter, a splitter or a slot in a car / train wagon") );
-
-	type_sizer_Filter->Add( rbtn_filter, 0, wxALL, 5 );
-
-
-	fgSizer5->Add( type_sizer_Filter, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* type_sizer_Priority;
-	type_sizer_Priority = new wxBoxSizer( wxVERTICAL );
-
-	rbtn_priority = new wxRadioButton( building_panel, wxID_ANY, wxT("Priority"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_priority->SetToolTip( wxT("Makes the character set the input and output priority on a splitter.\nNeeds to be applied before setting the filter on the splitter.") );
-
-	type_sizer_Priority->Add( rbtn_priority, 0, wxALL, 5 );
-
-
-	fgSizer5->Add( type_sizer_Priority, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* type_sizer_Launch;
-	type_sizer_Launch = new wxBoxSizer( wxVERTICAL );
-
-	rbtn_launch = new wxRadioButton( building_panel, wxID_ANY, wxT("Launch"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_launch->SetToolTip( wxT("Makes the character launch a rocket from a rocket silo") );
-
-	type_sizer_Launch->Add( rbtn_launch, 0, wxALL, 5 );
-
-
-	fgSizer5->Add( type_sizer_Launch, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* type_sizer_Rotate;
-	type_sizer_Rotate = new wxBoxSizer( wxVERTICAL );
-
-	rbtn_rotate = new wxRadioButton( building_panel, wxID_ANY, wxT("Rotate"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_rotate->SetToolTip( wxT("Makes the character rotate an entity X times.\nIf X is 3 then the entity is rotated once counter-clock-wise.") );
-
-	type_sizer_Rotate->Add( rbtn_rotate, 0, wxALL, 5 );
-
-
-	fgSizer5->Add( type_sizer_Rotate, 1, wxEXPAND, 5 );
-
-	rbtn_next = new wxRadioButton( building_panel, wxID_ANY, wxT("Next"), wxDefaultPosition, wxDefaultSize, 0 );
-	fgSizer5->Add( rbtn_next, 0, wxALL, 5 );
-
-	rbtn_building_panel_hidden = new wxRadioButton( building_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_building_panel_hidden->SetValue( true );
-	rbtn_building_panel_hidden->Hide();
-
-	fgSizer5->Add( rbtn_building_panel_hidden, 0, wxALL, 5 );
-
-
-	building_panel->SetSizer( fgSizer5 );
-	building_panel->Layout();
-	fgSizer5->Fit( building_panel );
-	type_sizer->Add( building_panel, 1, wxBOTTOM|wxEXPAND|wxTOP, 5 );
-
-	game_panel = new wxPanel( type_panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_THEME|wxTAB_TRAVERSAL );
-	wxFlexGridSizer* fgSizer6;
-	fgSizer6 = new wxFlexGridSizer( 5, 2, 5, 10 );
-	fgSizer6->SetFlexibleDirection( wxBOTH );
-	fgSizer6->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
-
-	wxBoxSizer* type_sizer_GameSpeed;
-	type_sizer_GameSpeed = new wxBoxSizer( wxVERTICAL );
-
-	rbtn_game_speed = new wxRadioButton( game_panel, wxID_ANY, wxT("Game Speed"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_game_speed->SetToolTip( wxT("Changes the game speed to X%") );
-
-	type_sizer_GameSpeed->Add( rbtn_game_speed, 0, wxALL, 5 );
-
-
-	fgSizer6->Add( type_sizer_GameSpeed, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* type_sizer_Pause;
-	type_sizer_Pause = new wxBoxSizer( wxVERTICAL );
-
-	rbtn_pause = new wxRadioButton( game_panel, wxID_ANY, wxT("Pause"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_pause->SetToolTip( wxT("Pauses the game, when all previous tasks are completed. Same as /Pause in the console, the game can be continued with /Resume") );
-
-	type_sizer_Pause->Add( rbtn_pause, 0, wxALL, 5 );
-
-
-	fgSizer6->Add( type_sizer_Pause, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* type_sizer_Stop;
-	type_sizer_Stop = new wxBoxSizer( wxHORIZONTAL );
-
-	rbtn_stop = new wxRadioButton( game_panel, wxID_ANY, wxT("Stop"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_stop->SetToolTip( wxT("Stops the generator from processing further. Effectively marking this as the end of the TAS instead of using the end of the file.") );
-
-	type_sizer_Stop->Add( rbtn_stop, 0, wxALL, 5 );
-
-
-	fgSizer6->Add( type_sizer_Stop, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* type_sizer_Save;
-	type_sizer_Save = new wxBoxSizer( wxVERTICAL );
-
-	rbtn_save = new wxRadioButton( game_panel, wxID_ANY, wxT("Save"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_save->SetToolTip( wxT("Creates a save game named by the comment, the tas can only be continued from these save games.\nIn single player the save game name has the prefix autosave-") );
-
-	type_sizer_Save->Add( rbtn_save, 0, wxALL, 5 );
-
-
-	fgSizer6->Add( type_sizer_Save, 1, wxEXPAND, 5 );
-
-	rbtn_never_idle = new wxRadioButton( game_panel, wxID_ANY, wxT("Never Idle"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_never_idle->SetToolTip( wxT("Toggles that the TAS that it should execute a step in every tick.\nIf it can't it will raise a warning through the console so you can improve the script.") );
-
-	fgSizer6->Add( rbtn_never_idle, 0, wxALL, 5 );
-
-	rbtn_keep_walking = new wxRadioButton( game_panel, wxID_ANY, wxT("Keep Walking"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_keep_walking->SetToolTip( wxT("Toggles that the TAS should never stand still in one spot.\nIf it can't it will raise a warning through the console so you can improve the script.") );
-
-	fgSizer6->Add( rbtn_keep_walking, 0, wxALL, 5 );
-
-	rbtn_keep_on_path = new wxRadioButton( game_panel, wxID_ANY, wxT("Keep on Path"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_keep_on_path->SetToolTip( wxT("Toggles that the TAS should stay on pathing, such stone-path or concrete.\nIf it can't it will raise a warning through the console so you can improve the script.\n\nThis uses simple detection of: character speed > base speed. So it will be inaccurate if the speed is modified in other ways than tiles.") );
-
-	fgSizer6->Add( rbtn_keep_on_path, 0, wxALL, 5 );
-
-	rbtn_keep_crafting = new wxRadioButton( game_panel, wxID_ANY, wxT("Keep Crafting"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_keep_crafting->SetToolTip( wxT("Toggles that the TAS should keep the handcrafting queued active.\nIf it can't it will raise a warning through the console so you can improve the script.") );
-
-	fgSizer6->Add( rbtn_keep_crafting, 0, wxALL, 5 );
-
-	rbtn_game_panel_hidden = new wxRadioButton( game_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_game_panel_hidden->SetValue( true );
-	rbtn_game_panel_hidden->Hide();
-
-	fgSizer6->Add( rbtn_game_panel_hidden, 0, wxALL, 5 );
-
-
-	game_panel->SetSizer( fgSizer6 );
-	game_panel->Layout();
-	fgSizer6->Fit( game_panel );
-	type_sizer->Add( game_panel, 1, wxEXPAND | wxALL, 5 );
-
-
-	type_panel->SetSizer( type_sizer );
-	type_panel->Layout();
-	type_sizer->Fit( type_panel );
-	auto_put_panel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	m_mgr.AddPane( auto_put_panel, wxAuiPaneInfo() .Name( wxT("AutoPutPanel") ).Top() .Caption( wxT("Auto put") ).CloseButton( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxSize( 80,150 ) ).BottomDockable( false ).LeftDockable( false ).RightDockable( false ).Row( 1 ).BestSize( wxSize( 90,140 ) ).MinSize( wxSize( 70,120 ) ).MaxSize( wxSize( 80,180 ) ).Layer( 1 ) );
-
-	wxBoxSizer* auto_put_sizer;
-	auto_put_sizer = new wxBoxSizer( wxHORIZONTAL );
-
-	wxFlexGridSizer* auto_put_flex;
-	auto_put_flex = new wxFlexGridSizer( 4, 1, 5, 15 );
-	auto_put_flex->SetFlexibleDirection( wxBOTH );
-	auto_put_flex->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
-
-	check_furnace = new wxCheckBox( auto_put_panel, wxID_ANY, wxT("Furnace"), wxDefaultPosition, wxDefaultSize, 0 );
-	check_furnace->SetValue(true);
-	check_furnace->SetToolTip( wxT("Adds a step to put coal into stone and steel furnaces") );
-
-	auto_put_flex->Add( check_furnace, 0, wxALL, 5 );
-
-	check_burner = new wxCheckBox( auto_put_panel, wxID_ANY, wxT("Burner"), wxDefaultPosition, wxDefaultSize, 0 );
-	check_burner->SetValue(true);
-	check_burner->SetToolTip( wxT("Adds a step to put coal into Burner Mining Drills, Burner Inserters and Boilers") );
-
-	auto_put_flex->Add( check_burner, 0, wxALL, 5 );
-
-	check_lab = new wxCheckBox( auto_put_panel, wxID_ANY, wxT("Lab"), wxDefaultPosition, wxDefaultSize, 0 );
-	check_lab->SetValue(true);
-	check_lab->SetToolTip( wxT("Adds a step to put automation science into the Lab") );
-
-	auto_put_flex->Add( check_lab, 0, wxALL, 5 );
-
-	check_recipe = new wxCheckBox( auto_put_panel, wxID_ANY, wxT("Recipe"), wxDefaultPosition, wxDefaultSize, 0 );
-	check_recipe->SetValue(true);
-	check_recipe->SetToolTip( wxT("Add steps to put the items needed to craft that recipe") );
-
-	auto_put_flex->Add( check_recipe, 0, wxALL, 5 );
-
-
-	auto_put_sizer->Add( auto_put_flex, 1, wxLEFT|wxRIGHT|wxTOP, 5 );
-
-
-	auto_put_panel->SetSizer( auto_put_sizer );
-	auto_put_panel->Layout();
-	auto_put_sizer->Fit( auto_put_panel );
 	step_modifier_panel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	m_mgr.AddPane( step_modifier_panel, wxAuiPaneInfo() .Name( wxT("ModifiersPanel") ).Top() .Caption( wxT("Modifiers") ).CloseButton( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxSize( 240,159 ) ).BottomDockable( false ).LeftDockable( false ).RightDockable( false ).Row( 1 ).BestSize( wxSize( 240,140 ) ).MinSize( wxSize( 240,120 ) ).MaxSize( wxSize( 240,180 ) ).Layer( 1 ) );
+	m_mgr.AddPane( step_modifier_panel, wxAuiPaneInfo() .Name( wxT("ModifiersPanel") ).Top() .Caption( wxT("Modifiers") ).CloseButton( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxSize( 295,159 ) ).BottomDockable( false ).LeftDockable( false ).RightDockable( false ).Row( 2 ).BestSize( wxSize( 290,140 ) ).MinSize( wxSize( 290,120 ) ).MaxSize( wxSize( 290,180 ) ).Layer( 1 ) );
 
 	wxBoxSizer* step_modifier_panel_sizer;
 	step_modifier_panel_sizer = new wxBoxSizer( wxVERTICAL );
 
 	wxFlexGridSizer* step_modifier_flex;
-	step_modifier_flex = new wxFlexGridSizer( 0, 2, 5, 5 );
+	step_modifier_flex = new wxFlexGridSizer( 0, 3, 5, 5 );
 	step_modifier_flex->SetFlexibleDirection( wxBOTH );
 	step_modifier_flex->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 
@@ -1013,6 +995,22 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	step_modifier_flex->Add( modifier_all_checkbox, 0, wxALL, 5 );
 
+	sizer_vehicle = new wxBoxSizer( wxVERTICAL );
+
+	modifier_vehicle_checkbox = new wxCheckBox( step_modifier_panel, wxID_ANY, wxT("Vehicle"), wxDefaultPosition, wxDefaultSize, 0 );
+	modifier_vehicle_checkbox->SetToolTip( wxT("Tells the generator that this step is associated with a vehicle instead of building.\nThe generator will then not attempt to match the step with a building.\n\nThis will also tell the TAS controller to be lenient when matching the entity with a 5 tile search radius.") );
+
+	sizer_vehicle->Add( modifier_vehicle_checkbox, 0, wxALL, 5 );
+
+	modifier_vehicle_button = new wxButton( step_modifier_panel, wxID_ANY, wxT("Vehicle"), wxDefaultPosition, wxDefaultSize, 0 );
+	modifier_vehicle_button->Hide();
+	modifier_vehicle_button->SetToolTip( wxT("Tells the generator that this step is associated with a vehicle instead of building.\nThe generator will then not attempt to match the step with a building.\n\nThis will also tell the TAS controller to be lenient when matching the entity with a 5 tile search radius.") );
+
+	sizer_vehicle->Add( modifier_vehicle_button, 0, 0, 5 );
+
+
+	step_modifier_flex->Add( sizer_vehicle, 1, wxEXPAND, 5 );
+
 
 	step_modifier_panel_sizer->Add( step_modifier_flex, 1, wxALL|wxEXPAND, 5 );
 
@@ -1021,7 +1019,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	step_modifier_panel->Layout();
 	step_modifier_panel_sizer->Fit( step_modifier_panel );
 	walk_panel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	m_mgr.AddPane( walk_panel, wxAuiPaneInfo() .Top() .Caption( wxT("Walk") ).PinButton( true ).Dock().Resizable().FloatingSize( wxSize( 96,179 ) ).Row( 1 ).BestSize( wxSize( 80,140 ) ).MinSize( wxSize( 80,140 ) ).MaxSize( wxSize( 80,140 ) ).Layer( 1 ) );
+	m_mgr.AddPane( walk_panel, wxAuiPaneInfo() .Top() .Caption( wxT("Walk") ).PinButton( true ).Dock().Resizable().FloatingSize( wxSize( 96,179 ) ).Row( 2 ).BestSize( wxSize( 80,140 ) ).MinSize( wxSize( 80,140 ) ).MaxSize( wxSize( 80,140 ) ).Layer( 1 ) );
 
 	wxBoxSizer* walk_panel_sizer;
 	walk_panel_sizer = new wxBoxSizer( wxVERTICAL );
@@ -1110,6 +1108,298 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	main_book = new wxAuiNotebook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_NB_SCROLL_BUTTONS|wxAUI_NB_TAB_EXTERNAL_MOVE|wxAUI_NB_TAB_MOVE|wxAUI_NB_TAB_SPLIT|wxAUI_NB_TOP|wxAUI_NB_WINDOWLIST_BUTTON|wxBORDER_RAISED );
 	m_mgr.AddPane( main_book, wxAuiPaneInfo() .Name( wxT("DataBook") ).Center() .Caption( wxT("Book") ).CaptionVisible( false ).CloseButton( false ).MaximizeButton( true ).MinimizeButton( true ).PinButton( true ).Dock().Resizable().FloatingSize( wxDefaultSize ).Row( 2 ).MinSize( wxSize( 500,500 ) ).Layer( 2 ).CentrePane() );
 
+	import_steps_panel = new ImportStepsPanel( main_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, wxT("Import") );
+	wxBoxSizer* import_steps_sizer;
+	import_steps_sizer = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* import_steps_ctrl_sizer;
+	import_steps_ctrl_sizer = new wxBoxSizer( wxHORIZONTAL );
+
+	wxBoxSizer* import_steps_into_steps_sizer;
+	import_steps_into_steps_sizer = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* bSizer71;
+	bSizer71 = new wxBoxSizer( wxHORIZONTAL );
+
+	import_steps_into_steps_index_btn = new wxButton( import_steps_panel, wxID_ANY, wxT("C"), wxDefaultPosition, wxDefaultSize, wxBORDER_NONE|wxBU_EXACTFIT|wxBORDER_NONE );
+	import_steps_into_steps_index_btn->SetToolTip( wxT("Copy current row index from the Steps panel into number box\n - Left click to import before the selected step\n - Right click to import after the selected step") );
+	import_steps_into_steps_index_btn->SetMinSize( wxSize( 25,25 ) );
+
+	bSizer71->Add( import_steps_into_steps_index_btn, 0, wxBOTTOM|wxLEFT|wxTOP, 4 );
+
+	import_steps_into_steps_ctrl = new wxSpinCtrl( import_steps_panel, wxID_ANY, wxT("-1"), wxDefaultPosition, wxSize( 121,-1 ), wxALIGN_RIGHT|wxSP_ARROW_KEYS, -999999, 999999, -1 );
+	import_steps_into_steps_ctrl->SetToolTip( wxT("Positive numbers places the imported steps in the step list from the top and negative numbers from the bottom.\nWith 0 being the top element and -1 being the bottom element.\nAnd -2 Inserting steps between last and second to last element.") );
+	import_steps_into_steps_ctrl->SetMinSize( wxSize( 121,-1 ) );
+	import_steps_into_steps_ctrl->SetMaxSize( wxSize( 121,-1 ) );
+
+	bSizer71->Add( import_steps_into_steps_ctrl, 0, wxBOTTOM|wxRIGHT|wxTOP, 5 );
+
+
+	import_steps_into_steps_sizer->Add( bSizer71, 1, wxEXPAND, 5 );
+
+	import_steps_into_steps_btn = new wxButton( import_steps_panel, wxID_ANY, wxT("Into steps"), wxDefaultPosition, wxSize( 145,-1 ), 0 );
+	import_steps_into_steps_btn->SetMinSize( wxSize( 145,-1 ) );
+	import_steps_into_steps_btn->SetMaxSize( wxSize( 145,-1 ) );
+
+	import_steps_into_steps_sizer->Add( import_steps_into_steps_btn, 0, wxALL, 5 );
+
+
+	import_steps_ctrl_sizer->Add( import_steps_into_steps_sizer, 1, 0, 5 );
+
+	wxBoxSizer* import_steps_into_template_sizer;
+	import_steps_into_template_sizer = new wxBoxSizer( wxVERTICAL );
+
+	import_steps_into_template_ctrl = new wxTextCtrl( import_steps_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 120,-1 ), wxTE_PROCESS_ENTER );
+	#ifdef __WXGTK__
+	if ( !import_steps_into_template_ctrl->HasFlag( wxTE_MULTILINE ) )
+	{
+	import_steps_into_template_ctrl->SetMaxLength( 45 );
+	}
+	#else
+	import_steps_into_template_ctrl->SetMaxLength( 45 );
+	#endif
+	import_steps_into_template_ctrl->SetFont( wxFont( wxNORMAL_FONT->GetPointSize(), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+	import_steps_into_template_ctrl->SetToolTip( wxT("Template name has to be at least 1 character long.\nTemplate name can only contain letters and numbers.\nTemplate name has to be unique") );
+	import_steps_into_template_ctrl->SetMinSize( wxSize( 120,-1 ) );
+	import_steps_into_template_ctrl->SetMaxSize( wxSize( 120,-1 ) );
+
+	import_steps_into_template_ctrl->SetValidator( wxTextValidator( wxFILTER_ALPHANUMERIC, &import_steps_into_template_ctrl_validator ) );
+
+	import_steps_into_template_sizer->Add( import_steps_into_template_ctrl, 0, wxALL, 5 );
+
+	import_steps_into_template_btn = new wxButton( import_steps_panel, wxID_ANY, wxT("Create template"), wxDefaultPosition, wxSize( 120,-1 ), 0 );
+	import_steps_into_template_btn->Enable( false );
+	import_steps_into_template_btn->SetMinSize( wxSize( 120,-1 ) );
+	import_steps_into_template_btn->SetMaxSize( wxSize( 120,-1 ) );
+
+	import_steps_into_template_sizer->Add( import_steps_into_template_btn, 0, wxALL, 5 );
+
+
+	import_steps_ctrl_sizer->Add( import_steps_into_template_sizer, 1, 0, 5 );
+
+	import_steps_clear_checkbox = new wxCheckBox( import_steps_panel, wxID_ANY, wxT("Clear import"), wxDefaultPosition, wxDefaultSize, 0 );
+	import_steps_clear_checkbox->SetValue(true);
+	import_steps_clear_checkbox->SetToolTip( wxT("Clears the import text field on succesful insertion into Steps or creation of a template") );
+
+	import_steps_ctrl_sizer->Add( import_steps_clear_checkbox, 0, wxALL, 5 );
+
+
+	import_steps_sizer->Add( import_steps_ctrl_sizer, 1, 0, 5 );
+
+	wxBoxSizer* import_steps_text_sizer;
+	import_steps_text_sizer = new wxBoxSizer( wxVERTICAL );
+
+	import_steps_text_sizer->SetMinSize( wxSize( -1,1200 ) );
+	import_steps_text_import = new wxTextCtrl( import_steps_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_LEFT|wxTE_MULTILINE );
+	import_steps_text_import->SetMinSize( wxSize( 450,600 ) );
+
+	import_steps_text_sizer->Add( import_steps_text_import, 0, wxALL|wxEXPAND, 5 );
+
+
+	import_steps_sizer->Add( import_steps_text_sizer, 1, wxEXPAND, 5 );
+
+
+	import_steps_panel->SetSizer( import_steps_sizer );
+	import_steps_panel->Layout();
+	import_steps_sizer->Fit( import_steps_panel );
+	main_book->AddPage( import_steps_panel, wxT("Import"), false, wxNullBitmap );
+	step_panel = new wxPanel( main_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* step_panel_sizer;
+	step_panel_sizer = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* step_panel_search_sizer;
+	step_panel_search_sizer = new wxBoxSizer( wxHORIZONTAL );
+
+	step_search_ctrl = new wxSearchCtrl( step_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
+	#ifndef __WXMAC__
+	step_search_ctrl->ShowSearchButton( true );
+	#endif
+	step_search_ctrl->ShowCancelButton( true );
+	step_search_ctrl->SetToolTip( wxT("Search for a step.\n\n( ; ) Semicolon to have multiple search terms [ term1; term2; term3 ].\n( : ) Colon to specify column [ column:term ].") );
+
+	step_panel_search_sizer->Add( step_search_ctrl, 0, wxALL, 5 );
+
+	step_search_toggle_updown = new wxCheckBox( step_panel, wxID_ANY, wxT("Search up"), wxDefaultPosition, wxSize( 72,20 ), 0 );
+	step_search_toggle_updown->SetValue(true);
+	step_panel_search_sizer->Add( step_search_toggle_updown, 0, wxALL, 7 );
+
+	step_split_multibuild_button = new wxButton( step_panel, wxID_ANY, wxT("Split"), wxDefaultPosition, wxDefaultSize, 0 );
+	step_split_multibuild_button->SetToolTip( wxT("Splits a multibuild row into it's separate steps") );
+
+	step_panel_search_sizer->Add( step_split_multibuild_button, 0, wxALL, 5 );
+
+	wxBoxSizer* bSizer65;
+	bSizer65 = new wxBoxSizer( wxHORIZONTAL );
+
+	step_colour_picker = new wxColourPickerCtrl( step_panel, wxID_ANY, wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOW ), wxDefaultPosition, wxSize( 85,25 ), wxCLRP_DEFAULT_STYLE|wxCLRP_SHOW_LABEL );
+	step_colour_picker->SetToolTip( wxT("Select a number of rows to set the colour on them.\nThe colour is automaticly matches the first row of the selected area.") );
+
+	bSizer65->Add( step_colour_picker, 0, wxALL, 5 );
+
+
+	step_panel_search_sizer->Add( bSizer65, 1, wxEXPAND, 5 );
+
+	steps_focus_checkbox = new wxCheckBox( step_panel, wxID_ANY, wxT("Focus"), wxDefaultPosition, wxDefaultSize, 0 );
+	steps_focus_checkbox->SetToolTip( wxT("Focuses the list on steps on the last segments.\nBy hidding every step before the second to last save step.") );
+
+	step_panel_search_sizer->Add( steps_focus_checkbox, 0, wxALL, 5 );
+
+
+	step_panel_sizer->Add( step_panel_search_sizer, 1, wxEXPAND, 5 );
+
+	wxBoxSizer* step_panel_control_sizer;
+	step_panel_control_sizer = new wxBoxSizer( wxHORIZONTAL );
+
+	btn_add_step = new wxButton( step_panel, wxID_ANY, wxT("Add"), wxDefaultPosition, wxDefaultSize, 0 );
+	btn_add_step->SetToolTip( wxT("Adds a new step to the list above the selected area.\nRight click: Add the step under the selected area instead.\n\nIf no rows are selected then it will be placed at the end of the list.\n") );
+
+	step_panel_control_sizer->Add( btn_add_step, 0, wxALIGN_CENTER|wxALL, 5 );
+
+	btn_change_step = new wxButton( step_panel, wxID_ANY, wxT("Change"), wxDefaultPosition, wxDefaultSize, 0 );
+	btn_change_step->SetToolTip( wxT("Changes the currently selected step to the input.\nRight click: ignore warnings.") );
+
+	step_panel_control_sizer->Add( btn_change_step, 0, wxALL, 5 );
+
+	btn_delete_step = new wxButton( step_panel, wxID_ANY, wxT("Delete"), wxDefaultPosition, wxDefaultSize, 0 );
+	btn_delete_step->SetToolTip( wxT("Deletes the selected step or steps.\nRight click: ignore warnings.") );
+
+	step_panel_control_sizer->Add( btn_delete_step, 0, wxALL, 5 );
+
+	btn_move_up = new wxButton( step_panel, wxID_ANY, wxT("Move Up"), wxDefaultPosition, wxDefaultSize, 0 );
+	btn_move_up->SetToolTip( wxT("Moves the step up.\nRight click: move 5 but be patient") );
+
+	step_panel_control_sizer->Add( btn_move_up, 0, wxALL, 5 );
+
+	btn_move_down = new wxButton( step_panel, wxID_ANY, wxT("Move Down"), wxDefaultPosition, wxSize( 85,-1 ), 0 );
+	btn_move_down->SetToolTip( wxT("Moves the step down.\nRight click: move 5 but be patient") );
+
+	step_panel_control_sizer->Add( btn_move_down, 0, wxALL, 5 );
+
+
+	step_panel_sizer->Add( step_panel_control_sizer, 0, wxEXPAND, 5 );
+
+	wxBoxSizer* step_panel_grid_sizer;
+	step_panel_grid_sizer = new wxBoxSizer( wxVERTICAL );
+
+	grid_steps = new wxGrid( step_panel, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), 0 );
+
+	// Grid
+	grid_steps->CreateGrid( 0, 11 );
+	grid_steps->EnableEditing( true );
+	grid_steps->EnableGridLines( true );
+	grid_steps->EnableDragGridSize( false );
+	grid_steps->SetMargins( 0, 0 );
+
+	// Columns
+	grid_steps->SetColSize( 0, 75 );
+	grid_steps->SetColSize( 1, 49 );
+	grid_steps->SetColSize( 2, 49 );
+	grid_steps->SetColSize( 3, 58 );
+	grid_steps->SetColSize( 4, 140 );
+	grid_steps->SetColSize( 5, 70 );
+	grid_steps->SetColSize( 6, 80 );
+	grid_steps->SetColSize( 7, 70 );
+	grid_steps->SetColSize( 8, 50 );
+	grid_steps->SetColSize( 9, 60 );
+	grid_steps->SetColSize( 10, 112 );
+	grid_steps->EnableDragColMove( false );
+	grid_steps->EnableDragColSize( true );
+	grid_steps->SetColLabelValue( 0, wxT("Step") );
+	grid_steps->SetColLabelValue( 1, wxT("X-cord") );
+	grid_steps->SetColLabelValue( 2, wxT("Y-cord") );
+	grid_steps->SetColLabelValue( 3, wxT("Amount") );
+	grid_steps->SetColLabelValue( 4, wxT("Item") );
+	grid_steps->SetColLabelValue( 5, wxT("Orientation") );
+	grid_steps->SetColLabelValue( 6, wxT("Modifier") );
+	grid_steps->SetColLabelValue( 7, wxT("Direction") );
+	grid_steps->SetColLabelValue( 8, wxT("Size") );
+	grid_steps->SetColLabelValue( 9, wxT("Buildings") );
+	grid_steps->SetColLabelValue( 10, wxT("Comment") );
+	grid_steps->SetColLabelAlignment( wxALIGN_CENTER, wxALIGN_CENTER );
+
+	// Rows
+	grid_steps->EnableDragRowSize( false );
+	grid_steps->SetRowLabelSize( 60 );
+	grid_steps->SetRowLabelAlignment( wxALIGN_CENTER, wxALIGN_CENTER );
+
+	// Label Appearance
+	grid_steps->SetLabelTextColour( wxSystemSettings::GetColour( wxSYS_COLOUR_BACKGROUND ) );
+
+	// Cell Defaults
+	grid_steps->SetDefaultCellAlignment( wxALIGN_LEFT, wxALIGN_TOP );
+	grid_steps->SetMinSize( wxSize( 860,2500 ) );
+
+	step_panel_grid_sizer->Add( grid_steps, 0, wxALL|wxEXPAND, 5 );
+
+
+	step_panel_sizer->Add( step_panel_grid_sizer, 1, wxEXPAND, 5 );
+
+
+	step_panel->SetSizer( step_panel_sizer );
+	step_panel->Layout();
+	step_panel_sizer->Fit( step_panel );
+	main_book->AddPage( step_panel, wxT("Steps"), true, wxNullBitmap );
+	reorder_panel = new wxPanel( main_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* reorder_sizer;
+	reorder_sizer = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* reorder_control_sizer;
+	reorder_control_sizer = new wxBoxSizer( wxHORIZONTAL );
+
+	reorder_reorder_button = new wxButton( reorder_panel, wxID_ANY, wxT("Reorder"), wxDefaultPosition, wxDefaultSize, 0 );
+	reorder_reorder_button->Enable( false );
+	reorder_reorder_button->SetToolTip( wxT("This will re-order a no-order block to align with current execution.\n\nIt works by first creating a block of steps with no-order enabled. \nThen execute them through a TAS run. \nThen run the console command \"/reorder\" and copy the text to the input below. \n\nWhen using this functionality, each multibuild step will be unrolled and each rotation will be unrolled. After that the steps will be matched with the resulting order, which then replaces them.") );
+
+	reorder_control_sizer->Add( reorder_reorder_button, 0, wxALL, 5 );
+
+	wxBoxSizer* reorder_control_checkbox_sizer;
+	reorder_control_checkbox_sizer = new wxBoxSizer( wxHORIZONTAL );
+
+	reorder_text_input_clear_checkbox = new wxCheckBox( reorder_panel, wxID_ANY, wxT("Clear reorder"), wxDefaultPosition, wxDefaultSize, 0 );
+	reorder_text_input_clear_checkbox->SetValue(true);
+	reorder_text_input_clear_checkbox->SetToolTip( wxT("Clears the text below after clicking on the Reorder button.") );
+
+	reorder_control_checkbox_sizer->Add( reorder_text_input_clear_checkbox, 0, wxALL, 5 );
+
+
+	reorder_control_sizer->Add( reorder_control_checkbox_sizer, 1, wxALL|wxEXPAND, 5 );
+
+	wxBoxSizer* reorder_locator_sizer;
+	reorder_locator_sizer = new wxBoxSizer( wxHORIZONTAL );
+
+
+	reorder_locator_sizer->Add( 375, 0, 1, wxEXPAND, 5 );
+
+	reorder_locator_button = new wxButton( reorder_panel, wxID_ANY, wxT("Locate"), wxDefaultPosition, wxDefaultSize, 0 );
+	reorder_locator_button->Enable( false );
+	reorder_locator_button->SetToolTip( wxT("Finds the no-order block in the step list, helping you visualize that you are changing the correct block.") );
+
+	reorder_locator_sizer->Add( reorder_locator_button, 0, wxALL, 5 );
+
+
+	reorder_control_sizer->Add( reorder_locator_sizer, 1, wxEXPAND, 5 );
+
+
+	reorder_sizer->Add( reorder_control_sizer, 1, wxEXPAND, 5 );
+
+	wxBoxSizer* reorder_input_sizer;
+	reorder_input_sizer = new wxBoxSizer( wxHORIZONTAL );
+
+	reorder_input_sizer->SetMinSize( wxSize( -1,1200 ) );
+	reorder_text_input = new wxTextCtrl( reorder_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_LEFT|wxTE_MULTILINE );
+	reorder_text_input->SetToolTip( wxT("This will re-order a no-order block to align with current execution.\n\nIt works by first creating a block of steps with no-order enabled. \nThen execute them through a TAS run. \nThen run the console command \"/reorder\" and copy the text to the input below. \n\nWhen using this functionality, each multibuild step will be unrolled and each rotation will be unrolled. After that the steps will be matched with the resulting order, which then replaces them.") );
+	reorder_text_input->SetMinSize( wxSize( 450,600 ) );
+
+	reorder_input_sizer->Add( reorder_text_input, 1, wxALL|wxEXPAND, 5 );
+
+
+	reorder_sizer->Add( reorder_input_sizer, 1, wxEXPAND, 5 );
+
+
+	reorder_panel->SetSizer( reorder_sizer );
+	reorder_panel->Layout();
+	reorder_sizer->Fit( reorder_panel );
+	main_book->AddPage( reorder_panel, wxT("Reorder"), false, wxNullBitmap );
 	template_panel = new wxPanel( main_book, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), wxTAB_TRAVERSAL );
 	wxBoxSizer* template_sizer;
 	template_sizer = new wxBoxSizer( wxVERTICAL );
@@ -1353,298 +1643,6 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	template_panel->Layout();
 	template_sizer->Fit( template_panel );
 	main_book->AddPage( template_panel, wxT("Templates"), false, wxNullBitmap );
-	step_panel = new wxPanel( main_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* step_panel_sizer;
-	step_panel_sizer = new wxBoxSizer( wxVERTICAL );
-
-	wxBoxSizer* step_panel_search_sizer;
-	step_panel_search_sizer = new wxBoxSizer( wxHORIZONTAL );
-
-	step_search_ctrl = new wxSearchCtrl( step_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
-	#ifndef __WXMAC__
-	step_search_ctrl->ShowSearchButton( true );
-	#endif
-	step_search_ctrl->ShowCancelButton( true );
-	step_search_ctrl->SetToolTip( wxT("Search for a step.\n\n( ; ) Semicolon to have multiple search terms [ term1; term2; term3 ].\n( : ) Colon to specify column [ column:term ].") );
-
-	step_panel_search_sizer->Add( step_search_ctrl, 0, wxALL, 5 );
-
-	step_search_toggle_updown = new wxCheckBox( step_panel, wxID_ANY, wxT("Search up"), wxDefaultPosition, wxSize( 72,20 ), 0 );
-	step_search_toggle_updown->SetValue(true);
-	step_panel_search_sizer->Add( step_search_toggle_updown, 0, wxALL, 7 );
-
-	step_split_multibuild_button = new wxButton( step_panel, wxID_ANY, wxT("Split"), wxDefaultPosition, wxDefaultSize, 0 );
-	step_split_multibuild_button->SetToolTip( wxT("Splits a multibuild row into it's separate steps") );
-
-	step_panel_search_sizer->Add( step_split_multibuild_button, 0, wxALL, 5 );
-
-	wxBoxSizer* bSizer65;
-	bSizer65 = new wxBoxSizer( wxHORIZONTAL );
-
-	step_colour_picker = new wxColourPickerCtrl( step_panel, wxID_ANY, wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOW ), wxDefaultPosition, wxSize( 85,25 ), wxCLRP_DEFAULT_STYLE|wxCLRP_SHOW_LABEL );
-	step_colour_picker->SetToolTip( wxT("Select a number of rows to set the colour on them.\nThe colour is automaticly matches the first row of the selected area.") );
-
-	bSizer65->Add( step_colour_picker, 0, wxALL, 5 );
-
-
-	step_panel_search_sizer->Add( bSizer65, 1, wxEXPAND, 5 );
-
-	steps_focus_checkbox = new wxCheckBox( step_panel, wxID_ANY, wxT("Focus"), wxDefaultPosition, wxDefaultSize, 0 );
-	steps_focus_checkbox->SetToolTip( wxT("Focuses the list on steps on the last segments.\nBy hidding every step before the last save point.") );
-
-	step_panel_search_sizer->Add( steps_focus_checkbox, 0, wxALL, 5 );
-
-
-	step_panel_sizer->Add( step_panel_search_sizer, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* step_panel_control_sizer;
-	step_panel_control_sizer = new wxBoxSizer( wxHORIZONTAL );
-
-	btn_add_step = new wxButton( step_panel, wxID_ANY, wxT("Add"), wxDefaultPosition, wxDefaultSize, 0 );
-	btn_add_step->SetToolTip( wxT("Adds a new step to the list above the selected area.\nRight click: Add the step under the selected area instead.\n\nIf no rows are selected then it will be placed at the end of the list.\n") );
-
-	step_panel_control_sizer->Add( btn_add_step, 0, wxALIGN_CENTER|wxALL, 5 );
-
-	btn_change_step = new wxButton( step_panel, wxID_ANY, wxT("Change"), wxDefaultPosition, wxDefaultSize, 0 );
-	btn_change_step->SetToolTip( wxT("Changes the currently selected step to the input.\nRight click: ignore warnings.") );
-
-	step_panel_control_sizer->Add( btn_change_step, 0, wxALL, 5 );
-
-	btn_delete_step = new wxButton( step_panel, wxID_ANY, wxT("Delete"), wxDefaultPosition, wxDefaultSize, 0 );
-	btn_delete_step->SetToolTip( wxT("Deletes the selected step or steps.\nRight click: ignore warnings.") );
-
-	step_panel_control_sizer->Add( btn_delete_step, 0, wxALL, 5 );
-
-	btn_move_up = new wxButton( step_panel, wxID_ANY, wxT("Move Up"), wxDefaultPosition, wxDefaultSize, 0 );
-	btn_move_up->SetToolTip( wxT("Moves the step up.\nRight click: move 5 but be patient") );
-
-	step_panel_control_sizer->Add( btn_move_up, 0, wxALL, 5 );
-
-	btn_move_down = new wxButton( step_panel, wxID_ANY, wxT("Move Down"), wxDefaultPosition, wxSize( 85,-1 ), 0 );
-	btn_move_down->SetToolTip( wxT("Moves the step down.\nRight click: move 5 but be patient") );
-
-	step_panel_control_sizer->Add( btn_move_down, 0, wxALL, 5 );
-
-
-	step_panel_sizer->Add( step_panel_control_sizer, 0, wxEXPAND, 5 );
-
-	wxBoxSizer* step_panel_grid_sizer;
-	step_panel_grid_sizer = new wxBoxSizer( wxVERTICAL );
-
-	grid_steps = new wxGrid( step_panel, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), 0 );
-
-	// Grid
-	grid_steps->CreateGrid( 0, 11 );
-	grid_steps->EnableEditing( true );
-	grid_steps->EnableGridLines( true );
-	grid_steps->EnableDragGridSize( false );
-	grid_steps->SetMargins( 0, 0 );
-
-	// Columns
-	grid_steps->SetColSize( 0, 75 );
-	grid_steps->SetColSize( 1, 49 );
-	grid_steps->SetColSize( 2, 49 );
-	grid_steps->SetColSize( 3, 58 );
-	grid_steps->SetColSize( 4, 140 );
-	grid_steps->SetColSize( 5, 70 );
-	grid_steps->SetColSize( 6, 80 );
-	grid_steps->SetColSize( 7, 70 );
-	grid_steps->SetColSize( 8, 50 );
-	grid_steps->SetColSize( 9, 60 );
-	grid_steps->SetColSize( 10, 112 );
-	grid_steps->EnableDragColMove( false );
-	grid_steps->EnableDragColSize( true );
-	grid_steps->SetColLabelValue( 0, wxT("Step") );
-	grid_steps->SetColLabelValue( 1, wxT("X-cord") );
-	grid_steps->SetColLabelValue( 2, wxT("Y-cord") );
-	grid_steps->SetColLabelValue( 3, wxT("Amount") );
-	grid_steps->SetColLabelValue( 4, wxT("Item") );
-	grid_steps->SetColLabelValue( 5, wxT("Orientation") );
-	grid_steps->SetColLabelValue( 6, wxT("Modifier") );
-	grid_steps->SetColLabelValue( 7, wxT("Direction") );
-	grid_steps->SetColLabelValue( 8, wxT("Size") );
-	grid_steps->SetColLabelValue( 9, wxT("Buildings") );
-	grid_steps->SetColLabelValue( 10, wxT("Comment") );
-	grid_steps->SetColLabelAlignment( wxALIGN_CENTER, wxALIGN_CENTER );
-
-	// Rows
-	grid_steps->EnableDragRowSize( false );
-	grid_steps->SetRowLabelSize( 60 );
-	grid_steps->SetRowLabelAlignment( wxALIGN_CENTER, wxALIGN_CENTER );
-
-	// Label Appearance
-	grid_steps->SetLabelTextColour( wxSystemSettings::GetColour( wxSYS_COLOUR_BACKGROUND ) );
-
-	// Cell Defaults
-	grid_steps->SetDefaultCellAlignment( wxALIGN_LEFT, wxALIGN_TOP );
-	grid_steps->SetMinSize( wxSize( 860,2500 ) );
-
-	step_panel_grid_sizer->Add( grid_steps, 0, wxALL|wxEXPAND, 5 );
-
-
-	step_panel_sizer->Add( step_panel_grid_sizer, 1, wxEXPAND, 5 );
-
-
-	step_panel->SetSizer( step_panel_sizer );
-	step_panel->Layout();
-	step_panel_sizer->Fit( step_panel );
-	main_book->AddPage( step_panel, wxT("Steps"), true, wxNullBitmap );
-	import_steps_panel = new ImportStepsPanel( main_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, wxT("Import") );
-	wxBoxSizer* import_steps_sizer;
-	import_steps_sizer = new wxBoxSizer( wxVERTICAL );
-
-	wxBoxSizer* import_steps_ctrl_sizer;
-	import_steps_ctrl_sizer = new wxBoxSizer( wxHORIZONTAL );
-
-	wxBoxSizer* import_steps_into_steps_sizer;
-	import_steps_into_steps_sizer = new wxBoxSizer( wxVERTICAL );
-
-	wxBoxSizer* bSizer71;
-	bSizer71 = new wxBoxSizer( wxHORIZONTAL );
-
-	import_steps_into_steps_index_btn = new wxButton( import_steps_panel, wxID_ANY, wxT("C"), wxDefaultPosition, wxDefaultSize, wxBORDER_NONE|wxBU_EXACTFIT|wxBORDER_NONE );
-	import_steps_into_steps_index_btn->SetToolTip( wxT("Copy current row index from the Steps panel into number box\n - Left click to import before the selected step\n - Right click to import after the selected step") );
-	import_steps_into_steps_index_btn->SetMinSize( wxSize( 25,25 ) );
-
-	bSizer71->Add( import_steps_into_steps_index_btn, 0, wxBOTTOM|wxLEFT|wxTOP, 4 );
-
-	import_steps_into_steps_ctrl = new wxSpinCtrl( import_steps_panel, wxID_ANY, wxT("-1"), wxDefaultPosition, wxSize( 121,-1 ), wxALIGN_RIGHT|wxSP_ARROW_KEYS, -999999, 999999, -1 );
-	import_steps_into_steps_ctrl->SetToolTip( wxT("Positive numbers places the imported steps in the step list from the top and negative numbers from the bottom.\nWith 0 being the top element and -1 being the bottom element.\nAnd -2 Inserting steps between last and second to last element.") );
-	import_steps_into_steps_ctrl->SetMinSize( wxSize( 121,-1 ) );
-	import_steps_into_steps_ctrl->SetMaxSize( wxSize( 121,-1 ) );
-
-	bSizer71->Add( import_steps_into_steps_ctrl, 0, wxBOTTOM|wxRIGHT|wxTOP, 5 );
-
-
-	import_steps_into_steps_sizer->Add( bSizer71, 1, wxEXPAND, 5 );
-
-	import_steps_into_steps_btn = new wxButton( import_steps_panel, wxID_ANY, wxT("Into steps"), wxDefaultPosition, wxSize( 145,-1 ), 0 );
-	import_steps_into_steps_btn->SetMinSize( wxSize( 145,-1 ) );
-	import_steps_into_steps_btn->SetMaxSize( wxSize( 145,-1 ) );
-
-	import_steps_into_steps_sizer->Add( import_steps_into_steps_btn, 0, wxALL, 5 );
-
-
-	import_steps_ctrl_sizer->Add( import_steps_into_steps_sizer, 1, 0, 5 );
-
-	wxBoxSizer* import_steps_into_template_sizer;
-	import_steps_into_template_sizer = new wxBoxSizer( wxVERTICAL );
-
-	import_steps_into_template_ctrl = new wxTextCtrl( import_steps_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 120,-1 ), wxTE_PROCESS_ENTER );
-	#ifdef __WXGTK__
-	if ( !import_steps_into_template_ctrl->HasFlag( wxTE_MULTILINE ) )
-	{
-	import_steps_into_template_ctrl->SetMaxLength( 45 );
-	}
-	#else
-	import_steps_into_template_ctrl->SetMaxLength( 45 );
-	#endif
-	import_steps_into_template_ctrl->SetFont( wxFont( wxNORMAL_FONT->GetPointSize(), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
-	import_steps_into_template_ctrl->SetToolTip( wxT("Template name has to be at least 1 character long.\nTemplate name can only contain letters and numbers.\nTemplate name has to be unique") );
-	import_steps_into_template_ctrl->SetMinSize( wxSize( 120,-1 ) );
-	import_steps_into_template_ctrl->SetMaxSize( wxSize( 120,-1 ) );
-
-	import_steps_into_template_ctrl->SetValidator( wxTextValidator( wxFILTER_ALPHANUMERIC, &import_steps_into_template_ctrl_validator ) );
-
-	import_steps_into_template_sizer->Add( import_steps_into_template_ctrl, 0, wxALL, 5 );
-
-	import_steps_into_template_btn = new wxButton( import_steps_panel, wxID_ANY, wxT("Create template"), wxDefaultPosition, wxSize( 120,-1 ), 0 );
-	import_steps_into_template_btn->Enable( false );
-	import_steps_into_template_btn->SetMinSize( wxSize( 120,-1 ) );
-	import_steps_into_template_btn->SetMaxSize( wxSize( 120,-1 ) );
-
-	import_steps_into_template_sizer->Add( import_steps_into_template_btn, 0, wxALL, 5 );
-
-
-	import_steps_ctrl_sizer->Add( import_steps_into_template_sizer, 1, 0, 5 );
-
-	import_steps_clear_checkbox = new wxCheckBox( import_steps_panel, wxID_ANY, wxT("Clear import"), wxDefaultPosition, wxDefaultSize, 0 );
-	import_steps_clear_checkbox->SetValue(true);
-	import_steps_clear_checkbox->SetToolTip( wxT("Clears the import text field on succesful insertion into Steps or creation of a template") );
-
-	import_steps_ctrl_sizer->Add( import_steps_clear_checkbox, 0, wxALL, 5 );
-
-
-	import_steps_sizer->Add( import_steps_ctrl_sizer, 1, 0, 5 );
-
-	wxBoxSizer* import_steps_text_sizer;
-	import_steps_text_sizer = new wxBoxSizer( wxVERTICAL );
-
-	import_steps_text_sizer->SetMinSize( wxSize( -1,1200 ) );
-	import_steps_text_import = new wxTextCtrl( import_steps_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_LEFT|wxTE_MULTILINE );
-	import_steps_text_import->SetMinSize( wxSize( 450,600 ) );
-
-	import_steps_text_sizer->Add( import_steps_text_import, 0, wxALL|wxEXPAND, 5 );
-
-
-	import_steps_sizer->Add( import_steps_text_sizer, 1, wxEXPAND, 5 );
-
-
-	import_steps_panel->SetSizer( import_steps_sizer );
-	import_steps_panel->Layout();
-	import_steps_sizer->Fit( import_steps_panel );
-	main_book->AddPage( import_steps_panel, wxT("Import"), false, wxNullBitmap );
-	reorder_panel = new wxPanel( main_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* reorder_sizer;
-	reorder_sizer = new wxBoxSizer( wxVERTICAL );
-
-	wxBoxSizer* reorder_control_sizer;
-	reorder_control_sizer = new wxBoxSizer( wxHORIZONTAL );
-
-	reorder_reorder_button = new wxButton( reorder_panel, wxID_ANY, wxT("Reorder"), wxDefaultPosition, wxDefaultSize, 0 );
-	reorder_reorder_button->Enable( false );
-	reorder_reorder_button->SetToolTip( wxT("This will re-order a no-order block to align with current execution.\n\nIt works by first creating a block of steps with no-order enabled. \nThen execute them through a TAS run. \nThen run the console command \"/reorder\" and copy the text to the input below. \n\nWhen using this functionality, each multibuild step will be unrolled and each rotation will be unrolled. After that the steps will be matched with the resulting order, which then replaces them.") );
-
-	reorder_control_sizer->Add( reorder_reorder_button, 0, wxALL, 5 );
-
-	wxBoxSizer* reorder_control_checkbox_sizer;
-	reorder_control_checkbox_sizer = new wxBoxSizer( wxHORIZONTAL );
-
-	reorder_text_input_clear_checkbox = new wxCheckBox( reorder_panel, wxID_ANY, wxT("Clear reorder"), wxDefaultPosition, wxDefaultSize, 0 );
-	reorder_text_input_clear_checkbox->SetValue(true);
-	reorder_text_input_clear_checkbox->SetToolTip( wxT("Clears the text below after clicking on the Reorder button.") );
-
-	reorder_control_checkbox_sizer->Add( reorder_text_input_clear_checkbox, 0, wxALL, 5 );
-
-
-	reorder_control_sizer->Add( reorder_control_checkbox_sizer, 1, wxALL|wxEXPAND, 5 );
-
-	wxBoxSizer* reorder_locator_sizer;
-	reorder_locator_sizer = new wxBoxSizer( wxHORIZONTAL );
-
-
-	reorder_locator_sizer->Add( 375, 0, 1, wxEXPAND, 5 );
-
-	reorder_locator_button = new wxButton( reorder_panel, wxID_ANY, wxT("Locate"), wxDefaultPosition, wxDefaultSize, 0 );
-	reorder_locator_button->Enable( false );
-	reorder_locator_button->SetToolTip( wxT("Finds the no-order block in the step list, helping you visualize that you are changing the correct block.") );
-
-	reorder_locator_sizer->Add( reorder_locator_button, 0, wxALL, 5 );
-
-
-	reorder_control_sizer->Add( reorder_locator_sizer, 1, wxEXPAND, 5 );
-
-
-	reorder_sizer->Add( reorder_control_sizer, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* reorder_input_sizer;
-	reorder_input_sizer = new wxBoxSizer( wxHORIZONTAL );
-
-	reorder_input_sizer->SetMinSize( wxSize( -1,1200 ) );
-	reorder_text_input = new wxTextCtrl( reorder_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_LEFT|wxTE_MULTILINE );
-	reorder_text_input->SetToolTip( wxT("This will re-order a no-order block to align with current execution.\n\nIt works by first creating a block of steps with no-order enabled. \nThen execute them through a TAS run. \nThen run the console command \"/reorder\" and copy the text to the input below. \n\nWhen using this functionality, each multibuild step will be unrolled and each rotation will be unrolled. After that the steps will be matched with the resulting order, which then replaces them.") );
-	reorder_text_input->SetMinSize( wxSize( 450,600 ) );
-
-	reorder_input_sizer->Add( reorder_text_input, 1, wxALL|wxEXPAND, 5 );
-
-
-	reorder_sizer->Add( reorder_input_sizer, 1, wxEXPAND, 5 );
-
-
-	reorder_panel->SetSizer( reorder_sizer );
-	reorder_panel->Layout();
-	reorder_sizer->Fit( reorder_panel );
-	main_book->AddPage( reorder_panel, wxT("Reorder"), false, wxNullBitmap );
 
 
 	m_mgr.Update();
@@ -1670,6 +1668,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMineMenuSelected ), this, shortcut_mine->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnThrowMenuSelected ), this, shortcut_throw->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnShootMenuSelected ), this, shortcut_shoot->GetId());
+	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnEquipMenuSelected ), this, shortcut_equip->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnTakeMenuSelected ), this, shortcut_take->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnPutMenuSelected ), this, shortcut_put->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnBuildMenuSelected ), this, shortcut_build->GetId());
@@ -1687,6 +1686,9 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnKeepWalkingMenuSelected ), this, shortcut_keep_walking->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnKeepOnPathMenuSelected ), this, shortcut_keep_on_path->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnKeepCraftingMenuSelected ), this, shortcut_keep_crafting->GetId());
+	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnEnterExitMenuSelected ), this, shortcut_enter_exit->GetId());
+	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnDriveMenuSelected ), this, shortcut_drive->GetId());
+	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnSendMenuSelected ), this, shortcut_send->GetId());
 	menu_shortcuts->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnChangeShortcutMenuSelected ), this, shortcut_changer->GetId());
 	menu_shortcuts->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnAddMenuSelected ), this, shortcut_add_step->GetId());
 	menu_shortcuts->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnAddAltMenuSelected ), this, shortcut_add_step_alt->GetId());
@@ -1715,6 +1717,10 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	menu_auto_close->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuAutoCloseOpenClicked ), this, auto_close_open->GetId());
 	menu_auto_close->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuAutoCloseSaveClicked ), this, auto_close_save->GetId());
 	menu_auto_close->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuAutoCloseSaveAsClicked ), this, auto_close_save_as->GetId());
+	menu_auto_put->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuAutoCloseGenerateScriptClicked ), this, auto_put_furnace->GetId());
+	menu_auto_put->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuAutoCloseOpenClicked ), this, auto_put_burner->GetId());
+	menu_auto_put->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuAutoCloseSaveClicked ), this, auto_put_lab->GetId());
+	menu_auto_put->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuAutoCloseSaveAsClicked ), this, auto_put_recipe->GetId());
 	rbtn_walk->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnWalkChosen ), NULL, this );
 	rbtn_craft->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnCraftChosen ), NULL, this );
 	rbtn_tech->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnTechChosen ), NULL, this );
@@ -1725,6 +1731,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	rbtn_mine->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnMineChosen ), NULL, this );
 	rbtn_throw->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnThrowChosen ), NULL, this );
 	rbtn_shoot->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnShootChosen ), NULL, this );
+	rbtn_equip->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnEquipChosen ), NULL, this );
 	rbtn_take->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnTakeChosen ), NULL, this );
 	rbtn_put->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnPutChosen ), NULL, this );
 	rbtn_build->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnBuildChosen ), NULL, this );
@@ -1743,11 +1750,16 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	rbtn_keep_walking->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnKeepWalkingChosen ), NULL, this );
 	rbtn_keep_on_path->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnKeepOnPathChosen ), NULL, this );
 	rbtn_keep_crafting->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnKeepCraftingChosen ), NULL, this );
+	rbtn_enter_exit->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnEnterExitChosen ), NULL, this );
+	rbtn_drive->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnDriveChosen ), NULL, this );
+	rbtn_send->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnSendChosen ), NULL, this );
 	modifier_no_order_button->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnNoOrderClicked ), NULL, this );
 	modifier_no_order_button->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnNoOrderRightClicked ), NULL, this );
 	modifier_skip_button->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnSkipClicked ), NULL, this );
 	modifier_force_button->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnForceClicked ), NULL, this );
-	modifier_force_button->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnSkipRightClicked ), NULL, this );
+	modifier_force_button->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnForceRightClicked ), NULL, this );
+	modifier_vehicle_button->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnVehicleClicked ), NULL, this );
+	modifier_vehicle_button->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnVehicleRightClicked ), NULL, this );
 	walk_panel_button_upleft->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpLeftClicked ), NULL, this );
 	walk_panel_button_up->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpClicked ), NULL, this );
 	walk_panel_button_upright->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpRightClicked ), NULL, this );
@@ -1757,20 +1769,15 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	walk_panel_button_down->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnDownClicked ), NULL, this );
 	walk_panel_button_downright->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnDownRightClicked ), NULL, this );
 	main_book->Connect( wxEVT_COMMAND_AUINOTEBOOK_PAGE_CHANGED, wxAuiNotebookEventHandler( GUI_Base::OnMainBookPageChanged ), NULL, this );
-	cmb_choose_template->Connect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( GUI_Base::OnTemplateChosen ), NULL, this );
-	cmb_choose_template->Connect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( GUI_Base::OnTemplateText ), NULL, this );
-	btn_template_new->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnNewTemplateClicked ), NULL, this );
-	btn_template_delete->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnDeleteTemplateClicked ), NULL, this );
-	btn_template_delete->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnDeleteTemplateRightClicked ), NULL, this );
-	btn_template_add_step->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateAddStepClicked ), NULL, this );
-	btn_template_change_step->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateChangeStepClicked ), NULL, this );
-	btn_template_delete_step->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateDeleteStepClicked ), NULL, this );
-	btn_template_move_up_step->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateMoveUpClicked ), NULL, this );
-	btn_template_move_down_step->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateMoveDownClicked ), NULL, this );
-	btn_template_add_to_steps_list->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateAddToStepsListClicked ), NULL, this );
-	btn_template_add_from_steps_list->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateAddFromStepsListClicked ), NULL, this );
-	grid_template->Connect( wxEVT_GRID_CELL_LEFT_DCLICK, wxGridEventHandler( GUI_Base::OnTemplateGridDoubleLeftClick ), NULL, this );
-	grid_template->Connect( wxEVT_GRID_RANGE_SELECT, wxGridRangeSelectEventHandler( GUI_Base::OnTemplateGridRangeSelect ), NULL, this );
+	import_steps_into_steps_index_btn->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnImportStepsIntoStepsIndexBtnClicked ), NULL, this );
+	import_steps_into_steps_index_btn->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnImportStepsIntoStepsIndexBtnRight ), NULL, this );
+	import_steps_into_steps_ctrl->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( GUI_Base::OnImportStepsIntoStepsCtrl ), NULL, this );
+	import_steps_into_steps_ctrl->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUI_Base::OnImportStepsIntoStepsCtrlEnter ), NULL, this );
+	import_steps_into_steps_btn->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnImportStepsIntoStepsBtnClick ), NULL, this );
+	import_steps_into_template_ctrl->Connect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( GUI_Base::OnImportStepsIntoTemplateCtrlText ), NULL, this );
+	import_steps_into_template_ctrl->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUI_Base::OnImportStepsIntoTemplateCtrlEnter ), NULL, this );
+	import_steps_into_template_btn->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnImportStepsIntoTemplateBtnClick ), NULL, this );
+	import_steps_text_import->Connect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( GUI_Base::OnImportStepsTextUpdate ), NULL, this );
 	step_search_ctrl->Connect( wxEVT_COMMAND_SEARCHCTRL_CANCEL_BTN, wxCommandEventHandler( GUI_Base::StepSeachOnCancelButton ), NULL, this );
 	step_search_ctrl->Connect( wxEVT_COMMAND_SEARCHCTRL_SEARCH_BTN, wxCommandEventHandler( GUI_Base::StepSeachOnSearchButton ), NULL, this );
 	step_search_ctrl->Connect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( GUI_Base::StepSeachOnText ), NULL, this );
@@ -1790,25 +1797,28 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	btn_move_down->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnMoveDownClicked ), NULL, this );
 	btn_move_down->Connect( wxEVT_RIGHT_DOWN, wxMouseEventHandler( GUI_Base::OnMoveDownFiveClicked ), NULL, this );
 	grid_steps->Connect( wxEVT_GRID_CELL_CHANGED, wxGridEventHandler( GUI_Base::OnStepsGridCellChange ), NULL, this );
-	grid_steps->Connect( wxEVT_GRID_CELL_LEFT_DCLICK, wxGridEventHandler( GUI_Base::OnStepsGridDoubleLeftClick ), NULL, this );
-	grid_steps->Connect( wxEVT_GRID_CELL_RIGHT_DCLICK, wxGridEventHandler( GUI_Base::OnStepsGridDoubleRightClick ), NULL, this );
+	grid_steps->Connect( wxEVT_GRID_CELL_RIGHT_CLICK, wxGridEventHandler( GUI_Base::OnStepsGridRightClick ), NULL, this );
 	grid_steps->Connect( wxEVT_GRID_EDITOR_HIDDEN, wxGridEventHandler( GUI_Base::OnStepsGridEditorHidden ), NULL, this );
 	grid_steps->Connect( wxEVT_GRID_EDITOR_SHOWN, wxGridEventHandler( GUI_Base::OnStepsGridEditorShown ), NULL, this );
-	grid_steps->Connect( wxEVT_GRID_LABEL_LEFT_DCLICK, wxGridEventHandler( GUI_Base::OnStepsGridDoubleLeftClick ), NULL, this );
-	grid_steps->Connect( wxEVT_GRID_LABEL_RIGHT_DCLICK, wxGridEventHandler( GUI_Base::OnStepsGridDoubleRightClick ), NULL, this );
+	grid_steps->Connect( wxEVT_GRID_LABEL_RIGHT_CLICK, wxGridEventHandler( GUI_Base::OnStepsGridRightClick ), NULL, this );
 	grid_steps->Connect( wxEVT_GRID_RANGE_SELECT, wxGridRangeSelectEventHandler( GUI_Base::OnStepsGridRangeSelect ), NULL, this );
-	import_steps_into_steps_index_btn->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnImportStepsIntoStepsIndexBtnClicked ), NULL, this );
-	import_steps_into_steps_index_btn->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnImportStepsIntoStepsIndexBtnRight ), NULL, this );
-	import_steps_into_steps_ctrl->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( GUI_Base::OnImportStepsIntoStepsCtrl ), NULL, this );
-	import_steps_into_steps_ctrl->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUI_Base::OnImportStepsIntoStepsCtrlEnter ), NULL, this );
-	import_steps_into_steps_btn->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnImportStepsIntoStepsBtnClick ), NULL, this );
-	import_steps_into_template_ctrl->Connect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( GUI_Base::OnImportStepsIntoTemplateCtrlText ), NULL, this );
-	import_steps_into_template_ctrl->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUI_Base::OnImportStepsIntoTemplateCtrlEnter ), NULL, this );
-	import_steps_into_template_btn->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnImportStepsIntoTemplateBtnClick ), NULL, this );
-	import_steps_text_import->Connect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( GUI_Base::OnImportStepsTextUpdate ), NULL, this );
 	reorder_reorder_button->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnReorderReorderButtonClicked ), NULL, this );
 	reorder_locator_button->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnReorderLocatorButtonClicked ), NULL, this );
 	reorder_text_input->Connect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( GUI_Base::OnReorderTextUpdate ), NULL, this );
+	cmb_choose_template->Connect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( GUI_Base::OnTemplateChosen ), NULL, this );
+	cmb_choose_template->Connect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( GUI_Base::OnTemplateText ), NULL, this );
+	btn_template_new->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnNewTemplateClicked ), NULL, this );
+	btn_template_delete->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnDeleteTemplateClicked ), NULL, this );
+	btn_template_delete->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnDeleteTemplateRightClicked ), NULL, this );
+	btn_template_add_step->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateAddStepClicked ), NULL, this );
+	btn_template_change_step->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateChangeStepClicked ), NULL, this );
+	btn_template_delete_step->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateDeleteStepClicked ), NULL, this );
+	btn_template_move_up_step->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateMoveUpClicked ), NULL, this );
+	btn_template_move_down_step->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateMoveDownClicked ), NULL, this );
+	btn_template_add_to_steps_list->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateAddToStepsListClicked ), NULL, this );
+	btn_template_add_from_steps_list->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateAddFromStepsListClicked ), NULL, this );
+	grid_template->Connect( wxEVT_GRID_CELL_LEFT_DCLICK, wxGridEventHandler( GUI_Base::OnTemplateGridDoubleLeftClick ), NULL, this );
+	grid_template->Connect( wxEVT_GRID_RANGE_SELECT, wxGridRangeSelectEventHandler( GUI_Base::OnTemplateGridRangeSelect ), NULL, this );
 }
 
 GUI_Base::~GUI_Base()
@@ -1825,6 +1835,7 @@ GUI_Base::~GUI_Base()
 	rbtn_mine->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnMineChosen ), NULL, this );
 	rbtn_throw->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnThrowChosen ), NULL, this );
 	rbtn_shoot->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnShootChosen ), NULL, this );
+	rbtn_equip->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnEquipChosen ), NULL, this );
 	rbtn_take->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnTakeChosen ), NULL, this );
 	rbtn_put->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnPutChosen ), NULL, this );
 	rbtn_build->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnBuildChosen ), NULL, this );
@@ -1843,11 +1854,16 @@ GUI_Base::~GUI_Base()
 	rbtn_keep_walking->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnKeepWalkingChosen ), NULL, this );
 	rbtn_keep_on_path->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnKeepOnPathChosen ), NULL, this );
 	rbtn_keep_crafting->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnKeepCraftingChosen ), NULL, this );
+	rbtn_enter_exit->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnEnterExitChosen ), NULL, this );
+	rbtn_drive->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnDriveChosen ), NULL, this );
+	rbtn_send->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnSendChosen ), NULL, this );
 	modifier_no_order_button->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnNoOrderClicked ), NULL, this );
 	modifier_no_order_button->Disconnect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnNoOrderRightClicked ), NULL, this );
 	modifier_skip_button->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnSkipClicked ), NULL, this );
 	modifier_force_button->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnForceClicked ), NULL, this );
-	modifier_force_button->Disconnect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnSkipRightClicked ), NULL, this );
+	modifier_force_button->Disconnect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnForceRightClicked ), NULL, this );
+	modifier_vehicle_button->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnVehicleClicked ), NULL, this );
+	modifier_vehicle_button->Disconnect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnVehicleRightClicked ), NULL, this );
 	walk_panel_button_upleft->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpLeftClicked ), NULL, this );
 	walk_panel_button_up->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpClicked ), NULL, this );
 	walk_panel_button_upright->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpRightClicked ), NULL, this );
@@ -1857,20 +1873,15 @@ GUI_Base::~GUI_Base()
 	walk_panel_button_down->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnDownClicked ), NULL, this );
 	walk_panel_button_downright->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnDownRightClicked ), NULL, this );
 	main_book->Disconnect( wxEVT_COMMAND_AUINOTEBOOK_PAGE_CHANGED, wxAuiNotebookEventHandler( GUI_Base::OnMainBookPageChanged ), NULL, this );
-	cmb_choose_template->Disconnect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( GUI_Base::OnTemplateChosen ), NULL, this );
-	cmb_choose_template->Disconnect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( GUI_Base::OnTemplateText ), NULL, this );
-	btn_template_new->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnNewTemplateClicked ), NULL, this );
-	btn_template_delete->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnDeleteTemplateClicked ), NULL, this );
-	btn_template_delete->Disconnect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnDeleteTemplateRightClicked ), NULL, this );
-	btn_template_add_step->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateAddStepClicked ), NULL, this );
-	btn_template_change_step->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateChangeStepClicked ), NULL, this );
-	btn_template_delete_step->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateDeleteStepClicked ), NULL, this );
-	btn_template_move_up_step->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateMoveUpClicked ), NULL, this );
-	btn_template_move_down_step->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateMoveDownClicked ), NULL, this );
-	btn_template_add_to_steps_list->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateAddToStepsListClicked ), NULL, this );
-	btn_template_add_from_steps_list->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateAddFromStepsListClicked ), NULL, this );
-	grid_template->Disconnect( wxEVT_GRID_CELL_LEFT_DCLICK, wxGridEventHandler( GUI_Base::OnTemplateGridDoubleLeftClick ), NULL, this );
-	grid_template->Disconnect( wxEVT_GRID_RANGE_SELECT, wxGridRangeSelectEventHandler( GUI_Base::OnTemplateGridRangeSelect ), NULL, this );
+	import_steps_into_steps_index_btn->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnImportStepsIntoStepsIndexBtnClicked ), NULL, this );
+	import_steps_into_steps_index_btn->Disconnect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnImportStepsIntoStepsIndexBtnRight ), NULL, this );
+	import_steps_into_steps_ctrl->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( GUI_Base::OnImportStepsIntoStepsCtrl ), NULL, this );
+	import_steps_into_steps_ctrl->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUI_Base::OnImportStepsIntoStepsCtrlEnter ), NULL, this );
+	import_steps_into_steps_btn->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnImportStepsIntoStepsBtnClick ), NULL, this );
+	import_steps_into_template_ctrl->Disconnect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( GUI_Base::OnImportStepsIntoTemplateCtrlText ), NULL, this );
+	import_steps_into_template_ctrl->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUI_Base::OnImportStepsIntoTemplateCtrlEnter ), NULL, this );
+	import_steps_into_template_btn->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnImportStepsIntoTemplateBtnClick ), NULL, this );
+	import_steps_text_import->Disconnect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( GUI_Base::OnImportStepsTextUpdate ), NULL, this );
 	step_search_ctrl->Disconnect( wxEVT_COMMAND_SEARCHCTRL_CANCEL_BTN, wxCommandEventHandler( GUI_Base::StepSeachOnCancelButton ), NULL, this );
 	step_search_ctrl->Disconnect( wxEVT_COMMAND_SEARCHCTRL_SEARCH_BTN, wxCommandEventHandler( GUI_Base::StepSeachOnSearchButton ), NULL, this );
 	step_search_ctrl->Disconnect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( GUI_Base::StepSeachOnText ), NULL, this );
@@ -1890,25 +1901,28 @@ GUI_Base::~GUI_Base()
 	btn_move_down->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnMoveDownClicked ), NULL, this );
 	btn_move_down->Disconnect( wxEVT_RIGHT_DOWN, wxMouseEventHandler( GUI_Base::OnMoveDownFiveClicked ), NULL, this );
 	grid_steps->Disconnect( wxEVT_GRID_CELL_CHANGED, wxGridEventHandler( GUI_Base::OnStepsGridCellChange ), NULL, this );
-	grid_steps->Disconnect( wxEVT_GRID_CELL_LEFT_DCLICK, wxGridEventHandler( GUI_Base::OnStepsGridDoubleLeftClick ), NULL, this );
-	grid_steps->Disconnect( wxEVT_GRID_CELL_RIGHT_DCLICK, wxGridEventHandler( GUI_Base::OnStepsGridDoubleRightClick ), NULL, this );
+	grid_steps->Disconnect( wxEVT_GRID_CELL_RIGHT_CLICK, wxGridEventHandler( GUI_Base::OnStepsGridRightClick ), NULL, this );
 	grid_steps->Disconnect( wxEVT_GRID_EDITOR_HIDDEN, wxGridEventHandler( GUI_Base::OnStepsGridEditorHidden ), NULL, this );
 	grid_steps->Disconnect( wxEVT_GRID_EDITOR_SHOWN, wxGridEventHandler( GUI_Base::OnStepsGridEditorShown ), NULL, this );
-	grid_steps->Disconnect( wxEVT_GRID_LABEL_LEFT_DCLICK, wxGridEventHandler( GUI_Base::OnStepsGridDoubleLeftClick ), NULL, this );
-	grid_steps->Disconnect( wxEVT_GRID_LABEL_RIGHT_DCLICK, wxGridEventHandler( GUI_Base::OnStepsGridDoubleRightClick ), NULL, this );
+	grid_steps->Disconnect( wxEVT_GRID_LABEL_RIGHT_CLICK, wxGridEventHandler( GUI_Base::OnStepsGridRightClick ), NULL, this );
 	grid_steps->Disconnect( wxEVT_GRID_RANGE_SELECT, wxGridRangeSelectEventHandler( GUI_Base::OnStepsGridRangeSelect ), NULL, this );
-	import_steps_into_steps_index_btn->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnImportStepsIntoStepsIndexBtnClicked ), NULL, this );
-	import_steps_into_steps_index_btn->Disconnect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnImportStepsIntoStepsIndexBtnRight ), NULL, this );
-	import_steps_into_steps_ctrl->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( GUI_Base::OnImportStepsIntoStepsCtrl ), NULL, this );
-	import_steps_into_steps_ctrl->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUI_Base::OnImportStepsIntoStepsCtrlEnter ), NULL, this );
-	import_steps_into_steps_btn->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnImportStepsIntoStepsBtnClick ), NULL, this );
-	import_steps_into_template_ctrl->Disconnect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( GUI_Base::OnImportStepsIntoTemplateCtrlText ), NULL, this );
-	import_steps_into_template_ctrl->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUI_Base::OnImportStepsIntoTemplateCtrlEnter ), NULL, this );
-	import_steps_into_template_btn->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnImportStepsIntoTemplateBtnClick ), NULL, this );
-	import_steps_text_import->Disconnect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( GUI_Base::OnImportStepsTextUpdate ), NULL, this );
 	reorder_reorder_button->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnReorderReorderButtonClicked ), NULL, this );
 	reorder_locator_button->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnReorderLocatorButtonClicked ), NULL, this );
 	reorder_text_input->Disconnect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( GUI_Base::OnReorderTextUpdate ), NULL, this );
+	cmb_choose_template->Disconnect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( GUI_Base::OnTemplateChosen ), NULL, this );
+	cmb_choose_template->Disconnect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( GUI_Base::OnTemplateText ), NULL, this );
+	btn_template_new->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnNewTemplateClicked ), NULL, this );
+	btn_template_delete->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnDeleteTemplateClicked ), NULL, this );
+	btn_template_delete->Disconnect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnDeleteTemplateRightClicked ), NULL, this );
+	btn_template_add_step->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateAddStepClicked ), NULL, this );
+	btn_template_change_step->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateChangeStepClicked ), NULL, this );
+	btn_template_delete_step->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateDeleteStepClicked ), NULL, this );
+	btn_template_move_up_step->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateMoveUpClicked ), NULL, this );
+	btn_template_move_down_step->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateMoveDownClicked ), NULL, this );
+	btn_template_add_to_steps_list->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateAddToStepsListClicked ), NULL, this );
+	btn_template_add_from_steps_list->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnTemplateAddFromStepsListClicked ), NULL, this );
+	grid_template->Disconnect( wxEVT_GRID_CELL_LEFT_DCLICK, wxGridEventHandler( GUI_Base::OnTemplateGridDoubleLeftClick ), NULL, this );
+	grid_template->Disconnect( wxEVT_GRID_RANGE_SELECT, wxGridRangeSelectEventHandler( GUI_Base::OnTemplateGridRangeSelect ), NULL, this );
 
 	m_mgr.UnInit();
 

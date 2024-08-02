@@ -1,6 +1,5 @@
 #include "Step.h"
 
-#include "../Data/BuildingNames.h"
 #include "ParameterChoices.h"
 
 #include <format>
@@ -31,14 +30,9 @@ string Step::AmountLua()
 
 string Step::AmountGrid()
 {
-	if (type == e_game_speed)
-	{
-		return std::format("{}%", amount);
-	}
-	if (amount < 1)
-	{
-		return "All";
-	}
+	if (type == e_game_speed) return std::format("{}%", amount);
+	if (type == e_equip && amount < 1) return "None";
+	if (amount < 1) return "All";
 
 	return to_string(amount);
 }
@@ -90,6 +84,9 @@ string Step::ToString()
 		case e_priority:
 			return steptype + ";" + to_string(X) + ";" + to_string(Y) + ";" + ";" + ";" + priority.ToString() + ";" + orientation_list[Direction] + ";" + to_string(Size) + ";" + to_string(Buildings) + string_end;
 
+		case e_drive:
+				return steptype + ";;;" + to_string(amount) + ";;" + riding.ToString() + ";;;" + string_end;
+		
 		default:
 			return std::format("{};{};{};{};{};{};{};{};{}{}",
 				steptype,
@@ -114,7 +111,7 @@ bool Step::operator==(const Building& toCompare)
 	if (toCompare.X == X && toCompare.Y == Y)
 	{
 		BuildingIndex = toCompare.type;
-		orientation = toCompare.OrientationEnum;
+		orientation = toCompare.orientation;
 		return true;
 	}
 
