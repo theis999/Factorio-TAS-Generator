@@ -1190,6 +1190,9 @@ local function shoot()
 	global.tas.player.update_selected_entity(global.tas.target_position)
 	local can_shoot = not global.tas.player.selected or global.tas.player.character.can_shoot(global.tas.player.selected, global.tas.target_position)
 	if can_shoot then
+		local character = global.tas.player.character
+		global.shoot_ammo = character.get_inventory(defines.inventory.character_ammo)[character.selected_gun_index]
+		global.shoot_ammo = global.shoot_ammo and global.shoot_ammo.valid_for_read and global.shoot_ammo.ammo + global.shoot_ammo.count * global.shoot_ammo.prototype.magazine_size or nil
 		global.tas.player.shooting_state = {state = defines.shooting.shooting_selected, position = global.tas.target_position}
 		global.tas_shooting_amount = global.tas_shooting_amount - 1
 	else
@@ -1803,6 +1806,22 @@ local function handle_posttick()
 	if queued_save then
 		save(queued_save.name, queued_save.step)
 		queued_save = nil
+	end
+
+	if global.shoot_ammo and global.tas.player.shooting_state.state == defines.shooting.not_shooting  then-- steps[global.tas.step][2] ~= "shoot" then
+		local character = global.tas.player.character
+		local ammo = character.get_inventory(defines.inventory.character_ammo)[character.selected_gun_index]
+		ammo = ammo and ammo.valid_for_read and ammo.ammo + ammo.count * ammo.prototype.magazine_size or nil
+		if not ammo then
+			Debug("Debug shooting, ammo capacity not available for read")
+		elseif ammo - global.shoot_ammo == 0 then
+			Warning("Shooting: ammo count unchanged")
+		elseif ammo - global.shoot_ammo < -1 then
+			Debug("Shot more than twice")
+		else
+			global.tas.player.print("Shot fired")
+		end
+		global.shoot_ammo = nil
 	end
 
 	do -- check warning states
