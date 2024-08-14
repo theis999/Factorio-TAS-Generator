@@ -1818,6 +1818,9 @@ void cMain::UpdateParametersChangeType(wxCommandEvent& event, StepType step)
 		case e_pause:
 			OnPauseMenuSelected(event);
 			break;
+		case e_stop:
+			OnStopMenuSelected(event);
+			break;
 		case e_save:
 			OnSaveMenuSelected(event);
 			break;
@@ -2723,12 +2726,11 @@ bool cMain::ValidateAllSteps()
 
 void cMain::OnMainBookPageChanged(wxAuiNotebookEvent& event)
 {
-	auto page = event.GetSelection();
-	if (page == 2)
+	auto pagename = main_book->GetPage(event.GetSelection())->GetName();
+	if (pagename == "Import")
 	{
 		import_steps_text_import->SetFocus();
 	}
-	event.Skip();
 }
 
 void cMain::OnNoOrderRightClicked(wxMouseEvent& event)
