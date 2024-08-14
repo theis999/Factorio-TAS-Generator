@@ -48,6 +48,9 @@
     <ClCompile Include="cMain_Focus.cpp">
       <Filter>cMain</Filter>
     </ClCompile>
+    <ClCompile Include="cMain_Highlighter.cpp">
+      <Filter>cMain</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cApp.h" />
@@ -119,6 +122,9 @@
     <ClInclude Include="Structures\StepModifiers.h" />
     <ClInclude Include="StdUtil.h">
       <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="HighlighterThreads.h">
+      <Filter>cMain</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

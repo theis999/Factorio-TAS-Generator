@@ -42,6 +42,8 @@
 #include "Recipe.h"
 #include "Item.h"
 
+#include "HighlighterThreads.h"
+
 using std::string;
 using std::vector;
 using std::pair;
@@ -52,6 +54,8 @@ class cMain : public GUI_Base
 public:
 	cMain();
 	friend TypePanel;
+	bool HighlightRow(int row);
+	void HighlightRowUndo(int row, bool select);
 
 protected:
 	void OnApplicationClose(wxCloseEvent& event);
