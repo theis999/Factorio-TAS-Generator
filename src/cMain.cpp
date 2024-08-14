@@ -1814,6 +1814,9 @@ void cMain::UpdateParametersChangeType(wxCommandEvent& event, StepType step)
 		case e_pause:
 			OnPauseMenuSelected(event);
 			break;
+		case e_stop:
+			OnStopMenuSelected(event);
+			break;
 		case e_save:
 			OnSaveMenuSelected(event);
 			break;
