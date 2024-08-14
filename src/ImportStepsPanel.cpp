@@ -243,6 +243,13 @@ void cMain::OnImportStepsIntoStepsBtnClick(wxCommandEvent& event)
 
 	stack.Push(change);
 	no_changes = false;
+
+	wxYield();
+	vector<int> highlight_rows = {};
+	for (int i = 0; i < steps.size(); i++)
+		highlight_rows.push_back(start + i);
+	HighlightRowsThread* t = new HighlightRowsThread(highlight_rows, this);
+	t->Run();
 }
 
 bool cMain::validateTemplateName()

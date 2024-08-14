@@ -1078,9 +1078,13 @@ void cMain::OnMoveDownFiveClicked(wxMouseEvent& event)
 
 void cMain::OnStepsGridRightClick(wxGridEvent& event)
 {
-	auto gridEntry = ExtractGridEntry(grid_steps, event.GetRow());
+	auto row = event.GetRow();
+	auto gridEntry = ExtractGridEntry(grid_steps, row);
 
 	UpdateParameters(&gridEntry, event);
+
+	HighlightRowThread* t = new HighlightRowThread(row, this);
+	t->Run();
 }
 
 void cMain::OnStepsGridRangeSelect(wxGridRangeSelectEvent& event)
