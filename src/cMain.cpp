@@ -2726,11 +2726,7 @@ bool cMain::ValidateAllSteps()
 
 void cMain::OnMainBookPageChanged(wxAuiNotebookEvent& event)
 {
-	auto pagename = main_book->GetPage(event.GetSelection())->GetName();
-	if (pagename == "Import")
-	{
-		import_steps_text_import->SetFocus();
-	}
+	event.Skip();
 }
 
 void cMain::OnNoOrderRightClicked(wxMouseEvent& event)
