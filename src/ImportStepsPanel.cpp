@@ -140,7 +140,12 @@ void cMain::OnImportStepsIntoStepsIndexBtnClicked(wxCommandEvent& event)
 	if (rows.IsEmpty()) return;
 	auto row = rows.front();
 
-	import_steps_into_steps_ctrl->SetValue(row);
+	if (row != import_steps_into_steps_ctrl->GetValue())
+	{
+		import_steps_into_steps_ctrl->SetValue(row);
+		auto t = new HighlightInputControlChangedThread({import_steps_into_steps_ctrl});
+		t->Run();
+	}
 }
 
 void cMain::OnImportStepsIntoStepsIndexBtnRight(wxMouseEvent& event)
@@ -150,7 +155,12 @@ void cMain::OnImportStepsIntoStepsIndexBtnRight(wxMouseEvent& event)
 	auto row = rows.Last();
 	auto totalRows = grid_steps->GetNumberRows();
 
-	import_steps_into_steps_ctrl->SetValue(row - totalRows);
+	if (row - totalRows != import_steps_into_steps_ctrl->GetValue())
+	{
+		import_steps_into_steps_ctrl->SetValue(row - totalRows);
+		auto t = new HighlightInputControlChangedThread({import_steps_into_steps_ctrl});
+		t->Run();
+	}
 }
 
 void cMain::OnImportStepsTextUpdate(wxCommandEvent& event)
