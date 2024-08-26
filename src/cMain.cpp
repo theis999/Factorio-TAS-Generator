@@ -1929,18 +1929,42 @@ void cMain::UpdateParameters(GridEntry* gridEntry, wxCommandEvent& event, bool c
 
 	if (changeType) 
 		UpdateParametersChangeType(event, type);
-
+	vector< wxControl*> ctrls{};
 	using enum choice_bit_vector;
-	if (parameters & x_coordinate) spin_x->SetValue(gridEntry->X);
-	if (parameters & y_coordinate) spin_y->SetValue(gridEntry->Y);
-	if (parameters & amount) 
-		spin_amount->SetValue(
-			type == e_game_speed ? to_string(stoi(gridEntry->Amount.ToStdString())) :
-			gridEntry->Amount == "All" || gridEntry->Amount == "None" ? "0" : gridEntry->Amount.ToStdString()
-		);
-	if (parameters & item) cmb_item->SetValue(gridEntry->Item);
-	if (parameters & from_to) cmb_from_into->SetValue(gridEntry->BuildingOrientation);
-	if (type == e_drive)
+	if (parameters & x_coordinate && wxString(std::to_string(spin_x->GetValue())) != gridEntry->X) 
+	{
+		spin_x->SetValue(gridEntry->X);
+		ctrls.push_back(spin_x);
+	}
+	if (parameters & y_coordinate && wxString(std::to_string(spin_y->GetValue())) != gridEntry->Y)
+	{
+		spin_y->SetValue(gridEntry->Y);
+		ctrls.push_back(spin_y);
+	}
+	if (parameters & amount)
+	{
+		auto value = type == e_game_speed ?
+			to_string(stoi(gridEntry->Amount.ToStdString())) :
+			gridEntry->Amount == "All" || gridEntry->Amount == "None" ?
+			"0" :
+			gridEntry->Amount.ToStdString();
+		if (std::to_string(spin_amount->GetValue()) != value)
+		{
+			spin_amount->SetValue(value);
+			ctrls.push_back(spin_amount);
+		}
+	}
+	if (parameters & item && cmb_item->GetValue() != gridEntry->Item)
+	{
+		cmb_item->SetValue(gridEntry->Item);
+		ctrls.push_back(cmb_item);
+	}
+	if (parameters & from_to && cmb_from_into->GetValue() != gridEntry->BuildingOrientation) 
+	{
+		cmb_from_into->SetValue(gridEntry->BuildingOrientation);
+		ctrls.push_back(cmb_from_into);
+	}
+	if (type == e_drive) // TODO: highlighting of radio inputs
 	{
 		radio_acceleration->Select(Riding::MapStringToAcceleration[orientation_string.substr(0, pos)]);
 		radio_output->Select(Riding::MapStringToDirection[orientation_string.substr(pos + 1)]);
@@ -1950,11 +1974,37 @@ void cMain::UpdateParameters(GridEntry* gridEntry, wxCommandEvent& event, bool c
 		if (parameters & input) radio_input->Select(Priority::MapNameToType[orientation_string.substr(0, pos)]);
 		if (parameters & output) radio_output->Select(Priority::MapNameToType[orientation_string.substr(pos + 1)]);
 	}
-	if (parameters & building_orientation) cmb_building_orientation->SetValue(gridEntry->BuildingOrientation);
-	if (parameters & direction_to_build) cmb_direction_to_build->SetValue(gridEntry->DirectionToBuild);
-	if (parameters & building_size) spin_building_size->SetValue(gridEntry->BuildingSize);
-	if (parameters & amount_of_buildings) spin_building_amount->SetValue(gridEntry->AmountOfBuildings);
-	if (parameters & comment) txt_comment->SetValue(gridEntry->Comment);
+	if (parameters & building_orientation && cmb_building_orientation->GetValue() != gridEntry->BuildingOrientation)
+	{
+		cmb_building_orientation->SetValue(gridEntry->BuildingOrientation);
+		ctrls.push_back(cmb_building_orientation);
+	}
+	if (parameters & direction_to_build && cmb_direction_to_build->GetValue() != gridEntry->DirectionToBuild)
+	{
+		cmb_direction_to_build->SetValue(gridEntry->DirectionToBuild);
+		ctrls.push_back(cmb_direction_to_build);
+	}
+	if (parameters & building_size && wxString(std::to_string(spin_building_size->GetValue())) != gridEntry->BuildingSize)
+	{
+		spin_building_size->SetValue(gridEntry->BuildingSize);
+		ctrls.push_back(spin_building_size);
+	}
+	if (parameters & amount_of_buildings && wxString(std::to_string(spin_building_amount->GetValue())) != gridEntry->AmountOfBuildings)
+	{
+		spin_building_amount->SetValue(gridEntry->AmountOfBuildings);
+		ctrls.push_back(spin_building_amount);
+	}
+	if (parameters & comment && txt_comment->GetValue() != gridEntry->Comment)
+	{
+		txt_comment->SetValue(gridEntry->Comment);
+		ctrls.push_back(txt_comment);
+	}
+
+	if (ctrls.size() > 0)
+	{
+		auto t = new HighlightInputControlChangedThread(ctrls);
+		t->Run();
+	}
 }
 
 void cMain::malformed_saved_file_message()

@@ -21,3 +21,12 @@ public:
 
 	wxThread::ExitCode Entry();
 };
+
+class HighlightInputControlChangedThread : public wxThread
+{
+public:
+	vector<wxControl *> ctrls;
+	HighlightInputControlChangedThread(vector<wxControl*> ctrls);
+
+	wxThread::ExitCode Entry();
+};

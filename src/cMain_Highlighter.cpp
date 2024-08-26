@@ -59,3 +59,24 @@ bool cMain::HighlightRow(int row)
 	if (select) grid_steps->DeselectRow(row);
 	return select;
 }
+
+HighlightInputControlChangedThread::HighlightInputControlChangedThread(vector<wxControl*> _ctrls)
+{
+	ctrls = _ctrls;
+}
+
+wxThread::ExitCode HighlightInputControlChangedThread::Entry()
+{
+	for (auto ctrl : ctrls)
+	{
+		ctrl->SetForegroundColour(wxColour("Green"));
+		ctrl->Refresh();
+	}
+	Sleep(250);
+	for (auto ctrl : ctrls)
+	{
+		ctrl->SetForegroundColour(wxColour("Window"));
+		ctrl->Refresh();
+	}
+	return 0;
+}
