@@ -147,6 +147,8 @@ cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSi
 		Open(&tas_file);
 	}
 	TemplatePageStartup();
+
+	is_started = true;
 }
 
 void cMain::OnStepsGridCellChange(wxGridEvent& event)
@@ -1083,8 +1085,11 @@ void cMain::OnStepsGridRightClick(wxGridEvent& event)
 
 	UpdateParameters(&gridEntry, event);
 
+	if (is_started)
+	{
 	HighlightRowThread* t = new HighlightRowThread(row, this);
 	t->Run();
+}
 }
 
 void cMain::OnStepsGridRangeSelect(wxGridRangeSelectEvent& event)
@@ -2000,7 +2005,7 @@ void cMain::UpdateParameters(GridEntry* gridEntry, wxCommandEvent& event, bool c
 		ctrls.push_back(txt_comment);
 	}
 
-	if (ctrls.size() > 0)
+	if (is_started && ctrls.size() > 0)
 	{
 		auto t = new HighlightInputControlChangedThread(ctrls);
 		t->Run();

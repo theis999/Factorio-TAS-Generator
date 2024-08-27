@@ -143,8 +143,11 @@ void cMain::OnImportStepsIntoStepsIndexBtnClicked(wxCommandEvent& event)
 	if (row != import_steps_into_steps_ctrl->GetValue())
 	{
 		import_steps_into_steps_ctrl->SetValue(row);
-		auto t = new HighlightInputControlChangedThread({import_steps_into_steps_ctrl});
-		t->Run();
+		if (is_started)
+		{
+			auto t = new HighlightInputControlChangedThread({import_steps_into_steps_ctrl});
+			t->Run();
+		}
 	}
 }
 
@@ -158,8 +161,11 @@ void cMain::OnImportStepsIntoStepsIndexBtnRight(wxMouseEvent& event)
 	if (row - totalRows != import_steps_into_steps_ctrl->GetValue())
 	{
 		import_steps_into_steps_ctrl->SetValue(row - totalRows);
-		auto t = new HighlightInputControlChangedThread({import_steps_into_steps_ctrl});
-		t->Run();
+		if (is_started)
+		{
+			auto t = new HighlightInputControlChangedThread({import_steps_into_steps_ctrl});
+			t->Run();
+		}
 	}
 }
 
@@ -258,8 +264,11 @@ void cMain::OnImportStepsIntoStepsBtnClick(wxCommandEvent& event)
 	vector<int> highlight_rows = {};
 	for (int i = 0; i < steps.size(); i++)
 		highlight_rows.push_back(start + i);
-	HighlightRowsThread* t = new HighlightRowsThread(highlight_rows, this);
-	t->Run();
+	if (is_started)
+	{
+		HighlightRowsThread* t = new HighlightRowsThread(highlight_rows, this);
+		t->Run();
+	}
 }
 
 bool cMain::validateTemplateName()
