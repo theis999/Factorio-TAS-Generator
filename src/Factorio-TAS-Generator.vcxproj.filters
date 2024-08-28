@@ -1,23 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="cApp.cpp" />
-    <ClCompile Include="cMain.cpp" />
     <ClCompile Include="GenerateScript.cpp" />
     <ClCompile Include="GUI_Base.cpp" />
-    <ClCompile Include="TypePanel.cpp" />
     <ClCompile Include="DialogProgressBar.cpp" />
     <ClCompile Include="SearchUtil.cpp">
       <Filter>Structs</Filter>
     </ClCompile>
-    <ClCompile Include="ShortcutChanger.cpp" />
-    <ClCompile Include="ImportStepsPanel.cpp" />
-    <ClCompile Include="CommandStack.cpp" />
-    <ClCompile Include="SteptypeColour.cpp" />
-    <ClCompile Include="TAS save file\OpenTas.cpp" />
-    <ClCompile Include="TAS save file\SaveTas.cpp" />
-    <ClCompile Include="TemplatePage.cpp" />
-    <ClCompile Include="WalkPanel.cpp" />
     <ClCompile Include="Structures\Step.cpp">
       <Filter>Structs</Filter>
     </ClCompile>
@@ -51,35 +40,56 @@
     <ClCompile Include="cMain_Highlighter.cpp">
       <Filter>cMain</Filter>
     </ClCompile>
-    <ClCompile Include="AutoSaveQueue.cpp">
-      <Filter>util</Filter>
+    <ClCompile Include="AutoSaver.cpp">
+      <Filter>save</Filter>
+    </ClCompile>
+    <ClCompile Include="TAS save file\OpenTas.cpp">
+      <Filter>save</Filter>
+    </ClCompile>
+    <ClCompile Include="TAS save file\SaveTas.cpp">
+      <Filter>save</Filter>
+    </ClCompile>
+    <ClCompile Include="cApp.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="WalkPanel.cpp">
+      <Filter>main elements</Filter>
+    </ClCompile>
+    <ClCompile Include="TypePanel.cpp">
+      <Filter>main elements</Filter>
+    </ClCompile>
+    <ClCompile Include="TemplatePage.cpp">
+      <Filter>main elements</Filter>
+    </ClCompile>
+    <ClCompile Include="SteptypeColour.cpp">
+      <Filter>main elements</Filter>
+    </ClCompile>
+    <ClCompile Include="ShortcutChanger.cpp">
+      <Filter>main elements</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportStepsPanel.cpp">
+      <Filter>main elements</Filter>
+    </ClCompile>
+    <ClCompile Include="cMain.cpp">
+      <Filter>cMain</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandStack.cpp">
+      <Filter>save</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cApp.h" />
-    <ClInclude Include="cMain.h" />
     <ClInclude Include="GenerateScript.h" />
     <ClInclude Include="GUI_Base.h" />
     <ClInclude Include="DialogProgressBar.h" />
-    <ClInclude Include="TypePanel.h" />
     <ClInclude Include="SearchUtil.h">
       <Filter>Structs</Filter>
     </ClInclude>
-    <ClInclude Include="ShortcutChanger.h" />
-    <ClInclude Include="Settings.h" />
-    <ClInclude Include="ImportStepsPanel.h" />
     <ClInclude Include="nlohmann\json.hpp">
       <Filter>misc</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>misc</Filter>
     </ClInclude>
-    <ClInclude Include="CommandStack.h" />
-    <ClInclude Include="SteptypeColour.h" />
-    <ClInclude Include="Data\utils.h" />
-    <ClInclude Include="TAS save file\OpenTas.h" />
-    <ClInclude Include="TAS save file\SaveTas.h" />
-    <ClInclude Include="TAS save file\TasFileConstants.h" />
     <ClInclude Include="Structures\Building.h">
       <Filter>Structs</Filter>
     </ClInclude>
@@ -122,14 +132,54 @@
     <ClInclude Include="Shared functions\StringFunctions.h">
       <Filter>util</Filter>
     </ClInclude>
-    <ClInclude Include="Structures\StepModifiers.h" />
     <ClInclude Include="StdUtil.h">
       <Filter>util</Filter>
     </ClInclude>
     <ClInclude Include="HighlighterThreads.h">
       <Filter>cMain</Filter>
     </ClInclude>
-    <ClInclude Include="AutoSaveQueue.h" />
+    <ClInclude Include="AutoSaver.h">
+      <Filter>save</Filter>
+    </ClInclude>
+    <ClInclude Include="TAS save file\OpenTas.h">
+      <Filter>save</Filter>
+    </ClInclude>
+    <ClInclude Include="TAS save file\SaveTas.h">
+      <Filter>save</Filter>
+    </ClInclude>
+    <ClInclude Include="TAS save file\TasFileConstants.h">
+      <Filter>save</Filter>
+    </ClInclude>
+    <ClInclude Include="cApp.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="Data\utils.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="TypePanel.h">
+      <Filter>main elements</Filter>
+    </ClInclude>
+    <ClInclude Include="SteptypeColour.h">
+      <Filter>main elements</Filter>
+    </ClInclude>
+    <ClInclude Include="ShortcutChanger.h">
+      <Filter>main elements</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportStepsPanel.h">
+      <Filter>main elements</Filter>
+    </ClInclude>
+    <ClInclude Include="cMain.h">
+      <Filter>cMain</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandStack.h">
+      <Filter>save</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings.h">
+      <Filter>save</Filter>
+    </ClInclude>
+    <ClInclude Include="Structures\StepModifiers.h">
+      <Filter>Structs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\Lua Files\control.lua">
@@ -184,6 +234,12 @@
     </Filter>
     <Filter Include="cMain">
       <UniqueIdentifier>{ab7d1857-bfda-45e3-9eda-3f45647ff7c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="save">
+      <UniqueIdentifier>{8564934d-e5c8-479b-b4d4-5842627a5b7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="main elements">
+      <UniqueIdentifier>{23b69407-62db-422b-aa9a-db53d4155aa9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
