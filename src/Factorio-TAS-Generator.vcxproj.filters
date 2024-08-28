@@ -51,6 +51,9 @@
     <ClCompile Include="cMain_Highlighter.cpp">
       <Filter>cMain</Filter>
     </ClCompile>
+    <ClCompile Include="AutoSaveQueue.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cApp.h" />
@@ -126,6 +129,7 @@
     <ClInclude Include="HighlighterThreads.h">
       <Filter>cMain</Filter>
     </ClInclude>
+    <ClInclude Include="AutoSaveQueue.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\Lua Files\control.lua">

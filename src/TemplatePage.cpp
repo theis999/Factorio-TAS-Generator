@@ -135,7 +135,7 @@ void cMain::OnDeleteTemplate(bool force)
 		ClearTemplateGrid();
 	}
 
-	stack.Push(change);
+	autosaver.Push(change);
 	no_changes = false;
 }
 void cMain::OnDeleteTemplateRightClicked(wxMouseEvent& event)
@@ -167,7 +167,7 @@ void cMain::OnTemplateAddStepClicked(wxCommandEvent& event)
 	Command change{.template_name = key};
 	change.after.push_back({row, step});
 
-	stack.Push(change);
+	autosaver.Push(change);
 	no_changes = false;
 }
 
@@ -194,7 +194,7 @@ void cMain::OnTemplateChangeStepClicked(wxCommandEvent& event)
 	auto rowNum = *grid_template->GetSelectedRows().begin();
 	change.after.push_back({rowNum, step});
 	template_map[name][rowNum] = step;
-	stack.Push(change);
+	autosaver.Push(change);
 	no_changes = false;
 }
 
@@ -244,7 +244,7 @@ void cMain::TemplateMoveRow(wxGrid* grid, wxComboBox* cmb, bool move_up, map<str
 	}
 
 	UndoRedo(grid, data_list, StepLineToStepBlock(change.after), StepLineToStepBlock(change.before));
-	stack.Push(change);
+	autosaver.Push(change);
 	no_changes = false;
 }
 
@@ -315,7 +315,7 @@ void cMain::OnTemplateAddToStepsListClicked(wxCommandEvent& event)
 		UpdateStepGrid(moveTo++, &step);
 	}
 
-	stack.Push(change);
+	autosaver.Push(change);
 	no_changes = false;
 }
 

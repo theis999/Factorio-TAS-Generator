@@ -173,6 +173,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AutoSaver.cpp" />
     <ClCompile Include="cApp.cpp" />
     <ClCompile Include="cMain.cpp" />
     <ClCompile Include="cMain_Focus.cpp" />
@@ -201,6 +202,7 @@
     <ClCompile Include="WalkPanel.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AutoSaver.h" />
     <ClInclude Include="cApp.h" />
     <ClInclude Include="cMain.h" />
     <ClInclude Include="CommandStack.h" />

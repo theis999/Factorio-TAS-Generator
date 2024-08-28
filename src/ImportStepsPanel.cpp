@@ -257,7 +257,7 @@ void cMain::OnImportStepsIntoStepsBtnClick(wxCommandEvent& event)
 
 	if (import_steps_clear_checkbox->IsChecked()) import_steps_text_import->Clear();
 
-	stack.Push(change);
+	autosaver.Push(change);
 	no_changes = false;
 
 	wxYield();
@@ -344,7 +344,7 @@ void cMain::OnImportStepsIntoTemplateCtrlEnter(wxCommandEvent& event)
 	import_steps_into_template_btn->Enable(false);
 	import_steps_into_template_ctrl->SetForegroundColour(wxColour("Red"));
 
-	stack.Push(change);
+	autosaver.Push(change);
 	no_changes = false;
 }
 

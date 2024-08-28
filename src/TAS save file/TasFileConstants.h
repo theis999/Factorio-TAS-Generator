@@ -16,6 +16,7 @@ static const int template_segment_size_without_comment_and_colour = 11;
 static const int template_segment_size_without_comment_and_colour_and_modifiers = 10;
 
 static const string total_steps_indicator = "Total lines:";
+static const string total_commands_indicator = "Total commands:";
 static const string goal_indicator = "Goal:";
 static const string steps_indicator = "Steps:";
 static const string save_groups_indicator = "Groups:";
