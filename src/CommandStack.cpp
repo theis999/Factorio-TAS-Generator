@@ -11,16 +11,16 @@ void CommandStack::Push(Command command)
 {
 	if (command.empty()) return;
 	buffer[head] = command;
-	head = (head + 1) % size;
+	head = (head + 1) % CAPACITY;
 	hair = head;
-	tail = head != tail ? tail : (tail + 1) % size;
+	tail = head != tail ? tail : (tail + 1) % CAPACITY;
 }
 
 Command CommandStack::Pop()
 {
 	if (head == tail) 
 		return {{}, {}, ""};
-	head = (head + size - 1) % size;
+	head = (head + CAPACITY - 1) % CAPACITY;
 	return buffer[head];
 }
 
@@ -29,6 +29,6 @@ Command CommandStack::PopBack()
 	if (head == hair)
 		return {{}, {}, ""};
 	int head_copy = head;
-	head = (head + 1) % size;
+	head = (head + 1) % CAPACITY;
 	return buffer[head_copy];
 }

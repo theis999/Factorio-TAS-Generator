@@ -11,9 +11,6 @@ public:
 	// Clears the autosave list, without impacting the undo stack. Used when saving FTG
 	void Clear(); 
 	
-	// Test if the autosave list is empty
-	bool IsEmpty(); 
-	
 	// Pushes a new change to both the autosave list and undo stack
 	void Push(Command); 
 	// Removes the most recent element in the autosave list and pops the undo stack

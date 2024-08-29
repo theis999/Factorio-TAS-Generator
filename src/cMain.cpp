@@ -1529,7 +1529,14 @@ void cMain::OnMenuOpen(wxCommandEvent& event)
 #pragma warning(suppress : 4996)
 		std::locale utf8_locale(std::locale(), new std::codecvt_utf8<wchar_t>);
 		file.imbue(utf8_locale);
-		file.open(dlg.GetPath().ToStdString());
+
+		auto path = dlg.GetPath().ToStdString();
+
+		if (path.ends_with("_autosave.txt"))
+			path = wxMessageBox("This file look like an autosave file!\nWould you like to open < " + path.substr(0, path.size() - string("_autosave.txt").size()) + ".txt > instead?",
+				"Open save file instead of autosave?", wxICON_QUESTION | wxYES_NO, this) == wxYES ? path.substr(0, path.size() - string("_autosave.txt").size()) + ".txt" : path;
+
+		file.open(path);
 
 		if (!file)
 		{

@@ -1,23 +1,20 @@
 #include "AutoSaver.h"
 #include "Shared functions/Functions.h"
 
-AutoSaver::AutoSaver()
-{}
+AutoSaver::AutoSaver() {}
 
 void AutoSaver::Clear()
 {
 	autosave_data.clear();
 }
 
-bool AutoSaver::IsEmpty()
-{
-	return autosave_data.size() > 0;
-}
-
 void AutoSaver::Push(Command c)
 {
 	undo_stack.Push(c);
 	autosave_data.push_back(c);
+
+	if (autosave_data.size() >= undo_stack.CAPACITY && autosave_data.size() % 4 == 0)
+		wxMessageBox("Please save as soon as possible.", "Autosave is exceeding capacity");
 }
 
 Command AutoSaver::Pop()
