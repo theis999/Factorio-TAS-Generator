@@ -21,9 +21,11 @@ struct Command
 
 class CommandStack
 {
+public:
+	static inline const int CAPACITY = 128;
 private:
-	static inline const int size = 128;
-	Command buffer[size] = {};
+	
+	Command buffer[CAPACITY] = {};
 	int head = 0, tail = 0, hair = 0;
 
 public:

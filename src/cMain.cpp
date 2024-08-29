@@ -145,8 +145,18 @@ cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSi
 	{
 		std::ifstream tas_file(settings.last_tas);
 		Open(&tas_file);
+		auto t = settings.last_tas.substr(0, settings.last_tas.size() - 4) + "_autosave.txt";
+		std::ifstream autosave_tas_file(settings.last_tas.substr(0, settings.last_tas.size() - 4) + "_autosave.txt");
+		
+		int buildingsInSnapshot = GenerateBuildingSnapShot(StepGridData.size());
+		for (auto& command : autosaver.OpenAutosave(autosave_tas_file, BuildingsSnapShot, buildingsInSnapshot))
+		{
+			UndoRedoHandleTemplate(command, StepLineToStepBlock(command.after), StepLineToStepBlock(command.before));
+		}
 	}
 	TemplatePageStartup();
+
+	is_started = true;
 }
 
 void cMain::OnStepsGridCellChange(wxGridEvent& event)
@@ -270,7 +280,7 @@ void cMain::OnStepsGridCellChange(wxGridEvent& event)
 	if (!success) grid_steps->SetCellValue(row, col, old_string);
 	else {
 		no_changes = false;
-		stack.Push({
+		autosaver.Push({
 				.before = before,
 				.after = {{row, step}},
 			}
@@ -394,7 +404,7 @@ void cMain::OnReorderReorderButtonClicked(wxCommandEvent& event)
 	if (reorder_text_input_clear_checkbox->GetValue())
 		reorder_text_input->SetValue("");
 
-	stack.Push(change);
+	autosaver.Push(change);
 	no_changes = false;
 }
 void cMain::OnReorderLocatorButtonClicked(wxCommandEvent& event)
@@ -485,7 +495,7 @@ void cMain::ResetToNewWindow()
 
 	SetLabel(window_title);
 
-	stack.Clear();
+	autosaver.Clear();
 }
 
 bool cMain::CheckBeforeClose()
@@ -608,7 +618,7 @@ bool cMain::DeleteRow(wxGrid* grid, wxComboBox* cmb, map<string, vector<Step>>& 
 		rowsDeleted += rowCount;
 	}
 
-	stack.Push(change);
+	autosaver.Push(change);
 	no_changes = false;
 	return true;
 }
@@ -669,7 +679,7 @@ void cMain::OnAddStepClicked(wxCommandEvent& event)
 
 	if (change.size() > 0)
 	{
-		stack.Push({
+		autosaver.Push({
 			.after = change,
 		});
 	}
@@ -699,7 +709,7 @@ void cMain::OnAddStepRightClicked(wxMouseEvent& event)
 
 	if (change.size() > 0)
 	{
-		stack.Push({
+		autosaver.Push({
 			.after = change,
 		});
 	}
@@ -855,7 +865,7 @@ void cMain::OnChangeStepInternal(wxArrayInt& rows, int row)
 		return;
 	};
 
-	stack.Push(ChangeStep(row, step));
+	autosaver.Push(ChangeStep(row, step));
 
 	grid_steps->SelectRow(row);
 	HandleFocusMode(steps_focus_checkbox->IsChecked());
@@ -934,7 +944,7 @@ void cMain::OnDeleteStepInternal(wxArrayInt& rows, bool auto_confirm)
 	}
 	else 
 	{
-		stack.Push(change);
+		autosaver.Push(change);
 		no_changes = false;
 	}
 
@@ -1036,7 +1046,7 @@ void cMain::OnMoveUpClicked(wxCommandEvent& event)
 		return;
 	}
 	
-	stack.Push(MoveRows(grid_steps, -1));
+	autosaver.Push(MoveRows(grid_steps, -1));
 	event.Skip();
 }
 
@@ -1048,7 +1058,7 @@ void cMain::OnMoveDownClicked(wxCommandEvent& event)
 		return;
 	}
 
-	stack.Push(MoveRows(grid_steps, 1));
+	autosaver.Push(MoveRows(grid_steps, 1));
 	event.Skip();
 }
 
@@ -1059,7 +1069,7 @@ void cMain::OnMoveUpFiveClicked(wxMouseEvent& event)
 		wxMessageBox("Please select row(s) to move", "Select row(s)");
 	}
 
-	stack.Push(MoveRows(grid_steps, -5));
+	autosaver.Push(MoveRows(grid_steps, -5));
 
 	event.Skip();
 }
@@ -1071,7 +1081,7 @@ void cMain::OnMoveDownFiveClicked(wxMouseEvent& event)
 		wxMessageBox("Please select row(s) to move", "Select row(s)");
 	}
 
-	stack.Push(MoveRows(grid_steps, 5));
+	autosaver.Push(MoveRows(grid_steps, 5));
 	
 	event.Skip();
 }
@@ -1083,8 +1093,11 @@ void cMain::OnStepsGridRightClick(wxGridEvent& event)
 
 	UpdateParameters(&gridEntry, event);
 
-	HighlightRowThread* t = new HighlightRowThread(row, this);
-	t->Run();
+	if (is_started)
+	{
+		HighlightRowThread* t = new HighlightRowThread(row, this);
+		t->Run();
+	}
 }
 
 void cMain::OnStepsGridRangeSelect(wxGridRangeSelectEvent& event)
@@ -1155,7 +1168,7 @@ void cMain::OnStepColourPickerColourChanged(wxColourPickerEvent& event)
 			change.after.push_back({row, StepGridData[row]});
 		}
 	}
-	stack.Push(change);
+	autosaver.Push(change);
 	no_changes = false;
 }
 
@@ -1217,7 +1230,7 @@ void cMain::SplitMultibuildStep(int row)
 		grid_steps->SelectRow(i, true);
 	}
 
-	stack.Push(change);
+	autosaver.Push(change);
 	no_changes;
 }
 
@@ -1277,7 +1290,7 @@ void cMain::UpdateMapWithNewSteps(wxGrid* grid, wxComboBox* cmb, map<string, vec
 	}
 
 	it->second = steps;
-	stack.Push(change);
+	autosaver.Push(change);
 	no_changes = false;
 }
 
@@ -1516,7 +1529,14 @@ void cMain::OnMenuOpen(wxCommandEvent& event)
 #pragma warning(suppress : 4996)
 		std::locale utf8_locale(std::locale(), new std::codecvt_utf8<wchar_t>);
 		file.imbue(utf8_locale);
-		file.open(dlg.GetPath().ToStdString());
+
+		auto path = dlg.GetPath().ToStdString();
+
+		if (path.ends_with("_autosave.txt"))
+			path = wxMessageBox("This file look like an autosave file!\nWould you like to open < " + path.substr(0, path.size() - string("_autosave.txt").size()) + ".txt > instead?",
+				"Open save file instead of autosave?", wxICON_QUESTION | wxYES_NO, this) == wxYES ? path.substr(0, path.size() - string("_autosave.txt").size()) + ".txt" : path;
+
+		file.open(path);
 
 		if (!file)
 		{
@@ -2000,7 +2020,7 @@ void cMain::UpdateParameters(GridEntry* gridEntry, wxCommandEvent& event, bool c
 		ctrls.push_back(txt_comment);
 	}
 
-	if (ctrls.size() > 0)
+	if (is_started && ctrls.size() > 0)
 	{
 		auto t = new HighlightInputControlChangedThread(ctrls);
 		t->Run();
@@ -2049,6 +2069,23 @@ bool cMain::Save(string filename, bool save_as, bool set_last_location)
 
 bool cMain::AutoSave()
 {
+	std::vector<bool> auto_list{
+		menu_auto_close->GetMenuItems()[0]->IsChecked(),
+		menu_auto_close->GetMenuItems()[1]->IsChecked(),
+		menu_auto_close->GetMenuItems()[2]->IsChecked(),
+		menu_auto_close->GetMenuItems()[3]->IsChecked(),
+		auto_put_furnace->IsChecked(),
+		auto_put_burner->IsChecked(),
+		auto_put_lab->IsChecked(),
+		auto_put_recipe->IsChecked(),
+		auto_close_save_as,
+		auto_close_save,
+	};
+	no_changes = true;
+	string filename = save_file_location.substr(0, save_file_location.size() - 4) + "_autosave.txt";
+	return autosaver.Autosave(this, dialog_progress_bar, filename, auto_list);
+
+	/* Old autosave code
 	using std::to_string;
 	if (save_file_location == "" || !save_file_location.ends_with(".txt"))
 		return false; //don't autosave if location is not set or it doesn't point to txt file
@@ -2057,7 +2094,7 @@ bool cMain::AutoSave()
 		autosave_count = 1; //make files from 1 to 10
 	string filename = save_file_location.substr(0, save_file_location.size() - 4) + "_temp_" + to_string(autosave_count) + ".txt";
 
-	return Save(filename, false, false);
+	return Save(filename, false, false);*/
 }
 
 bool cMain::SaveFile(bool save_as)
@@ -2078,6 +2115,8 @@ bool cMain::SaveFile(bool save_as)
 	}
 
 	bool save = Save(save_file_location, save_as);
+	autosaver.Clear();
+	AutoSave();
 
 	std::string file_name = save_file_location.substr(save_file_location.rfind("\\") + 1);
 
@@ -2819,7 +2858,7 @@ void cMain::NoOrderButtonHandle(bool force)
 		change.after.push_back({row, step});
 	}
 
-	stack.Push(change);
+	autosaver.Push(change);
 	no_changes = false;
 }
 
@@ -2863,7 +2902,7 @@ void cMain::ForceButtonHandle(bool force)
 		change.after.push_back({row, step});
 	}
 
-	stack.Push(change);
+	autosaver.Push(change);
 	no_changes = false;
 }
 
@@ -2907,7 +2946,7 @@ void cMain::VehicleButtonHandle(bool force)
 		change.after.push_back({row, step});
 	}
 
-	stack.Push(change);
+	autosaver.Push(change);
 	no_changes = false;
 }
 
@@ -2930,7 +2969,7 @@ void cMain::OnSkipClicked(wxCommandEvent& event)
 		change.after.push_back({row, step});
 	}
 
-	stack.Push(change);
+	autosaver.Push(change);
 	no_changes = false;
 }
 
@@ -3018,11 +3057,11 @@ void cMain::UndoRedoHandleTemplate(Command command, vector<StepBlock> before, ve
 }
 void cMain::OnUndoMenuSelected(wxCommandEvent& event)
 {
-	Command command = stack.Pop();
+	Command command = autosaver.Pop();
 	UndoRedoHandleTemplate(command, StepLineToStepBlock(command.before), StepLineToStepBlock(command.after));
 }
 void cMain::OnRedoMenuSelected(wxCommandEvent& event)
 {
-	Command command = stack.PopBack();
+	Command command = autosaver.PopBack();
 	UndoRedoHandleTemplate(command, StepLineToStepBlock(command.after), StepLineToStepBlock(command.before));
 }

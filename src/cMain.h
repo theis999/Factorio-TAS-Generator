@@ -37,7 +37,7 @@
 #include "Shared functions\Functions.h"
 
 #include "../icon.xpm"
-#include "CommandStack.h"
+#include "AutoSaver.h"
 
 #include "Recipe.h"
 #include "Item.h"
@@ -294,6 +294,8 @@ protected:
 	void OnMainBookPageChanged(wxAuiNotebookEvent& event);
 
 private:
+	bool is_started = false;
+
 	wxString window_title = "Factorio TAS Generator";
 
 	DialogProgressBar* dialog_progress_bar = nullptr;
@@ -336,7 +338,7 @@ private:
 	void UndoRedoHandleTemplate(Command command, vector<StepBlock> before, vector<StepBlock> after);
 	void OnUndoMenuSelected(wxCommandEvent& event);
 	void OnRedoMenuSelected(wxCommandEvent& event);
-	CommandStack stack;
+	AutoSaver autosaver;
 	vector<tuple<int, Step>> GetSelectedRowTuples();
 	tuple<int, Step> GetRowTuple(int index);
 	void SelectRowsInGrid(vector<tuple<int, Step>> rows);
