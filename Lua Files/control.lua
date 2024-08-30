@@ -13,6 +13,7 @@ local font_size = 0.15 --best guess estimate of fontsize for flying text
 local queued_save
 local tas_step_change = script.generate_event_name()
 local tas_state_change = script.generate_event_name()
+local tas_walk_target_change = script.generate_event_name()
 
 local skipintro = false
 --recreate crash site
@@ -974,6 +975,12 @@ local function update_destination_position(x, y)
 	if steps[global.tas.step] and steps[global.tas.step][5] and steps[global.tas.step][5] == "diagonal" then
 		global.tas.diagonal = true
 	end
+
+	script.raise_event(tas_walk_target_change, {
+		step = global.tas.step,
+		tick = game.tick,
+		target = global.tas.destination
+	})
 end
 
 local function rotate()
@@ -1056,6 +1063,7 @@ end
 
 local function pause()
 	game.tick_paused = true
+	game.ticks_to_run = 1
 	run = false
 	raise_state_change()
 	return true
@@ -1635,13 +1643,6 @@ local function handle_pretick()
 			global.tas.pickup_ticks = global.tas.pickup_ticks + steps[global.tas.step][3] - 1
 			global.tas.player.picking_state = true
 			global.tas.step = global.tas.step + 1
-		elseif (steps[global.tas.step][2] == "pause") then
-			if LOGLEVEL < 2 then
-				pause()
-				Message("Script paused")
-				Debug(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", global.tas.player.position.x, global.tas.player.position.y, global.tas.player.online_time / 60, global.tas.player.online_time))
-			end
-			change_step(1)
 		elseif(steps[global.tas.step][2] == "walk" and (global.tas.walking.walking == false or global.walk_towards_state) and global.tas.idle < 1 and global.riding_duration < 1) then
 			update_destination_position(steps[global.tas.step][3][1], steps[global.tas.step][3][2])
 			global.walk_towards_state = steps[global.tas.step].walk_towards
@@ -1740,7 +1741,9 @@ local function handle_ontick()
 			global.tas.mining = global.tas.mining + 1
 			if global.tas.mining > 5 then
 				if global.tas.player.character_mining_progress == 0 then
-					Error(string.format("Step: %s, Action: %s, Step: %s - Mine: Cannot reach resource", steps[global.tas.step][1][1], steps[global.tas.step][1][2], global.tas.step))
+					if not global.walk_towards_state then
+						Error(string.format("Step: %s, Action: %s, Step: %s - Mine: Cannot reach resource", steps[global.tas.step][1][1], steps[global.tas.step][1][2], global.tas.step))
+					end
 				else
 					global.tas.mining = 0
 				end
@@ -1818,8 +1821,6 @@ local function handle_posttick()
 			Warning("Shooting: ammo count unchanged")
 		elseif ammo - global.shoot_ammo < -1 then
 			Debug("Shot more than twice")
-		else
-			global.tas.player.print("Shot fired")
 		end
 		global.shoot_ammo = nil
 	end
@@ -1860,6 +1861,15 @@ local function handle_posttick()
 		global.last_step = global.tas.step
 	end
 
+	if (steps[global.tas.step][2] == "pause") then
+		if LOGLEVEL < 2 then
+			pause()
+			Message("Script paused")
+			Debug(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", global.tas.player.position.x, global.tas.player.position.y, global.tas.player.online_time / 60, global.tas.player.online_time))
+		end
+		change_step(1)
+	end
+	
 	if global.tas.walking.walking or global.tas.mining ~= 0 or global.tas.idle ~= 0 or global.tas.pickup_ticks ~= 0 then
 		-- we wait to finish the previous step before we end the run
 	elseif steps[global.tas.step] == nil or steps[global.tas.step][1] == "break" then
@@ -2312,6 +2322,9 @@ local tas_interface =
 	end,
 	get_tas_state_change_id = function ()
 		return tas_state_change
+	end,
+	get_tas_walk_target_change_id = function ()
+		return tas_walk_target_change
 	end,
 	get_tas_name = function ()
 		return tas_generator.tas.name
