@@ -13,6 +13,7 @@ local font_size = 0.15 --best guess estimate of fontsize for flying text
 local queued_save
 local tas_step_change = script.generate_event_name()
 local tas_state_change = script.generate_event_name()
+local tas_walk_target_change = script.generate_event_name()
 
 local skipintro = false
 --recreate crash site
@@ -974,6 +975,12 @@ local function update_destination_position(x, y)
 	if steps[global.tas.step] and steps[global.tas.step][5] and steps[global.tas.step][5] == "diagonal" then
 		global.tas.diagonal = true
 	end
+
+	script.raise_event(tas_walk_target_change, {
+		step = global.tas.step,
+		tick = game.tick,
+		target = global.tas.destination
+	})
 end
 
 local function rotate()
@@ -2315,6 +2322,9 @@ local tas_interface =
 	end,
 	get_tas_state_change_id = function ()
 		return tas_state_change
+	end,
+	get_tas_walk_target_change_id = function ()
+		return tas_walk_target_change
 	end,
 	get_tas_name = function ()
 		return tas_generator.tas.name
