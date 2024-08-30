@@ -1056,6 +1056,7 @@ end
 
 local function pause()
 	game.tick_paused = true
+	game.ticks_to_run = 1
 	run = false
 	raise_state_change()
 	return true
@@ -1635,13 +1636,6 @@ local function handle_pretick()
 			global.tas.pickup_ticks = global.tas.pickup_ticks + steps[global.tas.step][3] - 1
 			global.tas.player.picking_state = true
 			global.tas.step = global.tas.step + 1
-		elseif (steps[global.tas.step][2] == "pause") then
-			if LOGLEVEL < 2 then
-				pause()
-				Message("Script paused")
-				Debug(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", global.tas.player.position.x, global.tas.player.position.y, global.tas.player.online_time / 60, global.tas.player.online_time))
-			end
-			change_step(1)
 		elseif(steps[global.tas.step][2] == "walk" and (global.tas.walking.walking == false or global.walk_towards_state) and global.tas.idle < 1 and global.riding_duration < 1) then
 			update_destination_position(steps[global.tas.step][3][1], steps[global.tas.step][3][2])
 			global.walk_towards_state = steps[global.tas.step].walk_towards
@@ -1860,6 +1854,15 @@ local function handle_posttick()
 		global.last_step = global.tas.step
 	end
 
+	if (steps[global.tas.step][2] == "pause") then
+		if LOGLEVEL < 2 then
+			pause()
+			Message("Script paused")
+			Debug(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", global.tas.player.position.x, global.tas.player.position.y, global.tas.player.online_time / 60, global.tas.player.online_time))
+		end
+		change_step(1)
+	end
+	
 	if global.tas.walking.walking or global.tas.mining ~= 0 or global.tas.idle ~= 0 or global.tas.pickup_ticks ~= 0 then
 		-- we wait to finish the previous step before we end the run
 	elseif steps[global.tas.step] == nil or steps[global.tas.step][1] == "break" then
