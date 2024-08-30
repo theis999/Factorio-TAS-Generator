@@ -1741,7 +1741,9 @@ local function handle_ontick()
 			global.tas.mining = global.tas.mining + 1
 			if global.tas.mining > 5 then
 				if global.tas.player.character_mining_progress == 0 then
-					Error(string.format("Step: %s, Action: %s, Step: %s - Mine: Cannot reach resource", steps[global.tas.step][1][1], steps[global.tas.step][1][2], global.tas.step))
+					if not global.walk_towards_state then
+						Error(string.format("Step: %s, Action: %s, Step: %s - Mine: Cannot reach resource", steps[global.tas.step][1][1], steps[global.tas.step][1][2], global.tas.step))
+					end
 				else
 					global.tas.mining = 0
 				end
@@ -1819,8 +1821,6 @@ local function handle_posttick()
 			Warning("Shooting: ammo count unchanged")
 		elseif ammo - global.shoot_ammo < -1 then
 			Debug("Shot more than twice")
-		else
-			global.tas.player.print("Shot fired")
 		end
 		global.shoot_ammo = nil
 	end
