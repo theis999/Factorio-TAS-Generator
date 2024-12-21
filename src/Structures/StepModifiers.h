@@ -11,7 +11,6 @@ struct StepModifiers
 	bool no_order = false,
 		skip = false,
 		wait_for = false,
-		force = false,
 		cancel_others = false,
 		split = false,
 		walk_towards = false,
@@ -24,7 +23,6 @@ private:
 		const string NO_ORDER = "no order",
 			SKIP = "skip",
 			WAIT_FOR = "wait for",
-			FORCE = "force",
 			CANCEL_OTHERS = "cancel others",
 			SPLIT = "split",
 			WALK_TOWARDS = "walk towards",
@@ -36,7 +34,6 @@ private:
 		& StepModifiersLookupString.NO_ORDER,
 		& StepModifiersLookupString.SKIP,
 		& StepModifiersLookupString.WAIT_FOR,
-		& StepModifiersLookupString.FORCE,
 		& StepModifiersLookupString.CANCEL_OTHERS,
 		& StepModifiersLookupString.SPLIT,
 		& StepModifiersLookupString.WALK_TOWARDS,
@@ -50,7 +47,6 @@ private:
 			no_order,
 			skip,
 			wait_for,
-			force,
 			cancel_others,
 			split,
 			walk_towards,
@@ -65,7 +61,6 @@ private:
 			&no_order,
 			&skip,
 			&wait_for,
-			&force,
 			&cancel_others,
 			&split,
 			&walk_towards,
@@ -81,7 +76,7 @@ public:
 	{
 		if (str.empty()) 
 		{ // fast => set everything to false
-			no_order = skip = wait_for = force = cancel_others = split = walk_towards = all = vehicle = false;
+			no_order = skip = wait_for = cancel_others = split = walk_towards = all = vehicle = false;
 		}
 		
 		auto data = ToPointerVector();
@@ -117,7 +112,6 @@ public:
 		output += vehicle ? " vehicle = true," : "";
 		/* Rest are not included since they are not relevant in lua
 		//output += skip ? " skip = true," : "";
-		//output += force ? " force = true," : "";
 		//output += split ? " split = true," : "";
 		*/
 		return output.size() < 3 ? "" : output;

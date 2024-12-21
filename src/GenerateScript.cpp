@@ -470,7 +470,6 @@ void GenerateScript::TransferParameters(Step& step)
 		.no_order = step.Modifiers.no_order,
 		.skip = step.Modifiers.skip,
 		.wait_for = step.Modifiers.wait_for,
-		.force = step.Modifiers.force,
 		.cancel_others = step.Modifiers.cancel_others,
 		.split = step.Modifiers.split,
 		.walk_towards = step.Modifiers.walk_towards,
@@ -541,7 +540,7 @@ void GenerateScript::check_mining_distance(string step, string action, string x_
 		coordinates = find_walk_location(min_x_edge, max_x_edge, min_y_edge, max_y_edge, buffer, max_distance);
 	}
 
-	if (!(modifiers.force || modifiers.vehicle) && (player_x_cord != coordinates[0] || player_y_cord != coordinates[1]))
+	if (!(modifiers.vehicle) && (player_x_cord != coordinates[0] || player_y_cord != coordinates[1]))
 	{
 		walk(step, action, std::to_string(coordinates[0]), std::to_string(coordinates[1]), last_walking_comment);
 		PaintIntermediateWalk(step);
@@ -598,7 +597,7 @@ void GenerateScript::check_interact_distance(string step, string action, string 
 
 	std::vector<float> coordinates = find_walk_location(min_x_edge, max_x_edge, min_y_edge, max_y_edge, buffer, max_distance);
 
-	if (!(modifiers.force || modifiers.vehicle) && (player_x_cord != coordinates[0] || player_y_cord != coordinates[1]))
+	if (!(modifiers.vehicle) && (player_x_cord != coordinates[0] || player_y_cord != coordinates[1]))
 	{
 		walk(step, action, std::to_string(coordinates[0]), std::to_string(coordinates[1]), last_walking_comment);
 		PaintIntermediateWalk(step);
@@ -842,17 +841,9 @@ void GenerateScript::walk(string step, string action, string x_cord, string y_co
 
 void GenerateScript::mining(string step, string x_cord, string y_cord, string duration, string building_name, string OrientationEnum, bool is_building, string comment)
 { 
-	// Mine the coordinates without checking distance if the user have added Override in the comment - this is mostly useful for removing wreckage. 
-	if (modifiers.force || modifiers.vehicle)
+	if (modifiers.vehicle)
 	{
 		step_list += StepSignature(step, "1", "\"mine\", {" + x_cord + ", " + y_cord + "}, " + duration, comment);
-		total_steps += 1;
-		PaintIntermediateWalk(step, false);
-		return;
-	}
-	else if (comment == "Override")
-	{
-		step_list += StepSignature(step, "1", "\"mine\", {" + x_cord + ", " + y_cord + "}, " + duration, "");
 		total_steps += 1;
 		PaintIntermediateWalk(step, false);
 		return;
@@ -1043,15 +1034,7 @@ void GenerateScript::row_rotate(string step, string x_cord, string y_cord, strin
 
 void GenerateScript::build(string step, string action, string x_cord, string y_cord, string item, string OrientationEnum, string comment)
 {
-	if (modifiers.force || comment == "Override")
-	{
-		PaintIntermediateWalk(step, false);
-	}
-	else
-	{
-		check_interact_distance(step, action, x_cord, y_cord, item, OrientationEnum);
-	}
-
+	check_interact_distance(step, action, x_cord, y_cord, item, OrientationEnum);
 
 	item = check_item_name(item);
 
@@ -1068,21 +1051,13 @@ void GenerateScript::row_build(string step, string x_cord, string y_cord, string
 
 void GenerateScript::take(string step, string action, string x_cord, string y_cord, string amount, string item, string from, string building, string OrientationEnum, string comment)
 {
-	if (modifiers.force || modifiers.vehicle)
+	if (modifiers.vehicle)
 	{
 		item = check_item_name(item);
 		step_list += StepSignature(step, action, "\"take\", {" + x_cord + ", " + y_cord + "}, \"" + item + "\", " + amount + ", " + from, comment);
 		total_steps += 1;
 		PaintIntermediateWalk(step, false);
 		return; 
-	}
-	else if (comment == "Override")
-	{
-		item = check_item_name(item);
-		step_list += StepSignature(step, action, "\"take\", {" + x_cord + ", " + y_cord + "}, \"" + item + "\", " + amount + ", " + from, "");
-		total_steps += 1;
-		PaintIntermediateWalk(step, false);
-		return;
 	}
 
 	if (OrientationEnum == "Wreck")
@@ -1107,18 +1082,10 @@ void GenerateScript::row_take(string step, string x_cord, string y_cord, string 
 
 void GenerateScript::put(string step, string action, string x_cord, string y_cord, string amount, string item, string into, string building, string OrientationEnum, string comment)
 {
-	if (modifiers.force || modifiers.vehicle)
+	if (modifiers.vehicle)
 	{
 		item = check_item_name(item);
 		step_list += StepSignature(step, action, "\"put\", {" + x_cord + ", " + y_cord + "}, \"" + item + "\", " + amount + ", " + into, comment);
-		total_steps += 1;
-		PaintIntermediateWalk(step, false);
-		return;
-	}
-	else if (comment == "Override")
-	{
-		item = check_item_name(item);
-		step_list += StepSignature(step, action, "\"put\", {" + x_cord + ", " + y_cord + "}, \"" + item + "\", " + amount + ", " + into, "");
 		total_steps += 1;
 		PaintIntermediateWalk(step, false);
 		return;
@@ -1146,16 +1113,8 @@ void GenerateScript::row_put(string step, string x_cord, string y_cord, string a
 
 void GenerateScript::recipe(string step, string action, string x_cord, string y_cord, string item, string building, string OrientationEnum, string comment)
 {
-	if (modifiers.force || comment == "Override")
-	{
-		PaintIntermediateWalk(step, false);
-	}
-	else
-	{
-		check_interact_distance(step, action, x_cord, y_cord, building, OrientationEnum);
-	}
-
-
+	check_interact_distance(step, action, x_cord, y_cord, building, OrientationEnum);
+	
 	item = check_item_name(item);
 
 	step_list += StepSignature(step, action, "\"recipe\", {" + x_cord + ", " + y_cord + "}, \"" + item + "\"", comment);

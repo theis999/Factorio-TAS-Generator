@@ -154,21 +154,6 @@ static struct ModifierTypeSets{
 		e_drive,
 		e_send,
 	};
-	set<StepType> force{
-		//character steps
-		e_drop, 
-		e_mine,
-		//building steps
-		e_take, 
-		e_put, 
-		e_build, 
-		e_recipe, 
-		e_limit,
-		e_filter,
-		e_priority,
-		e_launch,
-		e_rotate,
-	};
 	set<StepType> split{
 		e_mine,
 	};

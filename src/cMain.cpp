@@ -1050,9 +1050,6 @@ void cMain::OnStepsGridRangeSelect(wxGridRangeSelectEvent& event)
 		modifier_skip_checkbox->Show();
 		modifier_skip_button->Hide();
 		sizer_skip->Layout();
-		modifier_force_checkbox->Show();
-		modifier_force_button->Hide();
-		sizer_force->Layout();
 		modifier_vehicle_checkbox->Show();
 		modifier_vehicle_button->Hide();
 		sizer_vehicle->Layout();
@@ -1066,9 +1063,6 @@ void cMain::OnStepsGridRangeSelect(wxGridRangeSelectEvent& event)
 		modifier_skip_checkbox->Hide();
 		modifier_skip_button->Show();
 		sizer_skip->Layout();
-		modifier_force_checkbox->Hide();
-		modifier_force_button->Show();
-		sizer_force->Layout();
 		modifier_vehicle_checkbox->Hide();
 		modifier_vehicle_button->Show();
 		sizer_vehicle->Layout();
@@ -1740,7 +1734,6 @@ void cMain::UpdateParameters(GridEntry* gridEntry, wxCommandEvent& event, bool c
 	modifier_wait_for_checkbox->SetValue(modifiers.find("wait for") != std::string::npos);
 	modifier_walk_towards_checkbox->SetValue(modifiers.find("walk towards") != std::string::npos);
 	modifier_skip_checkbox->SetValue(modifiers.find("skip") != std::string::npos);
-	modifier_force_checkbox->SetValue(modifiers.find("force") != std::string::npos);
 	modifier_split_checkbox->SetValue(modifiers.find("split") != std::string::npos);
 	modifier_all_checkbox->SetValue(modifiers.find("all") != std::string::npos);
 	modifier_vehicle_checkbox->SetValue(modifiers.find("vehicle") != std::string::npos);
@@ -1912,7 +1905,6 @@ Step cMain::ExtractStep()
 		.no_order = modifier_no_order_checkbox->IsEnabled() && modifier_no_order_checkbox->GetValue(),
 		.skip = modifier_skip_checkbox->IsEnabled() && modifier_skip_checkbox->GetValue(),
 		.wait_for = modifier_wait_for_checkbox->IsEnabled() && modifier_wait_for_checkbox->GetValue(),
-		.force = modifier_force_checkbox->IsEnabled() && modifier_force_checkbox->GetValue(),
 		.cancel_others = modifier_cancel_checkbox->IsEnabled() && modifier_cancel_checkbox->GetValue(),
 		.split = modifier_split_checkbox->IsEnabled() && modifier_split_checkbox->GetValue(),
 		.walk_towards = modifier_walk_towards_checkbox->IsEnabled() && modifier_walk_towards_checkbox->GetValue(),
@@ -2568,50 +2560,6 @@ void cMain::NoOrderButtonHandle(bool force)
 			modifier_types.no_order.contains(step.type))
 		{
 			step.Modifiers.no_order = !modifier_value;
-			grid_steps->SetCellValue(row, 6, step.Modifiers.ToString());
-		}
-		change.after.push_back({row, step});
-	}
-
-	autosaver.Push(change);
-	no_changes = false;
-}
-
-void cMain::OnForceRightClicked(wxMouseEvent& event)
-{
-	ForceButtonHandle(true);
-}
-void cMain::OnForceClicked(wxCommandEvent& event)
-{
-	ForceButtonHandle();
-}
-void cMain::ForceButtonHandle(bool force)
-{
-	wxArrayInt rows = grid_steps->GetSelectedRows();
-	if (rows.size() < 2) return;
-	if (!force)
-	{
-		for (int row : rows)
-		{
-			StepType e = StepGridData.at(row).type;
-			if (! modifier_types.force.contains(e))
-			{
-				wxMessageBox(std::format("Step {} is unable to be assigned the force modifier. \n As it is of the type {}.", row + 1, StepNames[e]),
-					"One or more steps can't be assigned force modifier");
-				return;
-			}
-		}
-	}
-	Command change;
-	bool modifier_value = StepGridData.at(rows.front()).Modifiers.force;
-	for (int row : rows)
-	{
-		auto& step = StepGridData.at(row);
-		change.before.push_back({row, step});
-		if (step.Modifiers.force == modifier_value &&
-			modifier_types.force.contains(step.type))
-		{
-			step.Modifiers.force = !modifier_value;
 			grid_steps->SetCellValue(row, 6, step.Modifiers.ToString());
 		}
 		change.after.push_back({row, step});
