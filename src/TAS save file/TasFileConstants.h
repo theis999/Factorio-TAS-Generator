@@ -24,7 +24,6 @@ static const string save_templates_indicator = "Templates:";
 static const string save_file_indicator = "Save file location:";
 static const string code_file_indicator = "Step folder location:";
 static const string auto_close_indicator = "Auto close settings:";
-static const string auto_put_indicator = "Auto put settings:";
 static const string import_into_row_indicator = "Import into:";
 static const string logging_indicator = "logging";
 static const string generate_indicator = "generate settings";
@@ -33,11 +32,6 @@ static const string auto_close_generate_script_text = "Generate Script";
 static const string auto_close_open_text = "Open";
 static const string auto_close_save_text = "Save";
 static const string auto_close_save_as_text = "Save As";
-
-static const string auto_put_furnace_text = "Furnace";
-static const string auto_put_burner_text = "Burner";
-static const string auto_put_lab_text = "Lab";
-static const string auto_put_recipe_text = "Recipe";
 
 static const string goal_steelaxe_text = "Steel Axe";
 static const string goal_GOTLAP_text = "Getting On Track Like A Pro";

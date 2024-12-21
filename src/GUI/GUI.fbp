@@ -1081,67 +1081,6 @@
           </object>
         </object>
         <object class="wxMenu" expanded="true">
-          <property name="label">Auto-put</property>
-          <property name="name">menu_auto_put</property>
-          <property name="permission">protected</property>
-          <object class="wxMenuItem" expanded="true">
-            <property name="bitmap"></property>
-            <property name="checked">1</property>
-            <property name="enabled">1</property>
-            <property name="help"></property>
-            <property name="id">wxID_ANY</property>
-            <property name="kind">wxITEM_CHECK</property>
-            <property name="label">Furnace</property>
-            <property name="name">auto_put_furnace</property>
-            <property name="permission">public</property>
-            <property name="shortcut"></property>
-            <property name="unchecked_bitmap"></property>
-            <event name="OnMenuSelection">OnMenuAutoCloseGenerateScriptClicked</event>
-          </object>
-          <object class="wxMenuItem" expanded="true">
-            <property name="bitmap"></property>
-            <property name="checked">0</property>
-            <property name="enabled">1</property>
-            <property name="help"></property>
-            <property name="id">wxID_ANY</property>
-            <property name="kind">wxITEM_CHECK</property>
-            <property name="label">Burner</property>
-            <property name="name">auto_put_burner</property>
-            <property name="permission">public</property>
-            <property name="shortcut"></property>
-            <property name="unchecked_bitmap"></property>
-            <event name="OnMenuSelection">OnMenuAutoCloseOpenClicked</event>
-          </object>
-          <object class="wxMenuItem" expanded="true">
-            <property name="bitmap"></property>
-            <property name="checked">1</property>
-            <property name="enabled">1</property>
-            <property name="help"></property>
-            <property name="id">wxID_ANY</property>
-            <property name="kind">wxITEM_CHECK</property>
-            <property name="label">Lab</property>
-            <property name="name">auto_put_lab</property>
-            <property name="permission">public</property>
-            <property name="shortcut"></property>
-            <property name="unchecked_bitmap"></property>
-            <event name="OnMenuSelection">OnMenuAutoCloseSaveClicked</event>
-          </object>
-          <object class="wxMenuItem" expanded="true">
-            <property name="bitmap"></property>
-            <property name="checked">0</property>
-            <property name="enabled">1</property>
-            <property name="help"></property>
-            <property name="id">wxID_ANY</property>
-            <property name="kind">wxITEM_CHECK</property>
-            <property name="label">Recipe</property>
-            <property name="name">auto_put_recipe</property>
-            <property name="permission">public</property>
-            <property name="shortcut"></property>
-            <property name="unchecked_bitmap"></property>
-            <event name="OnMenuSelection">OnMenuAutoCloseSaveAsClicked</event>
-          </object>
-        </object>
-        <object class="wxMenu" expanded="true">
           <property name="label">Other</property>
           <property name="name">menu_other</property>
           <property name="permission">protected</property>

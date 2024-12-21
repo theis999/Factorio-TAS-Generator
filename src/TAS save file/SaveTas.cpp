@@ -94,12 +94,6 @@ bool SaveTas::Save(
 	myfile << auto_close_save_text << ";" << bool_to_string(auto_list[2]) << std::endl;
 	myfile << auto_close_save_as_text << ";" << bool_to_string(auto_list[3]) << std::endl;
 
-	myfile << auto_put_indicator << std::endl;
-	myfile << auto_put_furnace_text << ";" << bool_to_string(auto_list[4]) << std::endl;
-	myfile << auto_put_burner_text << ";" << bool_to_string(auto_list[5]) << std::endl;
-	myfile << auto_put_lab_text << ";" << bool_to_string(auto_list[6]) << std::endl;
-	myfile << auto_put_recipe_text << ";" << bool_to_string(auto_list[7]) << std::endl;
-
 	string s_selected_rows = "";
 	for (auto p : selected_rows) 
 		s_selected_rows += to_string(p.GetTopRow()) + ";" + to_string(p.GetBottomRow()) + ";";

@@ -279,19 +279,6 @@ static const std::vector<std::string> drills_list =
 
 static const struct
 {
-	std::string stone = "Stone furnace";
-	std::string steel = "Steel furnace";
-} struct_auto_put_furnace_list;
-
-static const struct
-{
-	std::string burner_mining_drill = "Burner mining drill";
-	std::string burner_inserter = "Burner inserter";
-	std::string boiler = "Boiler";
-} struct_auto_put_burner_list;
-
-static const struct
-{
 	std::string wood = "Wood";
 	std::string coal = "Coal";
 	std::string solid_fuel = "Solid fuel";

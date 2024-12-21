@@ -66,7 +66,6 @@ class GUI_Base : public wxFrame
 		wxMenuItem* logging_tech;
 		wxMenuItem* logging_comment;
 		wxMenu* menu_auto_close;
-		wxMenu* menu_auto_put;
 		wxMenu* menu_other;
 		wxMenuItem* legacy_mining;
 		wxMenuItem* intermediate_walk_towards;
@@ -388,10 +387,6 @@ class GUI_Base : public wxFrame
 
 
 	public:
-		wxMenuItem* auto_put_furnace;
-		wxMenuItem* auto_put_burner;
-		wxMenuItem* auto_put_lab;
-		wxMenuItem* auto_put_recipe;
 		wxString import_steps_into_template_ctrl_validator;
 
 		GUI_Base( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Factorio TAS Generator"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 1840,1080 ), long style = wxDEFAULT_FRAME_STYLE|wxSYSTEM_MENU|wxTAB_TRAVERSAL );

@@ -320,23 +320,6 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	main_menubar->Append( menu_auto_close, wxT("Auto-close") );
 
-	menu_auto_put = new wxMenu();
-	auto_put_furnace = new wxMenuItem( menu_auto_put, wxID_ANY, wxString( wxT("Furnace") ) , wxEmptyString, wxITEM_CHECK );
-	menu_auto_put->Append( auto_put_furnace );
-	auto_put_furnace->Check( true );
-
-	auto_put_burner = new wxMenuItem( menu_auto_put, wxID_ANY, wxString( wxT("Burner") ) , wxEmptyString, wxITEM_CHECK );
-	menu_auto_put->Append( auto_put_burner );
-
-	auto_put_lab = new wxMenuItem( menu_auto_put, wxID_ANY, wxString( wxT("Lab") ) , wxEmptyString, wxITEM_CHECK );
-	menu_auto_put->Append( auto_put_lab );
-	auto_put_lab->Check( true );
-
-	auto_put_recipe = new wxMenuItem( menu_auto_put, wxID_ANY, wxString( wxT("Recipe") ) , wxEmptyString, wxITEM_CHECK );
-	menu_auto_put->Append( auto_put_recipe );
-
-	main_menubar->Append( menu_auto_put, wxT("Auto-put") );
-
 	menu_other = new wxMenu();
 	legacy_mining = new wxMenuItem( menu_other, wxID_ANY, wxString( wxT("Legacy mining") ) , wxT("Legacy mining is 1 tick slower."), wxITEM_CHECK );
 	menu_other->Append( legacy_mining );
@@ -1717,10 +1700,6 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	menu_auto_close->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuAutoCloseOpenClicked ), this, auto_close_open->GetId());
 	menu_auto_close->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuAutoCloseSaveClicked ), this, auto_close_save->GetId());
 	menu_auto_close->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuAutoCloseSaveAsClicked ), this, auto_close_save_as->GetId());
-	menu_auto_put->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuAutoCloseGenerateScriptClicked ), this, auto_put_furnace->GetId());
-	menu_auto_put->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuAutoCloseOpenClicked ), this, auto_put_burner->GetId());
-	menu_auto_put->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuAutoCloseSaveClicked ), this, auto_put_lab->GetId());
-	menu_auto_put->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuAutoCloseSaveAsClicked ), this, auto_put_recipe->GetId());
 	rbtn_walk->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnWalkChosen ), NULL, this );
 	rbtn_craft->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnCraftChosen ), NULL, this );
 	rbtn_tech->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnTechChosen ), NULL, this );

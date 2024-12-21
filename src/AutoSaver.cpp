@@ -74,7 +74,7 @@ bool AutoSaver::Autosave(wxWindow* parent, DialogProgressBar* dialog_progress_ba
 
 	dialog_progress_bar->set_progress(100);
 
-	if (auto_list[9]) dialog_progress_bar->Close();
+	if (auto_list[5]) dialog_progress_bar->Close();
 	else dialog_progress_bar->set_button_enable(true);
 
 	return true;

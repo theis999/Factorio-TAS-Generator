@@ -53,8 +53,7 @@ open_file_return_data* OpenTas::Open(DialogProgressBar* dialog_progress_bar, std
 
 	if (extract_save_location(file) &&
 		extract_script_location(file) &&
-		extract_auto_close(file) &&
-		extract_auto_put(file))
+		extract_auto_close(file))
 	{
 		return_data.success = true;
 	}
@@ -470,44 +469,6 @@ bool OpenTas::extract_auto_close(std::ifstream& file)
 	}
 
 	return_data.auto_close.save_as = segments[1] == "true";
-
-	return true;
-}
-
-bool OpenTas::extract_auto_put(std::ifstream& file)
-{
-	if (!update_segment(file) || segments[0] != auto_put_indicator)
-	{
-		return false;
-	}
-
-	if (!update_segment(file) || segments.size() != 2 || segments[0] != auto_put_furnace_text)
-	{
-		return false;
-	}
-
-	return_data.auto_put.furnace = segments[1] == "true";
-
-	if (!update_segment(file) || segments.size() != 2 || segments[0] != auto_put_burner_text)
-	{
-		return false;
-	}
-
-	return_data.auto_put.burner = segments[1] == "true";
-
-	if (!update_segment(file) || segments.size() != 2 || segments[0] != auto_put_lab_text)
-	{
-		return false;
-	}
-
-	return_data.auto_put.lab = segments[1] == "true";
-
-	if (!update_segment(file) || segments.size() != 2 || segments[0] != auto_put_recipe_text)
-	{
-		return false;
-	}
-
-	return_data.auto_put.recipe = segments[1] == "true";
 
 	return true;
 }

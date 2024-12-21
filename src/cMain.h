@@ -382,7 +382,7 @@ private:
 	int GenerateBuildingSnapShot(int end_row);
 	void PopulateStepGrid();
 
-	vector<StepLine> AddStep(int row, Step step, bool auto_put = true);
+	vector<StepLine> AddStep(int row, Step step);
 	Command ChangeStep(int row, Step step);
 	Command DeleteSteps(wxArrayInt steps, bool auto_confirm = false);
 	void GridTransfer(wxGrid* from, const int& fromRow, wxGrid* to, const int& toRow);

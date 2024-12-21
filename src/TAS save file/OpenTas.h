@@ -45,14 +45,6 @@ struct open_file_return_data
 			save_as = false;
 	} auto_close;
 
-	struct
-	{
-		bool furnace = false,
-			burner = false,
-			lab = false,
-			recipe = false;
-	} auto_put;
-
 	log_config logconfig;
 	generate_config generateConfig;
 
@@ -94,7 +86,6 @@ private:
 	bool extract_save_location(std::ifstream& file);
 	bool extract_script_location(std::ifstream& file);
 	bool extract_auto_close(std::ifstream& file);
-	bool extract_auto_put(std::ifstream& file);
 	bool extract_generate_config(std::ifstream& file);
 	bool extract_log_config(std::ifstream & file);
 
