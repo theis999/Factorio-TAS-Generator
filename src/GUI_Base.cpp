@@ -320,19 +320,6 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	main_menubar->Append( menu_auto_close, wxT("Auto-close") );
 
-	menu_other = new wxMenu();
-	legacy_mining = new wxMenuItem( menu_other, wxID_ANY, wxString( wxT("Legacy mining") ) , wxT("Legacy mining is 1 tick slower."), wxITEM_CHECK );
-	menu_other->Append( legacy_mining );
-
-	intermediate_walk_towards = new wxMenuItem( menu_other, wxID_ANY, wxString( wxT("Walk towards on intermediate walk") ) , wxT("Adds modifier \"walk towards\" on intermediate walk steps.\nWhich should generally make those walk steps faster to perform."), wxITEM_CHECK );
-	menu_other->Append( intermediate_walk_towards );
-	intermediate_walk_towards->Check( true );
-
-	no_intermediate_walk = new wxMenuItem( menu_other, wxID_ANY, wxString( wxT("Always force") ) , wxT("Removes sanity checks for distance and therefor intermediate walk steps."), wxITEM_CHECK );
-	menu_other->Append( no_intermediate_walk );
-
-	main_menubar->Append( menu_other, wxT("Other") );
-
 	this->SetMenuBar( main_menubar );
 
 	type_panel = new TypePanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), wxBORDER_NONE|wxTAB_TRAVERSAL );

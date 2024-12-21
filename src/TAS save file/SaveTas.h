@@ -33,7 +33,6 @@ public:
 		string folder_location_generate,
 		string goal,
 		log_config logconfig,
-		generate_config generateconfig,
 		wxGridBlockCoordsVector selected_rows,
 		int import_into_row,
 		bool set_last_location = true

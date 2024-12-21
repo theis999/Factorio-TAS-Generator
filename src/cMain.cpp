@@ -1306,11 +1306,6 @@ void cMain::Open(std::ifstream * file)
 	logmenu[2]->Check(logconfig.comment);
 	logmenu[4 + (int)logconfig.level]->Check();
 
-	generate_config generateConfig = result->generateConfig;
-	legacy_mining->Check(generateConfig.legacy_mining);
-	intermediate_walk_towards->Check(generateConfig.intermediate_walk_towards);
-	no_intermediate_walk->Check(generateConfig.no_intermediate_walk);
-
 	menu_auto_close->GetMenuItems()[0]->Check(result->auto_close.generate_script);
 	auto_close_generate_script = result->auto_close.generate_script;
 
@@ -1522,21 +1517,11 @@ log_config cMain::GetLogConfig()
 	return logconfig;
 }
 
-generate_config cMain::GetGenerateConfig()
-{
-	return generate_config{
-		.legacy_mining = legacy_mining->IsChecked(),
-		.intermediate_walk_towards = intermediate_walk_towards->IsChecked(),
-		.no_intermediate_walk = no_intermediate_walk->IsChecked(),
-	};
-}
-
 void cMain::OnGenerateScript(wxCommandEvent& event)
 {
 	string goal = GetGoalConfig();
 
 	log_config logconfig = GetLogConfig();
-	generate_config generateconfig = GetGenerateConfig();
 
 	if (!ValidateAllSteps())
 	{
@@ -1544,7 +1529,7 @@ void cMain::OnGenerateScript(wxCommandEvent& event)
 	};
 
 	GenerateScript generate_script(grid_steps);
-	generate_script.generate(this, dialog_progress_bar, StepGridData, generate_code_folder_location, auto_close_generate_script, goal, logconfig, generateconfig);
+	generate_script.generate(this, dialog_progress_bar, StepGridData, generate_code_folder_location, auto_close_generate_script, goal, logconfig);
 
 	grid_steps->Update();
 
@@ -1943,7 +1928,6 @@ bool cMain::Save(string filename, bool save_as, bool set_last_location)
 		generate_code_folder_location,
 		GetGoalConfig(),
 		GetLogConfig(),
-		GetGenerateConfig(),
 		grid_steps->GetSelectedRowBlocks(),
 		import_steps_into_steps_ctrl->GetValue(),
 		set_last_location);

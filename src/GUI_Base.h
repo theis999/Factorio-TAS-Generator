@@ -66,10 +66,6 @@ class GUI_Base : public wxFrame
 		wxMenuItem* logging_tech;
 		wxMenuItem* logging_comment;
 		wxMenu* menu_auto_close;
-		wxMenu* menu_other;
-		wxMenuItem* legacy_mining;
-		wxMenuItem* intermediate_walk_towards;
-		wxMenuItem* no_intermediate_walk;
 		TypePanel* type_panel;
 		wxPanel* character_panel;
 		wxRadioButton* rbtn_walk;

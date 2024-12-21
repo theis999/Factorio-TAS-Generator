@@ -1080,50 +1080,6 @@
             <event name="OnMenuSelection">OnMenuAutoCloseSaveAsClicked</event>
           </object>
         </object>
-        <object class="wxMenu" expanded="true">
-          <property name="label">Other</property>
-          <property name="name">menu_other</property>
-          <property name="permission">protected</property>
-          <object class="wxMenuItem" expanded="true">
-            <property name="bitmap"></property>
-            <property name="checked">0</property>
-            <property name="enabled">1</property>
-            <property name="help">Legacy mining is 1 tick slower.</property>
-            <property name="id">wxID_ANY</property>
-            <property name="kind">wxITEM_CHECK</property>
-            <property name="label">Legacy mining</property>
-            <property name="name">legacy_mining</property>
-            <property name="permission">protected</property>
-            <property name="shortcut"></property>
-            <property name="unchecked_bitmap"></property>
-          </object>
-          <object class="wxMenuItem" expanded="true">
-            <property name="bitmap"></property>
-            <property name="checked">1</property>
-            <property name="enabled">1</property>
-            <property name="help">Adds modifier &quot;walk towards&quot; on intermediate walk steps.&#x0A;Which should generally make those walk steps faster to perform.</property>
-            <property name="id">wxID_ANY</property>
-            <property name="kind">wxITEM_CHECK</property>
-            <property name="label">Walk towards on intermediate walk</property>
-            <property name="name">intermediate_walk_towards</property>
-            <property name="permission">protected</property>
-            <property name="shortcut"></property>
-            <property name="unchecked_bitmap"></property>
-          </object>
-          <object class="wxMenuItem" expanded="true">
-            <property name="bitmap"></property>
-            <property name="checked">0</property>
-            <property name="enabled">1</property>
-            <property name="help">Removes sanity checks for distance and therefor intermediate walk steps.</property>
-            <property name="id">wxID_ANY</property>
-            <property name="kind">wxITEM_CHECK</property>
-            <property name="label">Always force</property>
-            <property name="name">no_intermediate_walk</property>
-            <property name="permission">protected</property>
-            <property name="shortcut"></property>
-            <property name="unchecked_bitmap"></property>
-          </object>
-        </object>
       </object>
       <object class="wxPanel" expanded="true">
         <property name="BottomDockable">0</property>

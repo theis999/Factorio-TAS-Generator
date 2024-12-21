@@ -72,7 +72,6 @@ protected:
 	void OnChooseLocation(wxCommandEvent& event);
 	std::string GetGoalConfig();
 	log_config GetLogConfig();
-	generate_config GetGenerateConfig();
 	void OnGenerateScript(wxCommandEvent& event);
 
 	// Goals menu

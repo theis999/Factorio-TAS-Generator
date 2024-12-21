@@ -67,7 +67,7 @@ inline const char* const bool_to_string(bool b)
 	return b ? "true" : "false";
 }
 
-void GenerateScript::AddVariableFile(string& folder_location, string& goal, log_config logconfig, generate_config generateconfig)
+void GenerateScript::AddVariableFile(string& folder_location, string& goal, log_config logconfig)
 {
 	using std::endl;
 	std::ofstream saver;
@@ -81,7 +81,6 @@ void GenerateScript::AddVariableFile(string& folder_location, string& goal, log_
 	saver << "PRINT_SAVEGAME" << " = " << bool_to_string(logconfig.savegame) << endl;
 	saver << "PRINT_TECH" << " = " << bool_to_string(logconfig.tech) << endl;
 	saver << "PRINT_COMMENT" << " = " << bool_to_string(logconfig.comment) << endl << endl;
-	saver << "LEGACY_MINING" << " = " << bool_to_string(generateconfig.legacy_mining) << endl << endl;
 
 	saver << "local tas_generator = {" << endl;
 	saver << "\t" << "name = \"" << generator_thumbprint.name << "\"," << endl;
@@ -134,10 +133,9 @@ void GenerateScript::PaintWalkStep(string step, bool straight, bool diagonal)
 	grid_steps->SetCellBackgroundColour(row, 10, straight ? "#AFBFBF" : diagonal ? "#BF9FBF" : "#FFFFFF");
 }
 
-void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progress_bar, vector<Step> steps, string& folder_location, bool auto_close, string goal, log_config logconfig, generate_config generateconfig)
+void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progress_bar, vector<Step> steps, string& folder_location, bool auto_close, string goal, log_config logconfig)
 {
 	this->name = folder_location.substr(folder_location.find_last_of('\\') + 1);
-	this->generateconfig = generateconfig;
 	reset();
 
 	if (folder_location == "")
@@ -444,7 +442,7 @@ void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progre
 		fs::copy_file(pre_fix + "scenarios\\supply\\locale\\en\\supply.cfg", folder_location + "\\scenarios\\supply\\locale\\en\\supply.cfg", fs::copy_options::update_existing);
 	}
 
-	AddVariableFile(folder_location, goal, logconfig, generateconfig);
+	AddVariableFile(folder_location, goal, logconfig);
 	AddInfoFile(folder_location);
 
 	std::ofstream saver;
@@ -570,9 +568,8 @@ void GenerateScript::check_mining_distance(string step, string action, string x_
 		coordinates = find_walk_location(min_x_edge, max_x_edge, min_y_edge, max_y_edge, buffer, max_distance);
 	}
 
-	if (!(modifiers.force || modifiers.vehicle || generateconfig.no_intermediate_walk) && (player_x_cord != coordinates[0] || player_y_cord != coordinates[1]))
+	if (!(modifiers.force || modifiers.vehicle) && (player_x_cord != coordinates[0] || player_y_cord != coordinates[1]))
 	{
-		modifiers.walk_towards = generateconfig.intermediate_walk_towards;
 		walk(step, action, std::to_string(coordinates[0]), std::to_string(coordinates[1]), last_walking_comment);
 		PaintIntermediateWalk(step);
 		modifiers.walk_towards = false;
@@ -628,9 +625,8 @@ void GenerateScript::check_interact_distance(string step, string action, string 
 
 	std::vector<float> coordinates = find_walk_location(min_x_edge, max_x_edge, min_y_edge, max_y_edge, buffer, max_distance);
 
-	if (!(modifiers.force || modifiers.vehicle || generateconfig.no_intermediate_walk) && (player_x_cord != coordinates[0] || player_y_cord != coordinates[1]))
+	if (!(modifiers.force || modifiers.vehicle) && (player_x_cord != coordinates[0] || player_y_cord != coordinates[1]))
 	{
-		modifiers.walk_towards = generateconfig.intermediate_walk_towards;
 		walk(step, action, std::to_string(coordinates[0]), std::to_string(coordinates[1]), last_walking_comment);
 		PaintIntermediateWalk(step);
 		modifiers.walk_towards = false;
@@ -874,7 +870,7 @@ void GenerateScript::walk(string step, string action, string x_cord, string y_co
 void GenerateScript::mining(string step, string x_cord, string y_cord, string duration, string building_name, string OrientationEnum, bool is_building, string comment)
 { 
 	// Mine the coordinates without checking distance if the user have added Override in the comment - this is mostly useful for removing wreckage. 
-	if (modifiers.force || modifiers.vehicle || generateconfig.no_intermediate_walk)
+	if (modifiers.force || modifiers.vehicle)
 	{
 		step_list += StepSignature(step, "1", "\"mine\", {" + x_cord + ", " + y_cord + "}, " + duration, comment);
 		total_steps += 1;
@@ -1092,7 +1088,7 @@ void GenerateScript::row_rotate(string step, string x_cord, string y_cord, strin
 
 void GenerateScript::build(string step, string action, string x_cord, string y_cord, string item, string OrientationEnum, string comment)
 {
-	if (modifiers.force || generateconfig.no_intermediate_walk || comment == "Override")
+	if (modifiers.force || comment == "Override")
 	{
 		PaintIntermediateWalk(step, false);
 	}
@@ -1125,7 +1121,7 @@ void GenerateScript::row_build(string step, string x_cord, string y_cord, string
 
 void GenerateScript::take(string step, string action, string x_cord, string y_cord, string amount, string item, string from, string building, string OrientationEnum, string comment)
 {
-	if (modifiers.force || modifiers.vehicle || generateconfig.no_intermediate_walk)
+	if (modifiers.force || modifiers.vehicle)
 	{
 		item = check_item_name(item);
 		step_list += StepSignature(step, action, "\"take\", {" + x_cord + ", " + y_cord + "}, \"" + item + "\", " + amount + ", " + from, comment);
@@ -1171,7 +1167,7 @@ void GenerateScript::row_take(string step, string x_cord, string y_cord, string 
 
 void GenerateScript::put(string step, string action, string x_cord, string y_cord, string amount, string item, string into, string building, string OrientationEnum, string comment)
 {
-	if (modifiers.force || modifiers.vehicle || generateconfig.no_intermediate_walk)
+	if (modifiers.force || modifiers.vehicle)
 	{
 		item = check_item_name(item);
 		step_list += StepSignature(step, action, "\"put\", {" + x_cord + ", " + y_cord + "}, \"" + item + "\", " + amount + ", " + into, comment);
@@ -1217,7 +1213,7 @@ void GenerateScript::row_put(string step, string x_cord, string y_cord, string a
 
 void GenerateScript::recipe(string step, string action, string x_cord, string y_cord, string item, string building, string OrientationEnum, string comment)
 {
-	if (modifiers.force || generateconfig.no_intermediate_walk || comment == "Override")
+	if (modifiers.force || comment == "Override")
 	{
 		PaintIntermediateWalk(step, false);
 	}

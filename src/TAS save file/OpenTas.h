@@ -46,7 +46,6 @@ struct open_file_return_data
 	} auto_close;
 
 	log_config logconfig;
-	generate_config generateConfig;
 
 	WarningsStatesCounters warnings_states_counters;
 };
@@ -86,7 +85,6 @@ private:
 	bool extract_save_location(std::ifstream& file);
 	bool extract_script_location(std::ifstream& file);
 	bool extract_auto_close(std::ifstream& file);
-	bool extract_generate_config(std::ifstream& file);
 	bool extract_log_config(std::ifstream & file);
 
 	Step ReadStep(const size_t, int&, std::vector<string>::iterator);
