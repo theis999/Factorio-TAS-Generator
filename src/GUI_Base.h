@@ -64,7 +64,6 @@ class GUI_Base : public wxFrame
 		wxMenuItem* logging_savegame;
 		wxMenuItem* logging_tech;
 		wxMenuItem* logging_comment;
-		wxMenu* menu_auto_close;
 		TypePanel* type_panel;
 		wxPanel* character_panel;
 		wxRadioButton* rbtn_walk;
@@ -277,10 +276,6 @@ class GUI_Base : public wxFrame
 		virtual void OnMenuLogDebugSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuLogDevelopmentSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuLogReleaseSelected( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnMenuAutoCloseGenerateScriptClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnMenuAutoCloseOpenClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnMenuAutoCloseSaveClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnMenuAutoCloseSaveAsClicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnWalkChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnCraftChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnTechChosen( wxCommandEvent& event ) { event.Skip(); }

@@ -133,12 +133,6 @@ protected:
 	void OnMoveDownAltMenuSelected(wxCommandEvent& event);
 	void OnSearchMenuSelected(wxCommandEvent& event);
 
-	// Auto-close menu items
-	void OnMenuAutoCloseGenerateScriptClicked(wxCommandEvent& event);
-	void OnMenuAutoCloseOpenClicked(wxCommandEvent& event);
-	void OnMenuAutoCloseSaveClicked(wxCommandEvent& event);
-	void OnMenuAutoCloseSaveAsClicked(wxCommandEvent& event);
-
 	// Radio buttons
 	void OnMineChosen(wxCommandEvent& event);
 	void OnRotateChosen(wxCommandEvent& event);
@@ -296,11 +290,6 @@ private:
 
 	string generate_code_folder_location = "";
 	string save_file_location = "";
-
-	bool auto_close_generate_script = true;
-	bool auto_close_open = false;
-	bool auto_close_save = true;
-	bool auto_close_save_as = false;
 
 	bool no_changes = true;
 

@@ -133,7 +133,7 @@ void GenerateScript::PaintWalkStep(string step, bool straight, bool diagonal)
 	grid_steps->SetCellBackgroundColour(row, 10, straight ? "#AFBFBF" : diagonal ? "#BF9FBF" : "#FFFFFF");
 }
 
-void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progress_bar, vector<Step> steps, string& folder_location, bool auto_close, string goal, log_config logconfig)
+void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progress_bar, vector<Step> steps, string& folder_location, string goal, log_config logconfig)
 {
 	this->name = folder_location.substr(folder_location.find_last_of('\\') + 1);
 	reset();
@@ -455,14 +455,7 @@ void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progre
 	saver.close();
 
 	dialog_progress_bar->set_progress(100);
-	if (auto_close)
-	{
-		dialog_progress_bar->Close();
-	}
-	else
-	{
-		dialog_progress_bar->set_button_enable(true);
-	}
+	dialog_progress_bar->Close();
 }
 
 void GenerateScript::SetBuildingAndOrientation(Step* step)

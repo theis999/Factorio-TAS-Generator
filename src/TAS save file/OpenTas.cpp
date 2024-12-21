@@ -51,12 +51,8 @@ open_file_return_data* OpenTas::Open(DialogProgressBar* dialog_progress_bar, std
 			break;
 	}
 
-	if (extract_save_location(file) &&
-		extract_script_location(file) &&
-		extract_auto_close(file))
-	{
+	if (extract_save_location(file) && extract_script_location(file)) 
 		return_data.success = true;
-	}
 
 	if (update_segment(file))
 	{
@@ -429,44 +425,6 @@ bool OpenTas::extract_script_location(std::ifstream& file)
 	}
 
 	return_data.generate_code_folder_location = segments[0];
-	return true;
-}
-
-bool OpenTas::extract_auto_close(std::ifstream& file)
-{
-	if (!update_segment(file) || segments[0] != auto_close_indicator)
-	{
-		return false;
-	}
-
-	if (!update_segment(file) || segments.size() != 2 || segments[0] != auto_close_generate_script_text)
-	{
-		return false;
-	}
-
-	return_data.auto_close.generate_script = segments[1] == "true";
-
-	if (!update_segment(file) || segments.size() != 2 || segments[0] != auto_close_open_text)
-	{
-		return false;
-	}
-
-	return_data.auto_close.open = segments[1] == "true";
-
-	if (!update_segment(file) || segments.size() != 2 || segments[0] != auto_close_save_text)
-	{
-		return false;
-	}
-
-	return_data.auto_close.save = segments[1] == "true";
-
-	if (!update_segment(file) || segments.size() != 2 || segments[0] != auto_close_save_as_text)
-	{
-		return false;
-	}
-
-	return_data.auto_close.save_as = segments[1] == "true";
-
 	return true;
 }
 

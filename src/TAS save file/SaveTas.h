@@ -26,7 +26,6 @@ public:
 		wxWindow* parent,
 		DialogProgressBar* dialog_progress_bar,
 		bool save_as,
-		vector<bool> auto_list,
 		vector<Step> steps,
 		map<string, vector<Step>> templates,
 		string folder_location,

@@ -23,8 +23,7 @@ public:
 	bool Autosave(
 		wxWindow* parent,
 		DialogProgressBar* dialog_progress_bar,
-		string folder_location,
-		vector<bool> auto_list
+		string folder_location
 	);
 
 	// Opens a autosavefile and returns its content

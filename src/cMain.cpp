@@ -1306,18 +1306,6 @@ void cMain::Open(std::ifstream * file)
 	logmenu[2]->Check(logconfig.comment);
 	logmenu[4 + (int)logconfig.level]->Check();
 
-	menu_auto_close->GetMenuItems()[0]->Check(result->auto_close.generate_script);
-	auto_close_generate_script = result->auto_close.generate_script;
-
-	menu_auto_close->GetMenuItems()[1]->Check(result->auto_close.open);
-	auto_close_open = result->auto_close.open;
-
-	menu_auto_close->GetMenuItems()[2]->Check(result->auto_close.save);
-	auto_close_save = result->auto_close.save;
-
-	menu_auto_close->GetMenuItems()[3]->Check(result->auto_close.save_as);
-	auto_close_save_as = result->auto_close.save_as;
-
 	PopulateStepGrid();
 
 	dialog_progress_bar->set_progress(100.0f - 35);
@@ -1356,15 +1344,8 @@ void cMain::Open(std::ifstream * file)
 	SetLabel(window_title + " - " + file_name);
 
 	dialog_progress_bar->set_progress(100);
-	if (auto_close_open)
-	{
-		dialog_progress_bar->Close();
-	}
-	else
-	{
-		dialog_progress_bar->set_button_enable(true);
-	}
-
+	dialog_progress_bar->Close();
+	
 	if (!result->selected_rows.empty())
 	{
 		int row_count = grid_steps->GetNumberRows();
@@ -1529,7 +1510,7 @@ void cMain::OnGenerateScript(wxCommandEvent& event)
 	};
 
 	GenerateScript generate_script(grid_steps);
-	generate_script.generate(this, dialog_progress_bar, StepGridData, generate_code_folder_location, auto_close_generate_script, goal, logconfig);
+	generate_script.generate(this, dialog_progress_bar, StepGridData, generate_code_folder_location, goal, logconfig);
 
 	grid_steps->Update();
 
@@ -1586,31 +1567,6 @@ void cMain::OnChangeSteptypeColoursMenuSelected(wxCommandEvent& event)
 
 	sc->Show();
 
-	event.Skip();
-}
-
-void cMain::OnMenuAutoCloseGenerateScriptClicked(wxCommandEvent& event)
-{
-	auto_close_generate_script = menu_auto_close->GetMenuItems()[0]->IsChecked();
-	event.Skip();
-}
-
-void cMain::OnMenuAutoCloseOpenClicked(wxCommandEvent& event)
-{
-	auto_close_open = menu_auto_close->GetMenuItems()[1]->IsChecked();
-	event.Skip();
-}
-
-void cMain::OnMenuAutoCloseSaveClicked(wxCommandEvent& event)
-{
-	auto_close_save = menu_auto_close->GetMenuItems()[2]->IsChecked();
-
-	event.Skip();
-}
-
-void cMain::OnMenuAutoCloseSaveAsClicked(wxCommandEvent& event)
-{
-	auto_close_save_as = menu_auto_close->GetMenuItems()[3]->IsChecked();
 	event.Skip();
 }
 
@@ -1907,21 +1863,11 @@ void cMain::malformed_saved_file_message()
 
 bool cMain::Save(string filename, bool save_as, bool set_last_location)
 {
-	std::vector<bool> auto_list{
-		menu_auto_close->GetMenuItems()[0]->IsChecked(),
-		menu_auto_close->GetMenuItems()[1]->IsChecked(),
-		menu_auto_close->GetMenuItems()[2]->IsChecked(),
-		menu_auto_close->GetMenuItems()[3]->IsChecked(),
-		auto_close_save_as,
-		auto_close_save,
-	};
-
 	SaveTas save;
 	return save.Save(
 		this,
 		dialog_progress_bar,
 		save_as,
-		auto_list,
 		StepGridData,
 		template_map,
 		filename,
@@ -1935,28 +1881,9 @@ bool cMain::Save(string filename, bool save_as, bool set_last_location)
 
 bool cMain::AutoSave()
 {
-	std::vector<bool> auto_list{
-		menu_auto_close->GetMenuItems()[0]->IsChecked(),
-		menu_auto_close->GetMenuItems()[1]->IsChecked(),
-		menu_auto_close->GetMenuItems()[2]->IsChecked(),
-		menu_auto_close->GetMenuItems()[3]->IsChecked(),
-		auto_close_save_as,
-		auto_close_save,
-	};
 	no_changes = true;
 	string filename = save_file_location.substr(0, save_file_location.size() - 4) + "_autosave.txt";
-	return autosaver.Autosave(this, dialog_progress_bar, filename, auto_list);
-
-	/* Old autosave code
-	using std::to_string;
-	if (save_file_location == "" || !save_file_location.ends_with(".txt"))
-		return false; //don't autosave if location is not set or it doesn't point to txt file
-	static int autosave_count = 0;
-	if (++autosave_count > 10) 
-		autosave_count = 1; //make files from 1 to 10
-	string filename = save_file_location.substr(0, save_file_location.size() - 4) + "_temp_" + to_string(autosave_count) + ".txt";
-
-	return Save(filename, false, false);*/
+	return autosaver.Autosave(this, dialog_progress_bar, filename);
 }
 
 bool cMain::SaveFile(bool save_as)

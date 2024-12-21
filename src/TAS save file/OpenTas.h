@@ -84,7 +84,6 @@ private:
 	bool extract_templates(std::ifstream& file, DialogProgressBar* dialog_progress_bar);
 	bool extract_save_location(std::ifstream& file);
 	bool extract_script_location(std::ifstream& file);
-	bool extract_auto_close(std::ifstream& file);
 	bool extract_log_config(std::ifstream & file);
 
 	Step ReadStep(const size_t, int&, std::vector<string>::iterator);

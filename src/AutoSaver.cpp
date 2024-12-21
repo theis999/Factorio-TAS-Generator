@@ -30,7 +30,7 @@ Command AutoSaver::PopBack()
 	return item;
 }
 
-bool AutoSaver::Autosave(wxWindow* parent, DialogProgressBar* dialog_progress_bar, string folder_location, vector<bool> auto_list)
+bool AutoSaver::Autosave(wxWindow* parent, DialogProgressBar* dialog_progress_bar, string folder_location)
 {
 	int total_commands = autosave_data.size();
 	int lines_processed = 0;
@@ -73,9 +73,7 @@ bool AutoSaver::Autosave(wxWindow* parent, DialogProgressBar* dialog_progress_ba
 	myfile.close();
 
 	dialog_progress_bar->set_progress(100);
-
-	if (auto_list[5]) dialog_progress_bar->Close();
-	else dialog_progress_bar->set_button_enable(true);
+	dialog_progress_bar->Close();
 
 	return true;
 }
