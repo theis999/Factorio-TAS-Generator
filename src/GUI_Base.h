@@ -56,7 +56,6 @@ class GUI_Base : public wxFrame
 	protected:
 		wxMenuBar* main_menubar;
 		wxMenu* menu_file;
-		wxMenu* menu_script;
 		wxMenu* menu_steptypes;
 		wxMenuItem* steptypecolour_changer;
 		wxMenu* menu_shortcuts;
@@ -219,9 +218,9 @@ class GUI_Base : public wxFrame
 		virtual void OnMenuOpen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuSave( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuSaveAs( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnMenuExit( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnChooseLocation( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnGenerateScript( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnMenuExit( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnChangeSteptypeColoursMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnWalkMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnCraftMenuSelected( wxCommandEvent& event ) { event.Skip(); }

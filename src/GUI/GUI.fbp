@@ -83,7 +83,7 @@
         <property name="window_extra_style"></property>
         <property name="window_name"></property>
         <property name="window_style"></property>
-        <object class="wxMenu" expanded="false">
+        <object class="wxMenu" expanded="true">
           <property name="label">File</property>
           <property name="name">menu_file</property>
           <property name="permission">protected</property>
@@ -150,26 +150,7 @@
             <property name="help"></property>
             <property name="id">wxID_ANY</property>
             <property name="kind">wxITEM_NORMAL</property>
-            <property name="label">Exit</property>
-            <property name="name">menu_file_exit</property>
-            <property name="permission">none</property>
-            <property name="shortcut"></property>
-            <property name="unchecked_bitmap"></property>
-            <event name="OnMenuSelection">OnMenuExit</event>
-          </object>
-        </object>
-        <object class="wxMenu" expanded="false">
-          <property name="label">Script</property>
-          <property name="name">menu_script</property>
-          <property name="permission">protected</property>
-          <object class="wxMenuItem" expanded="false">
-            <property name="bitmap"></property>
-            <property name="checked">0</property>
-            <property name="enabled">1</property>
-            <property name="help"></property>
-            <property name="id">wxID_ANY</property>
-            <property name="kind">wxITEM_NORMAL</property>
-            <property name="label">Choose Location</property>
+            <property name="label">Script Location</property>
             <property name="name">menu_script_choose_location</property>
             <property name="permission">none</property>
             <property name="shortcut"></property>
@@ -183,12 +164,26 @@
             <property name="help"></property>
             <property name="id">wxID_ANY</property>
             <property name="kind">wxITEM_NORMAL</property>
-            <property name="label">Generate Script</property>
+            <property name="label">Generate</property>
             <property name="name">menu_script_generate_script</property>
             <property name="permission">none</property>
             <property name="shortcut">Alt+G</property>
             <property name="unchecked_bitmap"></property>
             <event name="OnMenuSelection">OnGenerateScript</event>
+          </object>
+          <object class="wxMenuItem" expanded="false">
+            <property name="bitmap"></property>
+            <property name="checked">0</property>
+            <property name="enabled">1</property>
+            <property name="help"></property>
+            <property name="id">wxID_ANY</property>
+            <property name="kind">wxITEM_NORMAL</property>
+            <property name="label">Exit</property>
+            <property name="name">menu_file_exit</property>
+            <property name="permission">none</property>
+            <property name="shortcut"></property>
+            <property name="unchecked_bitmap"></property>
+            <event name="OnMenuSelection">OnMenuExit</event>
           </object>
         </object>
         <object class="wxMenu" expanded="false">

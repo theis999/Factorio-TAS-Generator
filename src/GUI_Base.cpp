@@ -33,22 +33,19 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	menu_file_save_as = new wxMenuItem( menu_file, wxID_ANY, wxString( wxT("Save As") ) + wxT('\t') + wxT("CTRL+SHIFT+S"), wxEmptyString, wxITEM_NORMAL );
 	menu_file->Append( menu_file_save_as );
 
+	wxMenuItem* menu_script_choose_location;
+	menu_script_choose_location = new wxMenuItem( menu_file, wxID_ANY, wxString( wxT("Script Location") ) , wxEmptyString, wxITEM_NORMAL );
+	menu_file->Append( menu_script_choose_location );
+
+	wxMenuItem* menu_script_generate_script;
+	menu_script_generate_script = new wxMenuItem( menu_file, wxID_ANY, wxString( wxT("Generate") ) + wxT('\t') + wxT("Alt+G"), wxEmptyString, wxITEM_NORMAL );
+	menu_file->Append( menu_script_generate_script );
+
 	wxMenuItem* menu_file_exit;
 	menu_file_exit = new wxMenuItem( menu_file, wxID_ANY, wxString( wxT("Exit") ) , wxEmptyString, wxITEM_NORMAL );
 	menu_file->Append( menu_file_exit );
 
 	main_menubar->Append( menu_file, wxT("File") );
-
-	menu_script = new wxMenu();
-	wxMenuItem* menu_script_choose_location;
-	menu_script_choose_location = new wxMenuItem( menu_script, wxID_ANY, wxString( wxT("Choose Location") ) , wxEmptyString, wxITEM_NORMAL );
-	menu_script->Append( menu_script_choose_location );
-
-	wxMenuItem* menu_script_generate_script;
-	menu_script_generate_script = new wxMenuItem( menu_script, wxID_ANY, wxString( wxT("Generate Script") ) + wxT('\t') + wxT("Alt+G"), wxEmptyString, wxITEM_NORMAL );
-	menu_script->Append( menu_script_generate_script );
-
-	main_menubar->Append( menu_script, wxT("Script") );
 
 	menu_steptypes = new wxMenu();
 	steptypecolour_changer = new wxMenuItem( menu_steptypes, wxID_ANY, wxString( wxT("Change colours") ) , wxEmptyString, wxITEM_NORMAL );
@@ -1619,9 +1616,9 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	menu_file->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuOpen ), this, menu_file_open->GetId());
 	menu_file->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuSave ), this, menu_file_save->GetId());
 	menu_file->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuSaveAs ), this, menu_file_save_as->GetId());
+	menu_file->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnChooseLocation ), this, menu_script_choose_location->GetId());
+	menu_file->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnGenerateScript ), this, menu_script_generate_script->GetId());
 	menu_file->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuExit ), this, menu_file_exit->GetId());
-	menu_script->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnChooseLocation ), this, menu_script_choose_location->GetId());
-	menu_script->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnGenerateScript ), this, menu_script_generate_script->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnChangeSteptypeColoursMenuSelected ), this, steptypecolour_changer->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnWalkMenuSelected ), this, shortcut_walk->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnCraftMenuSelected ), this, shortcut_craft->GetId());
