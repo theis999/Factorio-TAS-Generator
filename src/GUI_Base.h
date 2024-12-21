@@ -179,7 +179,6 @@ class GUI_Base : public wxFrame
 		wxPanel* step_panel;
 		wxSearchCtrl* step_search_ctrl;
 		wxCheckBox* step_search_toggle_updown;
-		wxButton* step_split_multibuild_button;
 		wxColourPickerCtrl* step_colour_picker;
 		wxCheckBox* steps_focus_checkbox;
 		wxButton* btn_add_step;
@@ -348,8 +347,6 @@ class GUI_Base : public wxFrame
 		virtual void StepSeachOnSearchButton( wxCommandEvent& event ) { event.Skip(); }
 		virtual void StepSeachOnText( wxCommandEvent& event ) { event.Skip(); }
 		virtual void StepSeachOnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnSplitMultibuildClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnSplitMultibuildRightClicked( wxMouseEvent& event ) { event.Skip(); }
 		virtual void OnStepColourPickerColourChanged( wxColourPickerEvent& event ) { event.Skip(); }
 		virtual void OnStepsFocusCheckbox( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnAddStepClicked( wxCommandEvent& event ) { event.Skip(); }

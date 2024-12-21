@@ -1096,8 +1096,7 @@ void cMain::OnStepsGridRangeSelect(wxGridRangeSelectEvent& event)
 		modifier_vehicle_button->Show();
 		sizer_vehicle->Layout();
 		btn_change_step->Disable();
-	}	
-	HandleSplitOrMergeToggle(rows);
+	}
 }
 
 void cMain::OnStepColourPickerColourChanged(wxColourPickerEvent& event)
@@ -1124,68 +1123,6 @@ void cMain::OnStepColourPickerColourChanged(wxColourPickerEvent& event)
 	}
 	autosaver.Push(change);
 	no_changes = false;
-}
-
-void cMain::HandleSplitOrMergeToggle(wxArrayInt& rows)
-{
-	size_t size = rows.size();
-	if (size == 1)
-	{
-		Step data = StepGridData.at(rows[0]);
-		step_split_multibuild_button->Enable(data.Buildings >= 2);
-	}
-	else
-	{
-		step_split_multibuild_button->Disable();
-	}
-}
-void cMain::OnSplitMultibuildClicked(wxCommandEvent& event)
-{
-	wxArrayInt rows = grid_steps->GetSelectedRows();
-	SplitMultibuildStep(rows[0]);
-}
-void cMain::OnSplitMultibuildRightClicked(wxMouseEvent& event)
-{
-	wxArrayInt rows = grid_steps->GetSelectedRows();
-	SplitMultibuildStep(rows[0]);
-}
-void cMain::SplitMultibuildStep(int row)
-{
-	Step data = StepGridData[row];
-	Command change;
-	change.before.push_back({row, data});
-	vector<Step> new_rows;
-	const int buildings = data.Buildings - 1;
-	data.Buildings = 1;
-	StepGridData[row].Buildings = 1;
-	change.after.push_back({row, StepGridData[row]});
-	new_rows.reserve(buildings);
-
-	for (int i = 0; i < buildings; i++)
-	{
-		data.Next();
-		data.OriginalX = data.X;
-		data.OriginalY = data.Y;
-		new_rows.push_back(data);
-		change.after.push_back({row+i+1, data});
-	}
-
-	StepGridData.insert(StepGridData.begin() + row + 1, new_rows.begin(), new_rows.end());
-
-	grid_steps->InsertRows(row + 1, buildings);
-	for (int i = row; i < row + buildings + 1; i++)
-	{
-		GridEntry gridEntry = PrepareStepForGrid(&StepGridData[i]);
-
-		PopulateGrid(grid_steps, i, &gridEntry);
-
-		BackgroundColorUpdate(grid_steps, i, StepGridData[i]);
-
-		grid_steps->SelectRow(i, true);
-	}
-
-	autosaver.Push(change);
-	no_changes;
 }
 
 void cMain::UpdateMapWithNewSteps(wxGrid* grid, wxComboBox* cmb, map<string, vector<Step>>& map)

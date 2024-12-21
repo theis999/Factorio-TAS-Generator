@@ -1206,11 +1206,6 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	step_search_toggle_updown->SetValue(true);
 	step_panel_search_sizer->Add( step_search_toggle_updown, 0, wxALL, 7 );
 
-	step_split_multibuild_button = new wxButton( step_panel, wxID_ANY, wxT("Split"), wxDefaultPosition, wxDefaultSize, 0 );
-	step_split_multibuild_button->SetToolTip( wxT("Splits a multibuild row into it's separate steps") );
-
-	step_panel_search_sizer->Add( step_split_multibuild_button, 0, wxALL, 5 );
-
 	wxBoxSizer* bSizer65;
 	bSizer65 = new wxBoxSizer( wxHORIZONTAL );
 
@@ -1761,8 +1756,6 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	step_search_ctrl->Connect( wxEVT_COMMAND_SEARCHCTRL_SEARCH_BTN, wxCommandEventHandler( GUI_Base::StepSeachOnSearchButton ), NULL, this );
 	step_search_ctrl->Connect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( GUI_Base::StepSeachOnText ), NULL, this );
 	step_search_ctrl->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUI_Base::StepSeachOnTextEnter ), NULL, this );
-	step_split_multibuild_button->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnSplitMultibuildClicked ), NULL, this );
-	step_split_multibuild_button->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnSplitMultibuildRightClicked ), NULL, this );
 	step_colour_picker->Connect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( GUI_Base::OnStepColourPickerColourChanged ), NULL, this );
 	steps_focus_checkbox->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( GUI_Base::OnStepsFocusCheckbox ), NULL, this );
 	btn_add_step->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnAddStepClicked ), NULL, this );
@@ -1865,8 +1858,6 @@ GUI_Base::~GUI_Base()
 	step_search_ctrl->Disconnect( wxEVT_COMMAND_SEARCHCTRL_SEARCH_BTN, wxCommandEventHandler( GUI_Base::StepSeachOnSearchButton ), NULL, this );
 	step_search_ctrl->Disconnect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( GUI_Base::StepSeachOnText ), NULL, this );
 	step_search_ctrl->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUI_Base::StepSeachOnTextEnter ), NULL, this );
-	step_split_multibuild_button->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnSplitMultibuildClicked ), NULL, this );
-	step_split_multibuild_button->Disconnect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnSplitMultibuildRightClicked ), NULL, this );
 	step_colour_picker->Disconnect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( GUI_Base::OnStepColourPickerColourChanged ), NULL, this );
 	steps_focus_checkbox->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( GUI_Base::OnStepsFocusCheckbox ), NULL, this );
 	btn_add_step->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnAddStepClicked ), NULL, this );

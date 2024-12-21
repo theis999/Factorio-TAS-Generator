@@ -218,11 +218,6 @@ protected:
 	void OnStepsGridRightClick(wxGridEvent& event);
 	void OnStepsGridRangeSelect(wxGridRangeSelectEvent& event);
 	void OnStepColourPickerColourChanged(wxColourPickerEvent& event);
-	void HandleSplitOrMergeToggle(wxArrayInt& rows);
-	void OnSplitMultibuildClicked(wxCommandEvent& event);
-	void OnSplitMultibuildRightClicked(wxMouseEvent& event);
-
-	void SplitMultibuildStep(int row);
 
 	void OnStepsFocusCheckbox(wxCommandEvent & event);
 	void HandleFocusMode(bool checked, bool changed = false);
