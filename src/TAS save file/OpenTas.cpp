@@ -31,14 +31,6 @@ open_file_return_data* OpenTas::Open(DialogProgressBar* dialog_progress_bar, std
 		case OpenTAS::Invalid:
 			return &return_data;
 
-		case OpenTAS::Group:
-			if (!extract_groups(file, dialog_progress_bar))
-			{
-				return &return_data;
-			}
-
-			// fallthrough so tamplate is also done, if groups are in the save file
-			[[fallthrough]]; 
 		case OpenTAS::Template:
 			if (!extract_templates(file, dialog_progress_bar))
 			{
@@ -137,10 +129,7 @@ OpenTAS::Category OpenTas::extract_steps(std::ifstream& file, DialogProgressBar*
 	while (update_segment(file))
 	{
 		const size_t segment_size = segments.size();
-		if (segment_size != step_segment_size &&
-			segment_size != step_segment_size_without_colour &&
-			segment_size != step_segment_size_without_comment_and_colour &&
-			segment_size != step_segment_size_without_comment_and_colour_and_modifiers)
+		if (segment_size != step_segment_size)
 		{
 			if (segment_size >= 0 && segments[0] == save_templates_indicator)
 			{
@@ -186,20 +175,15 @@ Step OpenTas::ReadStep(const size_t segment_size, int& buildingsInSnapShot, std:
 	if (step_segments[1] != "")
 	{
 		step.X = stod(step_segments[1]);
-		step.OriginalX = step.X;
 		step.Y = stod(step_segments[2]);
-		step.OriginalY = step.Y;
 	}
 
 	step.amount = step_segments[3] == "" || step_segments[3] == "All" ? 0 : stoi(step_segments[3]);
 	step.Item = Capitalize(step_segments[4], true);
 	step.orientation = MapStringToOrientation(step_segments[5]);
-	step.Direction = MapStringToOrientation(step_segments[6]);
-	step.Size = step_segments[7] != "" ? stoi(step_segments[7]) : 1;
-	step.Buildings = step_segments[8] != "" ? stoi(step_segments[8]) : 1;
-	step.Comment = segment_size == step_segment_size || segment_size == step_segment_size_without_colour ? step_segments[9] : "";
-	step.colour = segment_size == step_segment_size && step_segments[10] != "" ? wxColour(step_segments[10]) : wxNullColour;
-	step.Modifiers.FromString(segment_size == step_segment_size ? step_segments[11] : "");
+	step.Comment = segment_size == step_segment_size ? step_segments[6] : "";
+	step.colour = segment_size == step_segment_size && step_segments[7] != "" ? wxColour(step_segments[7]) : wxNullColour;
+	step.Modifiers.FromString(segment_size == step_segment_size ? step_segments[8] : "");
 		
 	step.type = ToStepType(step_segments[0]);
 	switch (step.type)
@@ -267,68 +251,6 @@ Step OpenTas::ReadStep(const size_t segment_size, int& buildingsInSnapShot, std:
 	return step;
 }
 
-bool OpenTas::extract_groups(std::ifstream& file, DialogProgressBar* dialog_progress_bar)
-{
-	vector<Step> steps = {};
-	string name = "";
-	int position = 0;
-
-	// Groups are obsolete and have been moved to template. This is here for backwards compatibility. 
-	while (update_segment(file))
-	{
-		if (segments.size() != group_segment_size && segments.size() != group_segment_size_without_comment)
-		{
-			if (segments.size() == 1 && segments[0] == save_templates_indicator)
-			{
-				if (name != "")
-				{
-					return_data.template_map.insert(pair<string, vector<Step>>(name, steps));
-				}
-
-				return true;
-			}
-
-			return false;
-		}
-
-		if (name == "")
-		{
-			name = segments[0];
-			steps = {};
-
-		}
-		else if (name != segments[0])
-		{
-			return_data.template_map.insert(pair<string, vector<Step>>(name, steps));
-
-			name = segments[0];
-			steps = {};
-		}
-
-		try
-		{
-			int i = -1; // used to ignore control steps
-			Step step = ReadStep(segments.size(), i, segments.begin() + 1);
-			steps.push_back(step);
-		}
-		catch (...)
-		{
-			if (segments[1] == "Start" || segments[1] == "start") continue; // Ignore start steps, given that they are obsolete.
-			else return OpenTAS::Invalid;
-		}
-
-		lines_processed++;
-
-		if (lines_processed > 0 && lines_processed % 25 == 0)
-		{
-			dialog_progress_bar->set_progress(static_cast<float>(lines_processed) / static_cast<float>(total_lines) * 100.0f - 47);
-			wxYield();
-		}
-	}
-
-	return false;
-}
-
 bool OpenTas::extract_templates(std::ifstream& file, DialogProgressBar* dialog_progress_bar)
 {
 	vector<Step> steps = {};
@@ -337,9 +259,7 @@ bool OpenTas::extract_templates(std::ifstream& file, DialogProgressBar* dialog_p
 
 	while (update_segment(file))
 	{
-		if (segments.size() != template_segment_size &&
-			segments.size() != template_segment_size_without_colour &&
-			segments.size() != template_segment_size_without_comment_and_colour)
+		if (segments.size() != template_segment_size)
 		{
 			if (segments.size() == 1 && segments[0] == save_file_indicator)
 			{

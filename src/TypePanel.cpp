@@ -169,9 +169,6 @@ void cMain::setup_paramters(const int parameters)
 	radio_input->Enable((bool)(input == (parameters & input))); radio_acceleration->Enable((bool)(input == (parameters & input)));
 	radio_output->Enable((bool)(output == (parameters & output)));
 	cmb_building_orientation->Enable(parameters & building_orientation);
-	cmb_direction_to_build->Enable(parameters & direction_to_build);
-	spin_building_size->Enable(parameters & building_size);
-	spin_building_amount->Enable(parameters & amount_of_buildings);
 }
 
 void cMain::SetupModifiers(StepType type)

@@ -80,7 +80,6 @@ private:
 	bool extract_total_steps(std::ifstream& file);
 	bool extract_goal(std::ifstream& file);
 	OpenTAS::Category extract_steps(std::ifstream& file, DialogProgressBar* dialog_progress_bar);
-	bool extract_groups(std::ifstream& file, DialogProgressBar* dialog_progress_bar);
 	bool extract_templates(std::ifstream& file, DialogProgressBar* dialog_progress_bar);
 	bool extract_save_location(std::ifstream& file);
 	bool extract_script_location(std::ifstream& file);

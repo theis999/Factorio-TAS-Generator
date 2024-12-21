@@ -85,20 +85,15 @@ StepLine AutoSaver::read_StepLine(const size_t segment_size, vector<Building> bu
 	if (step_segments[2] != "")
 	{
 		step.X = stod(step_segments[2]);
-		step.OriginalX = step.X;
 		step.Y = stod(step_segments[3]);
-		step.OriginalY = step.Y;
 	}
 
 	step.amount = step_segments[4] == "" || step_segments[4] == "All" ? 0 : stoi(step_segments[4]);
 	step.Item = Capitalize(step_segments[5], true);
 	step.orientation = MapStringToOrientation(step_segments[6]);
-	step.Direction = MapStringToOrientation(step_segments[7]);
-	step.Size = step_segments[8] != "" ? stoi(step_segments[8]) : 1;
-	step.Buildings = step_segments[9] != "" ? stoi(step_segments[9]) : 1;
-	step.Comment = segment_size == step_segment_size || segment_size == step_segment_size_without_colour ? step_segments[10] : "";
-	step.colour = segment_size == step_segment_size && step_segments[11] != "" ? wxColour(step_segments[11]) : wxNullColour;
-	step.Modifiers.FromString(segment_size == step_segment_size ? step_segments[12] : "");
+	step.Comment = segment_size == step_segment_size ? step_segments[7] : "";
+	step.colour = segment_size == step_segment_size && step_segments[8] != "" ? wxColour(step_segments[8]) : wxNullColour;
+	step.Modifiers.FromString(segment_size == step_segment_size ? step_segments[9] : "");
 
 	step.type = ToStepType(step_segments[1]);
 	switch (step.type)

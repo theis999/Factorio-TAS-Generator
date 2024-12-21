@@ -11,10 +11,7 @@ enum choice_bit_vector
 	input = 1 << 5,
 	output = 1 << 6,
 	building_orientation = 1 << 7,
-	direction_to_build = 1 << 8,
-	building_size = 1 << 9,
-	amount_of_buildings = 1 << 10,
-	comment = 1 << 11,
+	comment = 1 << 11, // move to 8
 };
 
 /* Internal variables for parameter choices */
@@ -23,9 +20,8 @@ namespace parameter_choice_internal
 	/* Common bit vector combinations */
 	const int point = x_coordinate + y_coordinate,
 	priority_io = input + output,
-	multi_build = direction_to_build + building_size + amount_of_buildings,
 	container = amount + item + from_to,
-	building = point + multi_build + comment;
+	building = point + comment;
 }
 
 using namespace parameter_choice_internal;

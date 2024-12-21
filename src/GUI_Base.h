@@ -126,12 +126,6 @@ class GUI_Base : public wxFrame
 		wxRadioBox* radio_output;
 		wxStaticText* label_building_orientation;
 		wxComboBox* cmb_building_orientation;
-		wxStaticText* label_direction_to_build;
-		wxComboBox* cmb_direction_to_build;
-		wxStaticText* label_building_size;
-		wxSpinCtrl* spin_building_size;
-		wxStaticText* label_amount_of_buildings;
-		wxSpinCtrl* spin_building_amount;
 		wxPanel* step_modifier_panel;
 		wxBoxSizer* sizer_no_order;
 		wxCheckBox* modifier_no_order_checkbox;

@@ -4,16 +4,8 @@
 
 using std::string;
 
-static const int step_segment_size = 12;
-static const int step_segment_size_without_colour = 11;
-static const int step_segment_size_without_comment_and_colour = 10;
-static const int step_segment_size_without_comment_and_colour_and_modifiers = 9;
-static const int group_segment_size = 11;
-static const int group_segment_size_without_comment = 10;
-static const int template_segment_size = 13;
-static const int template_segment_size_without_colour = 12;
-static const int template_segment_size_without_comment_and_colour = 11;
-static const int template_segment_size_without_comment_and_colour_and_modifiers = 10;
+static const int step_segment_size = 9;
+static const int template_segment_size = 10;
 
 static const string total_steps_indicator = "Total lines:";
 static const string total_commands_indicator = "Total commands:";

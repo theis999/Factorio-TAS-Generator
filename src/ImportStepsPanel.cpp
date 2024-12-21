@@ -53,9 +53,7 @@ bool ImportStepsPanel::extract_steps(wxString steps_text, vector<Step>& steps, v
 	while (update_segment())
 	{
 		counter++;
-		if (segments.size() != step_segment_size &&
-			segments.size() != step_segment_size_without_colour &&
-			segments.size() != step_segment_size_without_comment_and_colour)
+		if (segments.size() != step_segment_size)
 		{
 			wxMessageBox("It was not possible to read line ["+ std::to_string(counter) + "] as it only contained [" + std::to_string(segments.size()) + "] semicolons", "Text import error");
 			return false;
@@ -66,17 +64,14 @@ bool ImportStepsPanel::extract_steps(wxString steps_text, vector<Step>& steps, v
 		int size = segments.size();
 		if (size < 1) continue;
 		
-		step.OriginalX = step.X = size >= 1 && segments[1] != "" ? stod(segments[1]) : 0;
-		step.OriginalY = step.Y = size >= 2 && segments[2] != "" ? stod(segments[2]) : 0;
+		step.X = size >= 1 && segments[1] != "" ? stod(segments[1]) : 0;
+		step.Y = size >= 2 && segments[2] != "" ? stod(segments[2]) : 0;
 		step.amount = size >= 3 && segments[3] != "" ? segments[3] == "All" ? 0 : stoi(segments[3]) : 0;
 		step.Item = size >= 4 && segments[4] != "" ? Capitalize(segments[4], true) : "";
 		step.orientation = MapStringToOrientation(size >= 5 ? segments[5] : "");
-		step.Direction = MapStringToOrientation(size >= 6 ? segments[6] : "");
-		step.Size = size >= 7 && segments[7] != "" ? stoi(segments[7]) : 1;
-		step.Buildings = size >= 8 && segments[8] != "" ? stoi(segments[8]) : 1;
-		step.Comment = size >= 9 ? segments[9] : "";
-		step.colour = size >= 10 && segments[10] != "" ? wxColour(segments[10]) : wxNullColour;
-		step.Modifiers.FromString(size >= 11 && segments[11] != "" ? segments[11] : "");
+		step.Comment = size >= 9 ? segments[6] : "";
+		step.colour = size >= 10 && segments[7] != "" ? wxColour(segments[7]) : wxNullColour;
+		step.Modifiers.FromString(size >= 8 && segments[8] != "" ? segments[8] : "");
 
 		try
 		{

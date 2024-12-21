@@ -794,53 +794,6 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	detail_sizer_col3->Add( detail_sizer_Orientation, 1, 0, 5 );
 
-	wxBoxSizer* detail_sizer_Direction;
-	detail_sizer_Direction = new wxBoxSizer( wxHORIZONTAL );
-
-	label_direction_to_build = new wxStaticText( detail_panel, wxID_ANY, wxT("Build direction:"), wxDefaultPosition, wxSize( 115,-1 ), wxALIGN_RIGHT );
-	label_direction_to_build->Wrap( -1 );
-	detail_sizer_Direction->Add( label_direction_to_build, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-	cmb_direction_to_build = new wxComboBox( detail_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 80,-1 ), 0, NULL, 0 );
-	cmb_direction_to_build->SetToolTip( wxT("The direction to place the next building") );
-
-	detail_sizer_Direction->Add( cmb_direction_to_build, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-
-	detail_sizer_col3->Add( detail_sizer_Direction, 1, 0, 5 );
-
-	wxBoxSizer* detail_sizer_Size;
-	detail_sizer_Size = new wxBoxSizer( wxHORIZONTAL );
-
-	label_building_size = new wxStaticText( detail_panel, wxID_ANY, wxT("Building size:"), wxDefaultPosition, wxSize( 115,-1 ), wxALIGN_RIGHT );
-	label_building_size->Wrap( -1 );
-	detail_sizer_Size->Add( label_building_size, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-	spin_building_size = new wxSpinCtrl( detail_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT|wxSP_ARROW_KEYS, 1, 10, 1 );
-	spin_building_size->SetToolTip( wxT("Number of tiles the building is wide. Used for placing multiple buildings in a row.") );
-	spin_building_size->SetMinSize( wxSize( 80,-1 ) );
-
-	detail_sizer_Size->Add( spin_building_size, 0, wxALL, 5 );
-
-
-	detail_sizer_col3->Add( detail_sizer_Size, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* detail_sizer_Buildings;
-	detail_sizer_Buildings = new wxBoxSizer( wxHORIZONTAL );
-
-	label_amount_of_buildings = new wxStaticText( detail_panel, wxID_ANY, wxT("Amount of Buildings:"), wxDefaultPosition, wxSize( 115,-1 ), wxALIGN_RIGHT );
-	label_amount_of_buildings->Wrap( -1 );
-	detail_sizer_Buildings->Add( label_amount_of_buildings, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-	spin_building_amount = new wxSpinCtrl( detail_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT|wxSP_ARROW_KEYS, 1, 250, 1 );
-	spin_building_amount->SetToolTip( wxT("The number of buildings to place in a row") );
-	spin_building_amount->SetMinSize( wxSize( 80,-1 ) );
-
-	detail_sizer_Buildings->Add( spin_building_amount, 0, wxALL, 5 );
-
-
-	detail_sizer_col3->Add( detail_sizer_Buildings, 1, wxEXPAND, 5 );
-
 
 	detail_sizer_flex->Add( detail_sizer_col3, 1, wxEXPAND, 5 );
 
@@ -1225,7 +1178,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	grid_steps = new wxGrid( step_panel, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), 0 );
 
 	// Grid
-	grid_steps->CreateGrid( 0, 11 );
+	grid_steps->CreateGrid( 0, 8 );
 	grid_steps->EnableEditing( true );
 	grid_steps->EnableGridLines( true );
 	grid_steps->EnableDragGridSize( false );
@@ -1239,10 +1192,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	grid_steps->SetColSize( 4, 140 );
 	grid_steps->SetColSize( 5, 70 );
 	grid_steps->SetColSize( 6, 80 );
-	grid_steps->SetColSize( 7, 70 );
-	grid_steps->SetColSize( 8, 50 );
-	grid_steps->SetColSize( 9, 60 );
-	grid_steps->SetColSize( 10, 112 );
+	grid_steps->SetColSize( 7, 112 );
 	grid_steps->EnableDragColMove( false );
 	grid_steps->EnableDragColSize( true );
 	grid_steps->SetColLabelValue( 0, wxT("Step") );
@@ -1252,10 +1202,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	grid_steps->SetColLabelValue( 4, wxT("Item") );
 	grid_steps->SetColLabelValue( 5, wxT("Orientation") );
 	grid_steps->SetColLabelValue( 6, wxT("Modifier") );
-	grid_steps->SetColLabelValue( 7, wxT("Direction") );
-	grid_steps->SetColLabelValue( 8, wxT("Size") );
-	grid_steps->SetColLabelValue( 9, wxT("Buildings") );
-	grid_steps->SetColLabelValue( 10, wxT("Comment") );
+	grid_steps->SetColLabelValue( 7, wxT("Comment") );
 	grid_steps->SetColLabelAlignment( wxALIGN_CENTER, wxALIGN_CENTER );
 
 	// Rows
@@ -1530,7 +1477,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	grid_template = new wxGrid( template_panel, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), 0 );
 
 	// Grid
-	grid_template->CreateGrid( 0, 11 );
+	grid_template->CreateGrid( 0, 8 );
 	grid_template->EnableEditing( false );
 	grid_template->EnableGridLines( true );
 	grid_template->EnableDragGridSize( false );
@@ -1544,10 +1491,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	grid_template->SetColSize( 4, 150 );
 	grid_template->SetColSize( 5, 70 );
 	grid_template->SetColSize( 6, 60 );
-	grid_template->SetColSize( 7, 70 );
-	grid_template->SetColSize( 8, 50 );
-	grid_template->SetColSize( 9, 60 );
-	grid_template->SetColSize( 10, 139 );
+	grid_template->SetColSize( 7, 139 );
 	grid_template->EnableDragColMove( false );
 	grid_template->EnableDragColSize( true );
 	grid_template->SetColLabelValue( 0, wxT("Step") );
@@ -1557,10 +1501,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	grid_template->SetColLabelValue( 4, wxT("Item") );
 	grid_template->SetColLabelValue( 5, wxT("Orientation") );
 	grid_template->SetColLabelValue( 6, wxT("Modifiers") );
-	grid_template->SetColLabelValue( 7, wxT("Direction") );
-	grid_template->SetColLabelValue( 8, wxT("Size") );
-	grid_template->SetColLabelValue( 9, wxT("Buildings") );
-	grid_template->SetColLabelValue( 10, wxT("Comment") );
+	grid_template->SetColLabelValue( 7, wxT("Comment") );
 	grid_template->SetColLabelAlignment( wxALIGN_CENTER, wxALIGN_CENTER );
 
 	// Rows

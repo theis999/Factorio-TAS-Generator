@@ -74,16 +74,12 @@ cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSi
 	setup_paramters(parameter_choices.walk);
 
 	cmb_building_orientation->Clear();
-	cmb_direction_to_build->Clear();
 	for (auto it = orientation_list.begin(); it < orientation_list.end(); it++)
 	{
 		cmb_building_orientation->Append(*it);
-		cmb_direction_to_build->Append(*it);
 	}
 	cmb_building_orientation->SetValue(*orientation_list.begin());
 	cmb_building_orientation->AutoComplete(building_orientation_choices);
-	cmb_direction_to_build->SetValue(*orientation_list.begin());
-	cmb_direction_to_build->AutoComplete(building_orientation_choices);
 
 	cmb_item->Clear();
 	for (auto& item : Item::names)
@@ -172,13 +168,13 @@ void cMain::OnStepsGridCellChange(wxGridEvent& event)
 	Step& step = StepGridData[row];
 	switch (col) {
 	case 1:
-		success = new_string.ToDouble(&step.OriginalX);
-		step.X = success ? step.OriginalX : step.X;
+		success = new_string.ToDouble(&step.X); // TODO
+		step.X = success ? step.X : step.X;
 		break;
 
 	case 2:
-		success = new_string.ToDouble(&step.OriginalY);
-		step.Y = success ? step.OriginalY : step.Y;
+		success = new_string.ToDouble(&step.Y);// TODO
+		step.Y = success ? step.Y : step.Y;
 		break;
 
 	case 3:
@@ -258,20 +254,8 @@ void cMain::OnStepsGridCellChange(wxGridEvent& event)
 		grid_steps->SetCellValue(row, col, step.Modifiers.ToString());
 		success = true;
 		break;
-		
+
 	case 7:
-		success = MapStringToOrientation(new_string.ToStdString(), step.Direction);
-		break;
-
-	case 8:
-		success = new_string.ToInt(&step.Size);
-		break;
-
-	case 9:
-		success = new_string.ToInt(&step.Buildings);
-		break;
-
-	case 10:
 		step.Comment = new_string.ToStdString();
 		success = true;
 		break;
@@ -348,22 +332,15 @@ void cMain::OnReorderReorderButtonClicked(wxCommandEvent& event)
 	{
 		Step& step = StepGridData[i];
 		change.before.push_back({i, step});
-		for (int j = 0; j < step.Buildings; j++) // unroll multibuild
-		{
-			if (step.type == e_rotate && step.amount != 3)
-				for (int k = 0; k < step.amount; k++) reorder_steplist.push_back({step, i, j});
-			else
-				reorder_steplist.push_back({step, i, j});
-			step.Next();
-		}
+		if (step.type == e_rotate && step.amount != 3)
+			for (int k = 0; k < step.amount; k++) reorder_steplist.push_back({step, i, 0});
+		else
+			reorder_steplist.push_back({step, i, 0});
 	}
 
 	// set number of buildings to 1 since multibuild has been unrolled
 	for (ReorderStep& step : reorder_steplist)
 	{
-		step.step.OriginalX = step.step.X;
-		step.step.OriginalY = step.step.Y;
-		step.step.Buildings = 1;
 		step.step.amount = step.step.type == e_rotate && step.step.amount != 3 ? 1 : step.step.amount ;
 		step.step.Modifiers.no_order = false;
 	}
@@ -1826,21 +1803,6 @@ void cMain::UpdateParameters(GridEntry* gridEntry, wxCommandEvent& event, bool c
 		cmb_building_orientation->SetValue(gridEntry->BuildingOrientation);
 		ctrls.push_back(cmb_building_orientation);
 	}
-	if (parameters & direction_to_build && cmb_direction_to_build->GetValue() != gridEntry->DirectionToBuild)
-	{
-		cmb_direction_to_build->SetValue(gridEntry->DirectionToBuild);
-		ctrls.push_back(cmb_direction_to_build);
-	}
-	if (parameters & building_size && wxString(std::to_string(spin_building_size->GetValue())) != gridEntry->BuildingSize)
-	{
-		spin_building_size->SetValue(gridEntry->BuildingSize);
-		ctrls.push_back(spin_building_size);
-	}
-	if (parameters & amount_of_buildings && wxString(std::to_string(spin_building_amount->GetValue())) != gridEntry->AmountOfBuildings)
-	{
-		spin_building_amount->SetValue(gridEntry->AmountOfBuildings);
-		ctrls.push_back(spin_building_amount);
-	}
 	if (parameters & comment && txt_comment->GetValue() != gridEntry->Comment)
 	{
 		txt_comment->SetValue(gridEntry->Comment);
@@ -1931,9 +1893,6 @@ Step cMain::ExtractStep()
 	step.Item = Capitalize(cmb_item->GetValue(), true);
 	step.inventory = GetInventoryType(Capitalize(cmb_from_into->GetValue()));
 	step.orientation = MapStringToOrientation(cmb_building_orientation->GetValue().ToStdString());
-	step.Direction = MapStringToOrientation(cmb_direction_to_build->GetValue().ToStdString());
-	step.Size = spin_building_size->GetValue();
-	step.Buildings = spin_building_amount->GetValue();
 	if (step.type == e_drive)
 	{
 		step.riding = {
@@ -2060,9 +2019,6 @@ GridEntry cMain::PrepareStepForGrid(Step* step)
 			gridEntry.Y = std::to_string(step->Y);
 			gridEntry.Amount = step->AmountGrid();
 			gridEntry.Item = step->BuildingIndex.value().Name();
-			gridEntry.DirectionToBuild = orientation_list[step->Direction];
-			gridEntry.BuildingSize = std::to_string(step->Size);
-			gridEntry.AmountOfBuildings = std::to_string(step->Buildings);
 			step->Item = gridEntry.Item;
 			break;
 
@@ -2071,9 +2027,6 @@ GridEntry cMain::PrepareStepForGrid(Step* step)
 			gridEntry.Y = std::to_string(step->Y);
 			gridEntry.Item = step->Item;
 			gridEntry.BuildingOrientation = orientation_list[step->orientation];
-			gridEntry.DirectionToBuild = orientation_list[step->Direction];
-			gridEntry.BuildingSize = std::to_string(step->Size);
-			gridEntry.AmountOfBuildings = std::to_string(step->Buildings);
 			break;
 
 		case e_take:
@@ -2083,9 +2036,6 @@ GridEntry cMain::PrepareStepForGrid(Step* step)
 			gridEntry.Amount = step->AmountGrid();
 			gridEntry.Item = step->Item;
 			gridEntry.Inventory = inventory_types_list[step->inventory];
-			gridEntry.DirectionToBuild = orientation_list[step->Direction];
-			gridEntry.BuildingSize = std::to_string(step->Size);
-			gridEntry.AmountOfBuildings = std::to_string(step->Buildings);
 			break;
 
 		case e_tech:
@@ -2097,9 +2047,6 @@ GridEntry cMain::PrepareStepForGrid(Step* step)
 			gridEntry.Y = std::to_string(step->Y);
 			gridEntry.Amount = step->AmountGrid();
 			gridEntry.Recipe = step->Item;
-			gridEntry.DirectionToBuild = orientation_list[step->Direction];
-			gridEntry.BuildingSize = std::to_string(step->Size);
-			gridEntry.AmountOfBuildings = std::to_string(step->Buildings);
 			break;
 
 		case e_limit:
@@ -2107,18 +2054,12 @@ GridEntry cMain::PrepareStepForGrid(Step* step)
 			gridEntry.Y = std::to_string(step->Y);
 			gridEntry.Amount = step->AmountGrid();
 			gridEntry.BuildingOrientation = "Chest";
-			gridEntry.DirectionToBuild = orientation_list[step->Direction];
-			gridEntry.BuildingSize = std::to_string(step->Size);
-			gridEntry.AmountOfBuildings = std::to_string(step->Buildings);
 			break;
 
 		case e_priority:
 			gridEntry.X = std::to_string(step->X);
 			gridEntry.Y = std::to_string(step->Y);
 			gridEntry.Priority = step->priority.ToString();
-			gridEntry.DirectionToBuild = orientation_list[step->Direction];
-			gridEntry.BuildingSize = std::to_string(step->Size);
-			gridEntry.AmountOfBuildings = std::to_string(step->Buildings);
 			break;
 
 		case e_drop:
@@ -2132,9 +2073,6 @@ GridEntry cMain::PrepareStepForGrid(Step* step)
 			gridEntry.Y = std::to_string(step->Y);
 			gridEntry.Amount = step->AmountGrid();
 			gridEntry.Item = step->Item;
-			gridEntry.DirectionToBuild = orientation_list[step->Direction];
-			gridEntry.BuildingSize = std::to_string(step->Size);
-			gridEntry.AmountOfBuildings = std::to_string(step->Buildings);
 			break;
 
 		case e_drive:
@@ -2154,16 +2092,7 @@ GridEntry cMain::PrepareStepForGrid(Step* step)
 			if (param & building_orientation) gridEntry.BuildingOrientation = orientation_list[step->orientation];
 
 			if (param & priority_io) gridEntry.Priority = step->priority.ToString();
-
-			if (param & multi_build)
-			{
-				gridEntry.DirectionToBuild = orientation_list[step->Direction];
-				gridEntry.BuildingSize = std::to_string(step->Size);
-				gridEntry.AmountOfBuildings = std::to_string(step->Buildings);
-			}
 		}
-			
-
 	}
 
 	return gridEntry;
@@ -2219,10 +2148,7 @@ GridEntry cMain::ExtractGridEntry(wxGrid* grid, const int& row)
 		.Item = grid->GetCellValue(row, 4),
 		.BuildingOrientation = grid->GetCellValue(row, 5),
 		.Modifiers = grid->GetCellValue(row, 6),
-		.DirectionToBuild = grid->GetCellValue(row, 7),
-		.BuildingSize = grid->GetCellValue(row, 8),
-		.AmountOfBuildings = grid->GetCellValue(row, 9),
-		.Comment = grid->GetCellValue(row, 10)
+		.Comment = grid->GetCellValue(row, 7)
 	};
 
 	return gridEntry;

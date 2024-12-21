@@ -146,23 +146,6 @@ int ProcessBuildStep(vector<Building>& buildings, int buildingsInSnapShot, Step&
 	buildings[buildingsInSnapShot].orientation = step.orientation;
 	buildingsInSnapShot++;
 
-	if (step.Buildings == 1)
-	{
-		return buildingsInSnapShot;
-	}
-
-	for (int i = 1; i < step.Buildings; i++)
-	{
-		step.Next();
-		
-		buildings[buildingsInSnapShot].X = step.X;
-		buildings[buildingsInSnapShot].Y = step.Y;
-		buildings[buildingsInSnapShot].type = (Building::BuildingType)step.BuildingIndex.value().type;
-		buildings[buildingsInSnapShot].orientation = step.orientation;
-		buildingsInSnapShot++;
-	}
-
-	step.Reset();
 	return buildingsInSnapShot;
 }
 
@@ -191,38 +174,18 @@ void ProcessMiningStep(vector<Building>& buildings, int buildingsInSnapShot, Ste
 
 bool BuildingExists(vector<Building>& buildings, int buildingsInSnapShot, Step& step)
 {
-	int buildingsFound = 0;
-	Orientation firstOrientation = North;
-
-	for (int i = 0; i < step.Buildings; i++)
+	for (int j = buildingsInSnapShot - 1; j > -1; j--)
 	{
-		for (int j = buildingsInSnapShot - 1; j > -1; j--)
+		if (step == buildings[j])
 		{
-			if (step == buildings[j])
+			if (step.orientation == buildings[j].orientation)
 			{
-				if (buildingsFound == 0)
-				{
-					firstOrientation = buildings[j].orientation;
-				}
 
-				buildingsFound++;
 				step.BuildingIndex = buildings[j];
-				break;
+				return true;
 			}
 		}
-
-		if (buildingsFound == step.Buildings)
-		{
-			step.Reset();
-			step.orientation = firstOrientation;
-			return true;
-		}
-
-		step.Next();
 	}
-
-	step.Reset();
-	step.BuildingIndex = {};
 	return false;
 }
 
@@ -235,10 +198,7 @@ void PopulateGrid(wxGrid* grid, int row, GridEntry* gridEntry)
 	grid->SetCellValue(row, 4, gridEntry->Item);
 	grid->SetCellValue(row, 5, gridEntry->BuildingOrientation);
 	grid->SetCellValue(row, 6, gridEntry->Modifiers);
-	grid->SetCellValue(row, 7, gridEntry->DirectionToBuild);
-	grid->SetCellValue(row, 8, gridEntry->BuildingSize);
-	grid->SetCellValue(row, 9, gridEntry->AmountOfBuildings);
-	grid->SetCellValue(row, 10, gridEntry->Comment);
+	grid->SetCellValue(row, 7, gridEntry->Comment);
 }
 
 bool StringContainsAny(const wxString& str, const string& chars)

@@ -11,9 +11,6 @@ struct GridEntry
 	wxString Item;
 	wxString BuildingOrientation;
 	wxString Modifiers;
-	wxString DirectionToBuild;
-	wxString BuildingSize;
-	wxString AmountOfBuildings;
 	wxString Comment;
 	
 	//Alias'es'
