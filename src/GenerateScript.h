@@ -71,9 +71,6 @@ private:
 
 	void PaintWarningStateChanged(string step, int counter);
 
-	/// <summary>Paints the step to indicate walk sub-step was added</summary>
-	/// <param name="step">The index of the step using a start of 1</param>
-	void PaintIntermediateWalk(string step, bool paint = true);
 	/// <summary>Paints the step to indicate the walk is either diagonal, straight or neither</summary>
 	/// <param name="step">The index of the step using a start of 1</param>
 	void PaintWalkStep(string step, bool straight, bool diagonal);
@@ -134,11 +131,6 @@ private:
 
 	string convert_string(string input);
 	string check_item_name(string item);
-
-	void check_mining_distance(string step, string action, string x_cord, string y_cord);
-	void check_interact_distance(string step, string action, string x_cord, string y_cord, string building_name, string OrientationEnum);
-	double find_min_distance(float& new_x_cord, float& new_y_cord);
-	vector<float> find_walk_location(float& min_x_edge, float& max_x_edge, float& min_y_edge, float& max_y_edge, const float& buffer, const float& max_distance);
 
 	string signature(string step, string action);
 	string Comment(string comment);

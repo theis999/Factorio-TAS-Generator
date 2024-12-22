@@ -172,9 +172,6 @@ protected:
 	void OnNoOrderRightClicked(wxMouseEvent& event);
 	void NoOrderButtonHandle(bool force = false);
 	void OnSkipClicked(wxCommandEvent& event);
-	void OnVehicleClicked(wxCommandEvent& event);
-	void OnVehicleRightClicked(wxMouseEvent& event);
-	void VehicleButtonHandle(bool force = false);
 
 	// walk panel
 	void SetupWalkPanelUnicodeCharacters();

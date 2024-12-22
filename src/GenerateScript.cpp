@@ -121,12 +121,6 @@ void GenerateScript::PaintWarningStateChanged(string step, int counter)
 	grid_steps->SetCellBackgroundColour(row, 10, counter % 2 ? *wxRED : *wxGREEN);
 }
 
-void GenerateScript::PaintIntermediateWalk(string step, bool paint)
-{
-	int row = std::stoi(step) - 1;
-	grid_steps->SetCellBackgroundColour(row, 10, paint ? *wxCYAN : *wxWHITE);
-}
-
 void GenerateScript::PaintWalkStep(string step, bool straight, bool diagonal)
 {
 	int row = std::stoi(step) - 1;
@@ -313,7 +307,7 @@ void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progre
 				break;
 
 			case e_filter:
-				if (steps[i].BuildingIndex.has_value() == false && steps[i].Modifiers.vehicle == false)
+				if (steps[i].BuildingIndex.has_value() == false)
 				{
 					UnexpectedError(dialog_progress_bar, i);
 					return;
@@ -448,11 +442,6 @@ void GenerateScript::SetBuildingAndOrientation(Step* step)
 		building = inventory_types.wreck;
 		return;
 	}
-	else if (step->Modifiers.vehicle)
-	{
-		building = "vehicle";
-		return;
-	}
 
 	building = step->BuildingIndex.value().Name();
 	build_orientation = orientation_list[step->orientation];
@@ -474,7 +463,6 @@ void GenerateScript::TransferParameters(Step& step)
 		.split = step.Modifiers.split,
 		.walk_towards = step.Modifiers.walk_towards,
 		.all = step.Modifiers.all,
-		.vehicle = step.Modifiers.vehicle,
 	};
 }
 
@@ -509,264 +497,6 @@ string GenerateScript::check_item_name(string item)
 	{
 		return item = convert_string(item);
 	}
-}
-
-void GenerateScript::check_mining_distance(string step, string action, string x_cord, string y_cord)
-{
-	std::vector<float> coordinates;
-
-	if (last_walking_comment == "old")
-	{
-		static const float buffer = 0.50f;
-		static const float max_distance = 2.7f;
-
-		float min_x_edge = std::stof(x_cord) - 0.5f;
-		float max_x_edge = std::stof(x_cord) + 0.5f;
-		float min_y_edge = std::stof(y_cord) - 0.5f;
-		float max_y_edge = std::stof(y_cord) + 0.5f;
-
-		coordinates = find_walk_location(min_x_edge, max_x_edge, min_y_edge, max_y_edge, buffer, max_distance);
-	}
-	else
-	{
-		static const float buffer = 0.15f;
-		static const float max_distance = 3.0f;
-
-		float min_x_edge = std::stof(x_cord);
-		float max_x_edge = std::stof(x_cord);
-		float min_y_edge = std::stof(y_cord);
-		float max_y_edge = std::stof(y_cord);
-
-		coordinates = find_walk_location(min_x_edge, max_x_edge, min_y_edge, max_y_edge, buffer, max_distance);
-	}
-
-	if (!(modifiers.vehicle) && (player_x_cord != coordinates[0] || player_y_cord != coordinates[1]))
-	{
-		walk(step, action, std::to_string(coordinates[0]), std::to_string(coordinates[1]), last_walking_comment);
-		PaintIntermediateWalk(step);
-		modifiers.walk_towards = false;
-	}
-	else
-	{
-		PaintIntermediateWalk(step, false);
-	}
-}
-
-void GenerateScript::check_interact_distance(string step, string action, string x_cord, string y_cord, string building_name, string OrientationEnum)
-{
-	float buffer = 0.06f;
-
-	//if comment is "old" then use old map and buffer = 0.37 until a comment of new
-	if (last_walking_comment == "old")
-	{
-		x_building_size = old_building_size_list.find(building_name)->second[0];
-		y_building_size = old_building_size_list.find(building_name)->second[1];
-
-		buffer = 0.37f;
-	}
-	else
-	{
-		x_building_size = building_size_list.find(building_name)->second[0];
-		y_building_size = building_size_list.find(building_name)->second[1];
-	}
-
-	static const float max_distance = 10.0f; //Default build distance
-
-	float x_target = std::stof(x_cord);
-	float y_target = std::stof(y_cord);
-
-	float min_x_edge = x_target;
-	float max_x_edge = x_target;
-	float min_y_edge = y_target;
-	float max_y_edge = y_target;
-
-	if (OrientationEnum == "North" || OrientationEnum == "South")
-	{
-		min_x_edge -= (x_building_size / 2);
-		max_x_edge += (x_building_size / 2);
-		min_y_edge -= (y_building_size / 2);
-		max_y_edge += (y_building_size / 2);
-	}
-	else
-	{
-		min_x_edge -= (y_building_size / 2);
-		max_x_edge += (y_building_size / 2);
-		min_y_edge -= (x_building_size / 2);
-		max_y_edge += (x_building_size / 2);
-	}
-
-	std::vector<float> coordinates = find_walk_location(min_x_edge, max_x_edge, min_y_edge, max_y_edge, buffer, max_distance);
-
-	if (!(modifiers.vehicle) && (player_x_cord != coordinates[0] || player_y_cord != coordinates[1]))
-	{
-		walk(step, action, std::to_string(coordinates[0]), std::to_string(coordinates[1]), last_walking_comment);
-		PaintIntermediateWalk(step);
-		modifiers.walk_towards = false;
-	}
-	else
-	{
-		PaintIntermediateWalk(step, false);
-	}
-}
-
-double GenerateScript::find_min_distance(float& new_x_cord, float& new_y_cord)
-{
-	return std::pow(std::pow(std::abs(target_x_cord - new_x_cord), 2) + std::pow(std::abs(target_y_cord - new_y_cord), 2), 0.5);
-}
-
-std::vector<float> GenerateScript::find_walk_location(float& min_x_edge, float& max_x_edge, float& min_y_edge, float& max_y_edge, const float& buffer, const float& max_distance)
-{
-
-	static const float delta_distance = 0.01f;
-	static const float not_to_close = 0.15f;
-
-	float new_x_cord = player_x_cord;
-	float new_y_cord = player_y_cord;
-
-	if (new_x_cord < min_x_edge - not_to_close)
-	{
-		if (new_y_cord < min_y_edge - not_to_close)
-		{
-			// Top left
-			target_x_cord = min_x_edge + buffer;
-			target_y_cord = min_y_edge + buffer;
-
-			while (find_min_distance(new_x_cord, new_y_cord) > max_distance)
-			{
-				if (new_x_cord < min_x_edge - not_to_close && new_y_cord < min_y_edge - not_to_close)
-				{
-					new_x_cord += delta_distance;
-					new_y_cord += delta_distance;
-				}
-				else if (new_x_cord < min_x_edge - not_to_close)
-				{
-					new_x_cord += delta_distance;
-				}
-				else
-				{
-					new_y_cord += delta_distance;
-				}
-			}
-		}
-		else if (new_y_cord > max_y_edge + not_to_close)
-		{
-			// bottom left
-			target_x_cord = min_x_edge + buffer;
-			target_y_cord = max_y_edge - buffer;
-
-			while (find_min_distance(new_x_cord, new_y_cord) > max_distance)
-			{
-				if (new_x_cord < min_x_edge - not_to_close && new_y_cord > max_y_edge + not_to_close)
-				{
-					new_x_cord += delta_distance;
-					new_y_cord -= delta_distance;
-				}
-				else if (new_x_cord < min_x_edge - not_to_close)
-				{
-					new_x_cord += delta_distance;
-				}
-				else
-				{
-					new_y_cord -= delta_distance;
-				}
-			}
-		}
-		else
-		{
-			// Mid left
-			target_x_cord = min_x_edge + buffer;
-			target_y_cord = new_y_cord;
-
-			while (find_min_distance(new_x_cord, new_y_cord) > max_distance)
-			{
-				new_x_cord += delta_distance;
-			}
-		}
-	}
-	else if (new_x_cord > max_x_edge + not_to_close)
-	{
-		if (new_y_cord < min_y_edge - not_to_close)
-		{
-			// Top right
-			target_x_cord = max_x_edge - buffer;
-			target_y_cord = min_y_edge + buffer;
-
-			while (find_min_distance(new_x_cord, new_y_cord) > max_distance)
-			{
-				if (new_x_cord > max_x_edge + not_to_close && new_y_cord < min_y_edge - not_to_close)
-				{
-					new_x_cord -= delta_distance;
-					new_y_cord += delta_distance;
-				}
-				else if (new_x_cord > max_x_edge + not_to_close)
-				{
-					new_x_cord -= delta_distance;
-				}
-				else
-				{
-					new_y_cord += delta_distance;
-				}
-			}
-		}
-		else if (new_y_cord > max_y_edge + not_to_close)
-		{
-			// bottom right
-			target_x_cord = max_x_edge - buffer;
-			target_y_cord = max_y_edge - buffer;
-
-			while (find_min_distance(new_x_cord, new_y_cord) > max_distance)
-			{
-				if (new_x_cord > max_x_edge + not_to_close && new_y_cord > max_y_edge + not_to_close)
-				{
-					new_x_cord -= delta_distance;
-					new_y_cord -= delta_distance;
-				}
-				else if (new_x_cord > max_x_edge + not_to_close)
-				{
-					new_x_cord -= delta_distance;
-				}
-				else
-				{
-					new_y_cord -= delta_distance;
-				}
-			}
-		}
-		else
-		{
-			// Mid right
-			target_x_cord = max_x_edge - buffer;
-			target_y_cord = new_y_cord;
-
-			while (find_min_distance(new_x_cord, new_y_cord) > max_distance)
-			{
-				new_x_cord -= delta_distance;
-			}
-		}
-	}
-	else if (new_y_cord < min_y_edge - not_to_close)
-	{
-		// Mid top
-		target_x_cord = new_x_cord;
-		target_y_cord = min_y_edge + buffer;
-
-		while (find_min_distance(new_x_cord, new_y_cord) > max_distance)
-		{
-			new_y_cord += delta_distance;
-		}
-	}
-	else if (new_y_cord > max_y_edge + not_to_close)
-	{
-		// Mid bottom
-		target_x_cord = new_x_cord;
-		target_y_cord = max_y_edge - buffer;
-
-		while (find_min_distance(new_x_cord, new_y_cord) > max_distance)
-		{
-			new_y_cord -= delta_distance;
-		}
-	}
-
-	return {new_x_cord, new_y_cord};
 }
 
 string GenerateScript::signature(string step, string action)
@@ -841,23 +571,6 @@ void GenerateScript::walk(string step, string action, string x_cord, string y_co
 
 void GenerateScript::mining(string step, string x_cord, string y_cord, string duration, string building_name, string OrientationEnum, bool is_building, string comment)
 { 
-	if (modifiers.vehicle)
-	{
-		step_list += StepSignature(step, "1", "\"mine\", {" + x_cord + ", " + y_cord + "}, " + duration, comment);
-		total_steps += 1;
-		PaintIntermediateWalk(step, false);
-		return;
-	}
-
-	if (is_building)
-	{
-		check_interact_distance(step, "1", x_cord, y_cord, building_name, OrientationEnum);
-	}
-	else
-	{
-		check_mining_distance(step, "1", x_cord, y_cord);
-	}
-
 	step_list += StepSignature(step, "1", "\"mine\", {" + x_cord + ", " + y_cord + "}, " + duration, comment);
 	total_steps += 1;
 }
@@ -999,8 +712,6 @@ void GenerateScript::send(string step, string x_cord, string y_cord, string id, 
 
 void GenerateScript::rotate(string step, string action, string x_cord, string y_cord, string times, string item, string OrientationEnum, string comment)
 {
-	check_interact_distance(step, action, x_cord, y_cord, item, OrientationEnum);
-
 	if (std::stoi(times) == 3)
 	{
 		step_list += StepSignature(step, action, "\"rotate\", {" + x_cord + ", " + y_cord + "}, " + "true", comment);
@@ -1034,8 +745,6 @@ void GenerateScript::row_rotate(string step, string x_cord, string y_cord, strin
 
 void GenerateScript::build(string step, string action, string x_cord, string y_cord, string item, string OrientationEnum, string comment)
 {
-	check_interact_distance(step, action, x_cord, y_cord, item, OrientationEnum);
-
 	item = check_item_name(item);
 
 	OrientationEnum = orientation_defines_list[MapStringToOrientation(OrientationEnum)];
@@ -1051,24 +760,6 @@ void GenerateScript::row_build(string step, string x_cord, string y_cord, string
 
 void GenerateScript::take(string step, string action, string x_cord, string y_cord, string amount, string item, string from, string building, string OrientationEnum, string comment)
 {
-	if (modifiers.vehicle)
-	{
-		item = check_item_name(item);
-		step_list += StepSignature(step, action, "\"take\", {" + x_cord + ", " + y_cord + "}, \"" + item + "\", " + amount + ", " + from, comment);
-		total_steps += 1;
-		PaintIntermediateWalk(step, false);
-		return; 
-	}
-
-	if (OrientationEnum == "Wreck")
-	{
-		check_interact_distance(step, action, x_cord, y_cord, OrientationEnum, "North");
-	}
-	else
-	{
-		check_interact_distance(step, action, x_cord, y_cord, building, OrientationEnum);
-	}
-
 	item = check_item_name(item);
 
 	step_list += StepSignature(step, action, "\"take\", {" + x_cord + ", " + y_cord + "}, \"" + item + "\", " + amount + ", " + from, comment);
@@ -1082,24 +773,6 @@ void GenerateScript::row_take(string step, string x_cord, string y_cord, string 
 
 void GenerateScript::put(string step, string action, string x_cord, string y_cord, string amount, string item, string into, string building, string OrientationEnum, string comment)
 {
-	if (modifiers.vehicle)
-	{
-		item = check_item_name(item);
-		step_list += StepSignature(step, action, "\"put\", {" + x_cord + ", " + y_cord + "}, \"" + item + "\", " + amount + ", " + into, comment);
-		total_steps += 1;
-		PaintIntermediateWalk(step, false);
-		return;
-	}
-
-	if (OrientationEnum == "Wreck")
-	{
-		check_interact_distance(step, action, x_cord, y_cord, OrientationEnum, "North");
-	}
-	else
-	{
-		check_interact_distance(step, action, x_cord, y_cord, building, OrientationEnum);
-	}
-
 	item = check_item_name(item);
 
 	step_list += StepSignature(step, action, "\"put\", {" + x_cord + ", " + y_cord + "}, \"" + item + "\", " + amount + ", " + into, comment);
@@ -1113,8 +786,6 @@ void GenerateScript::row_put(string step, string x_cord, string y_cord, string a
 
 void GenerateScript::recipe(string step, string action, string x_cord, string y_cord, string item, string building, string OrientationEnum, string comment)
 {
-	check_interact_distance(step, action, x_cord, y_cord, building, OrientationEnum);
-	
 	item = check_item_name(item);
 
 	step_list += StepSignature(step, action, "\"recipe\", {" + x_cord + ", " + y_cord + "}, \"" + item + "\"", comment);
@@ -1128,8 +799,6 @@ void GenerateScript::row_recipe(string step, string x_cord, string y_cord, strin
 
 void GenerateScript::limit(string step, string action, string x_cord, string y_cord, string amount, string from, string building, string OrientationEnum, string comment)
 {
-	check_interact_distance(step, action, x_cord, y_cord, building, OrientationEnum);
-
 	step_list += StepSignature(step, action, "\"limit\", {" + x_cord + ", " + y_cord + "}, " + amount + ", " + from, comment);
 	total_steps += 1;
 }
@@ -1141,8 +810,6 @@ void GenerateScript::row_limit(string step, string x_cord, string y_cord, string
 
 void GenerateScript::priority(string step, string action, string x_cord, string y_cord, string priority_in, string priority_out, string building, string OrientationEnum, string comment)
 {
-	check_interact_distance(step, action, x_cord, y_cord, building, OrientationEnum);
-
 	step_list += StepSignature(step, action, "\"priority\", {" + x_cord + ", " + y_cord + "}, \"" + priority_in + "\", \"" + priority_out + "\"", comment);
 	total_steps += 1;
 }
@@ -1157,8 +824,6 @@ void GenerateScript::row_priority(string step, string x_cord, string y_cord, Pri
 
 void GenerateScript::filter(string step, string action, string x_cord, string y_cord, string item, string amount, string type, string building, string OrientationEnum, string comment)
 {
-	check_interact_distance(step, action, x_cord, y_cord, building, OrientationEnum);
-
 	item = check_item_name(item);
 
 	step_list += StepSignature(step, action, "\"filter\", {" + x_cord + ", " + y_cord + "}, \"" + item + "\", " + amount + ",  \"" + type + "\"", comment);
@@ -1172,8 +837,6 @@ void GenerateScript::row_filter(string step, string x_cord, string y_cord, strin
 
 void GenerateScript::drop(string step, string action, string x_cord, string y_cord, string item, string building, string comment)
 {
-	check_interact_distance(step, action, x_cord, y_cord, building, "North");
-
 	item = convert_string(item);
 
 	step_list += StepSignature(step, action, "\"drop\", {" + x_cord + ", " + y_cord + "}, \"" + item + "\"", comment);
