@@ -112,8 +112,8 @@ local human_wr_times = {
 ---Prints game end info and raise victory event
 ---@param message string
 local function game_end_simple(message)
-    if global.goal and global.goal.completed then return end
-    global.goal = {completed = true}
+    if storage.goal and storage.goal.completed then return end
+    storage.goal = {completed = true}
     game.print(
         {
             "goal.end_message",
@@ -133,7 +133,7 @@ local function game_end_advanced(message)
     local player = game.players[1]
     local screen = player.gui.screen
     local main_frame = screen.add{ type = "frame", direction = "vertical", }
-    global.tas_goal_control = {main = main_frame}
+    storage.tas_goal_control = {main = main_frame}
     do
         local title_bar = main_frame.add{ type = "flow", direction = "horizontal", name = "title_bar", }
         title_bar.drag_target = main_frame
@@ -193,7 +193,7 @@ local function game_end_advanced(message)
     research_table.add{ type = "label", caption = "Human", style = "caption_label"}
 
     local compare_list = human_wr_times[GOAL].research
-    for research, time in pairs(global.tas_research) do
+    for research, time in pairs(storage.tas_research) do
         local compare_time = compare_list[research]
         local converted_compare_time
         if compare_time then
@@ -218,27 +218,27 @@ local function game_end_advanced(message)
     end
 
     local control_flow = main_frame.add{ type = "flow", direction = "horizontal", style = "dialog_buttons_horizontal_flow"}
-    --global.tas_goal_control.finish = control_flow.add{ type="button", style = "red_back_button", caption = "Finish"}
+    --storage.tas_goal_control.finish = control_flow.add{ type="button", style = "red_back_button", caption = "Finish"}
     local w = control_flow.add{ type="empty-widget"}
     w.style.horizontally_stretchable = true
-    global.tas_goal_control.continue = control_flow.add{ type="button", style = "confirm_button", caption = "Continue"}
+    storage.tas_goal_control.continue = control_flow.add{ type="button", style = "confirm_button", caption = "Continue"}
     game.play_sound{path="utility/game_won"}
 
     main_frame.force_auto_center()
 end
 
 script.on_event(defines.events.on_gui_click, function(event)
-    if not global.tas_goal_control then return end
+    if not storage.tas_goal_control then return end
     local element = event.element
-    if element ==  global.tas_goal_control.continue then
-        global.tas_goal_control.main.visible = false
+    if element ==  storage.tas_goal_control.continue then
+        storage.tas_goal_control.main.visible = false
     end
 end)
 
 ---Display victory gui
 ---@param message string
 local function game_end(message)
-    if global.goal and global.goal.completed then return end
+    if storage.goal and storage.goal.completed then return end
     game_end_advanced(message)
     game_end_simple(message)
     --game.set_game_state{game_finished = true, player_won = true, "free-play", can_continue = true}
@@ -256,7 +256,7 @@ end
 ---Event handler for research event that filters steelaxe
 ---@param event EventData.on_research_finished
 local function handle_research_finished_event(event)
-    global.tas_research[event.research.name] = game.tick
+    storage.tas_research[event.research.name] = game.tick
     if GOAL == steelaxe and event.research.name == steelaxe_research then
         game_end(steelaxe)
     end
@@ -272,7 +272,7 @@ end
 
 ---Register appropiate event handlers based on configuration
 local function register_event()
-    global.tas_research = global.tas_research or {}
+    storage.tas_research = storage.tas_research or {}
     script.on_event(defines.events.on_research_finished, handle_research_finished_event)
     if GOAL == anyp then
         script.on_event(defines.events.on_rocket_launched, handle_rocket_launch_event)
