@@ -36,8 +36,6 @@ private:
 
 	wxGrid* grid_steps;
 	string step_list;
-	float player_x_cord;
-	float player_y_cord;
 	float target_x_cord;
 	float target_y_cord;
 	float x_building_size;
@@ -58,8 +56,6 @@ private:
 	string building;
 
 	StepModifiers modifiers;
-
-	string last_walking_comment;
 
 	void reset();
 	void ClearSteps();
@@ -132,12 +128,12 @@ private:
 	string convert_string(string input);
 	string check_item_name(string item);
 
-	string signature(string step, string action);
+	string signature(string step);
 	string Comment(string comment);
-	string StepSignature(string step, string action, string details, string comment);
+	string StepSignature(string step, string details, string comment);
 	WarningsStatesCounters warning_state_counters;
 
-	void walk(string step, string action, string x_cord, string y_cord, string comment);
+	void walk(string step, string x_cord, string y_cord, string comment);
 	void mining(string step, string x_cord, string y_cord, string duration, string building_name, string OrientationEnum, bool is_building, string comment);
 	void craft(string step, string amount, string item, string comment);
 	void cancel_crafting(string step, string amount, string item, string comment);
@@ -162,29 +158,13 @@ private:
 	void drive(string step, string duration, Riding riding_state, string comment);
 	void send(string step, string x_cord, string y_cord, string id, string comment);
 
-	void rotate(string step, string action, string x_cord, string y_cord, string times, string item, string OrientationEnum, string comment = "");
-	void row_rotate(string step, string x_cord, string y_cord, string times, string item, string OrientationEnum, string comment);
-	
-	void build(string step, string action, string x_cord, string y_cord, string item, string OrientationEnum, string comment = "");
-	void row_build(string step, string x_cord, string y_cord, string item, string OrientationEnum, string comment);
-
-	void take(string step, string action, string x_cord, string y_cord, string amount, string item, string from, string building, string OrientationEnum, string comment = "");
-	void row_take(string step, string x_cord, string y_cord, string amount, string item, string from, string building, string OrientationEnum, string comment);
-
-	void put(string step, string action, string x_cord, string y_cord, string amount, string item, string into, string building, string OrientationEnum, string comment = "");
-	void row_put(string step, string x_cord, string y_cord, string amount, string item, string from, string building, string OrientationEnum, string comment);
-
-	void recipe(string step, string action, string x_cord, string y_cord, string item, string building, string OrientationEnum, string comment = "");
-	void row_recipe(string step, string x_cord, string y_cord, string item, string building, string OrientationEnum, string comment);
-
-	void limit(string step, string action, string x_cord, string y_cord, string amount, string from, string building, string OrientationEnum, string comment = "");
-	void row_limit(string step, string x_cord, string y_cord, string amount, string from, string building, string OrientationEnum, string comment);
-
-	void priority(string step, string action, string x_cord, string y_cord, string priority_in, string priority_out, string building, string OrientationEnum, string comment = "");
-	void row_priority(string step, string x_cord, string y_cord, PriorityStruct _priority, string building, string OrientationEnum, string comment);
-
-	void filter(string step, string action, string x_cord, string y_cord, string item, string amount, string type, string building, string OrientationEnum, string comment = "");
-	void row_filter(string step, string x_cord, string y_cord, string item, string amount, string type, string building, string OrientationEnum, string comment);
-
-	void drop(string step, string action, string x_cord, string y_cord, string item, string building, string comment = "");
+	void rotate(string step, string x_cord, string y_cord, string times, string item, string OrientationEnum, string comment = "");
+	void build(string step, string x_cord, string y_cord, string item, string OrientationEnum, string comment = "");
+	void take(string step, string x_cord, string y_cord, string amount, string item, string from, string building, string OrientationEnum, string comment = "");
+	void put(string step, string x_cord, string y_cord, string amount, string item, string into, string building, string OrientationEnum, string comment = "");
+	void recipe(string step, string x_cord, string y_cord, string item, string building, string OrientationEnum, string comment = "");
+	void limit(string step, string x_cord, string y_cord, string amount, string from, string building, string OrientationEnum, string comment = "");
+	void priority(string step, string x_cord, string y_cord, PriorityStruct _priority, string building, string OrientationEnum, string comment = "");
+	void filter(string step, string x_cord, string y_cord, string item, string amount, string type, string building, string OrientationEnum, string comment = "");
+	void drop(string step, string x_cord, string y_cord, string item, string building, string comment = "");
 };
