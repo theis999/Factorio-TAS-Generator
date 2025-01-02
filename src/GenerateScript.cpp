@@ -100,8 +100,8 @@ void GenerateScript::AddInfoFile(string& folder_location)
 	saver << "\n\t\"name\": \"" << folder_location.substr(folder_location.rfind("\\") + 1) << "\",";
 	saver << "\n\t\"version\": \"" << generator_thumbprint.version << "\",";
 	saver << "\n\t\"title\": \"" << folder_location.substr(folder_location.rfind("\\") + 1) << "\",";
-	saver << "\n\t\"author\": \"" << "DunRaider" << "\",";
-	saver << "\n\t\"factorio_version\": \"" << "1.1" << "\",";
+	saver << "\n\t\"author\": \"" << "Theis" << "\",";
+	saver << "\n\t\"factorio_version\": \"" << "2.0" << "\",";
 	saver << "\n\t\"contact\": \"" << "" << "\",";
 	saver << "\n\t\"description\": \"" << "This run has been made with the help of Factorio TAS Generator" << "\"";
 	saver << "\n}";
