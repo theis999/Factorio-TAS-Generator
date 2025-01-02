@@ -741,7 +741,11 @@ local function walk_pos_pos()
 		if _player_position.y > storage.tas.destination.y then
 			return {walking = true, direction = defines.direction.north}
 		else
-			return {walking = false, direction = storage.tas.walking.direction}
+			if storage.tas.compatibility_mode then
+				return {walking = false, direction = defines.direction.north}
+			else
+				return {walking = false, direction = storage.tas.walking.direction}
+			end
 		end
 	end
 end
@@ -782,7 +786,11 @@ local function walk_pos_neg()
 		if _player_position.y < storage.tas.destination.y then
 			return {walking = true, direction = defines.direction.south}
 		else
-			return {walking = false, direction = storage.tas.walking.direction}
+			if storage.tas.compatibility_mode then
+				return {walking = false, direction = defines.direction.north}
+			else
+				return {walking = false, direction = storage.tas.walking.direction}
+			end
 		end
 	end
 end
@@ -823,7 +831,11 @@ local function walk_neg_pos()
 		if _player_position.y > storage.tas.destination.y then
 			return {walking = true, direction = defines.direction.north}
 		else
-			return {walking = false, direction = storage.tas.walking.direction}
+			if storage.tas.compatibility_mode then
+				return {walking = false, direction = defines.direction.north}
+			else
+				return {walking = false, direction = storage.tas.walking.direction}
+			end
 		end
 	end
 end
@@ -864,7 +876,11 @@ local function walk_neg_neg()
 		if _player_position.y < storage.tas.destination.y then
 			return {walking = true, direction = defines.direction.south}
 		else
-			return {walking = false, direction = storage.tas.walking.direction}
+			if storage.tas.compatibility_mode then
+				return {walking = false, direction = defines.direction.north}
+			else
+				return {walking = false, direction = storage.tas.walking.direction}
+			end
 		end
 	end
 end
@@ -882,33 +898,67 @@ local function walk()
 		return walk_neg_neg()
 	end
 
-	return {walking = false, direction = storage.tas.walking.direction}
+	if storage.tas.compatibility_mode then
+		return {walking = false, direction = defines.direction.north}
+	else
+		return {walking = false, direction = storage.tas.walking.direction}
+	end
 end
 
 local function find_walking_pattern()
 	local _player_position = storage.tas.player.position
-	storage.tas.pos_pos = false
-	storage.tas.pos_neg = false
-	storage.tas.neg_pos = false
-	storage.tas.neg_neg = false
-
-	if (_player_position.x - storage.tas.destination.x >= 0) then
-		if (_player_position.y - storage.tas.destination.y >= 0) then
-			storage.tas.pos_pos = true
+	if storage.tas.compatibility_mode then
+		if (_player_position.x - storage.tas.destination.x >= 0) then
+			if (_player_position.y - storage.tas.destination.y >= 0) then
+				storage.tas.pos_pos = true
+				storage.tas.pos_neg = false
+				storage.tas.neg_pos = false
+				storage.tas.neg_neg = false
+			elseif (_player_position.y - storage.tas.destination.y < 0) then
+				storage.tas.pos_neg = true
+				storage.tas.pos_pos = false
+				storage.tas.neg_pos = false
+				storage.tas.neg_neg = false
+			end
 		else
-			storage.tas.pos_neg = true
+			if (_player_position.y - storage.tas.destination.y >= 0) then
+				storage.tas.neg_pos = true
+				storage.tas.pos_pos = false
+				storage.tas.pos_neg = false
+				storage.tas.neg_neg = false
+			elseif (_player_position.y - storage.tas.destination.y < 0) then
+				storage.tas.neg_neg = true
+				storage.tas.pos_pos = false
+				storage.tas.pos_neg = false
+				storage.tas.neg_pos = false
+			end
 		end
 	else
-		if (_player_position.y - storage.tas.destination.y >= 0) then
-			storage.tas.neg_pos = true
+		storage.tas.pos_pos = false
+		storage.tas.pos_neg = false
+		storage.tas.neg_pos = false
+		storage.tas.neg_neg = false
+
+		if (_player_position.x - storage.tas.destination.x >= 0) then
+			if (_player_position.y - storage.tas.destination.y >= 0) then
+				storage.tas.pos_pos = true
+			else
+				storage.tas.pos_neg = true
+			end
 		else
-			storage.tas.neg_neg = true
+			if (_player_position.y - storage.tas.destination.y >= 0) then
+				storage.tas.neg_pos = true
+			else
+				storage.tas.neg_neg = true
+			end
 		end
 	end
 end
 
 local function update_destination_position(x, y)
 	storage.tas.destination = { x = x, y = y }
+
+	if storage.tas.compatibility_mode then return end
 
 	storage.tas.keep_x = false
 	storage.tas.keep_y = false
@@ -1846,6 +1896,99 @@ local function handle_tick()
 	handle_posttick()
 end
 
+local function backwards_compatibility()
+	if steps[storage.tas.step] == nil or steps[storage.tas.step][1] == "break" then
+		Debug(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", storage.tas.player.position.x, storage.tas.player.position.y, storage.tas.player.online_time / 60, storage.tas.player.online_time))
+		debug_state = false
+		return
+	end
+
+	if (steps[storage.tas.step][2] == "pause") then
+		pause()
+		Debug("Script paused")
+		Debug(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", storage.tas.player.position.x, storage.tas.player.position.y, storage.tas.player.online_time / 60, storage.tas.player.online_time))
+		debug_state = false
+		return
+	end
+
+	if (steps[storage.tas.step][2] == "speed") then
+		Debug(string.format("Step: %s, Action: %s, Step: %s - Game speed: %d", steps[storage.tas.step][1][1], steps[storage.tas.step][1][2], storage.tas.step, steps[storage.tas.step][3]))
+		speed(steps[storage.tas.step][3])
+		change_step(1)
+	end
+
+	if steps[storage.tas.step][2] == "save" then
+		change_step(1)
+		save(steps[storage.tas.step-1][1][1], steps[storage.tas.step-1][3])
+	end
+
+	if storage.tas.pickup_ticks > 0 then
+		storage.tas.player.picking_state = true
+		storage.tas.pickup_ticks = storage.tas.pickup_ticks - 1
+	end
+
+	storage.tas.walking = walk()
+	if storage.tas.walking.walking == false then
+		if storage.tas.idle > 0 then
+			storage.tas.idle = storage.tas.idle - 1
+			storage.tas.idled = storage.tas.idled + 1
+
+			Debug(string.format("Step: %s, Action: %s, Step: %s - idled for %d", steps[storage.tas.step][1][1]-1, steps[storage.tas.step][1][2], storage.tas.step-1, storage.tas.idled))
+
+			if storage.tas.idle == 0 then
+				storage.tas.idled = 0
+			end
+		elseif steps[storage.tas.step][2] == "walk" then
+			update_destination_position(steps[storage.tas.step][3][1], steps[storage.tas.step][3][2])
+			storage.walk_towards_state = steps[storage.tas.step].walk_towards
+
+			find_walking_pattern()
+			storage.tas.walking = walk()
+
+			change_step(1)
+
+		elseif steps[storage.tas.step][2] == "mine" then
+
+			storage.tas.player.update_selected_entity(steps[storage.tas.step][3])
+
+			storage.tas.player.mining_state = {mining = true, position = steps[storage.tas.step][3]}
+
+			storage.tas.duration = steps[storage.tas.step][4]
+
+			storage.tas.ticks_mining = storage.tas.ticks_mining + 1
+
+			if storage.tas.ticks_mining >= storage.tas.duration then
+				storage.tas.player.mining_state = {mining = false, position = steps[storage.tas.step][3]}
+				change_step(1)
+				storage.tas.mining = 0
+				storage.tas.ticks_mining = 0
+			end
+
+			storage.tas.mining = storage.tas.mining + 1
+			if storage.tas.mining > 5 then
+				if storage.tas.player.character_mining_progress == 0 then
+					Warning(string.format("Step: %s, Action: %s, Step: %s - Mine: Cannot reach resource", steps[storage.tas.step][1][1], steps[storage.tas.step][1][2], storage.tas.step))
+					debug_state = false
+				else
+					storage.tas.mining = 0
+				end
+			end
+
+		elseif doStep(steps[storage.tas.step]) then
+			-- Do step while standing still
+			change_step(1)
+
+		end
+	else
+		if steps[storage.tas.step][2] ~= "walk" and steps[storage.tas.step][2] ~= "mine" and steps[storage.tas.step][2] ~= "idle" and steps[storage.tas.step][2] ~= "pick" then
+			if doStep(steps[storage.tas.step]) then
+				-- Do step while walking
+				change_step(1)
+			end
+		end
+	end
+end
+
 -- Main per-tick event handler
 script.on_event(defines.events.on_tick, function(event)
 	if not run then --early end on console:release
@@ -1863,6 +2006,16 @@ script.on_event(defines.events.on_tick, function(event)
 
 	if storage.tas.player == nil or storage.tas.player.character == nil then --early end if in god mode
 		return
+	end
+
+	if steps[storage.tas.step][2] == "walk" then
+		if steps[storage.tas.step][4] == "old" then
+			storage.tas.compatibility_mode = true
+		end
+
+		if steps[storage.tas.step].comment == "new" then
+			storage.tas.compatibility_mode = false
+		end
 	end
 
 	if steps[storage.tas.step].comment and storage.tas.step > storage.tas.not_same_step then
@@ -1885,15 +2038,19 @@ script.on_event(defines.events.on_tick, function(event)
 		return
 	end
 
-	storage.tas.step_executed = false
-	handle_tick()
+	if storage.tas.compatibility_mode then
+		backwards_compatibility()
+	else
+		storage.tas.step_executed = false
+		handle_tick()
 
-	if storage.use_all_ticks_warning_mode and storage.tas.step_executed then
-		end_use_all_ticks_warning_mode()
-	end
+		if storage.use_all_ticks_warning_mode and storage.tas.step_executed then
+			end_use_all_ticks_warning_mode()
+		end
 
-	if storage.tas.use_all_ticks and not storage.tas.step_executed and storage.use_all_ticks_warning_mode == nil and not storage.tas.player.mining_state.mining then
-		storage.use_all_ticks_warning_mode = {start = game.tick, step = steps[storage.tas.step][1][1]}
+		if storage.tas.use_all_ticks and not storage.tas.step_executed and storage.use_all_ticks_warning_mode == nil and not storage.tas.player.mining_state.mining then
+			storage.use_all_ticks_warning_mode = {start = game.tick, step = steps[storage.tas.step][1][1]}
+		end
 	end
 
 	if storage.never_stop_modifier_warning_mode and storage.tas.walking.walking then
@@ -1907,6 +2064,15 @@ script.on_event(defines.events.on_tick, function(event)
 	storage.tas.player.walking_state = storage.tas.walking
 end)
 
+local function mining_event_replace(event, item_name, amount)
+	local count = event.buffer.get_item_count(item_name)
+	if count < amount then
+		event.buffer.insert({name=item_name, count=amount-count})
+	elseif count > amount then
+		event.buffer.remove({name=item_name, count=count-amount})
+	end --on correct amount do nothing
+end
+
 script.on_event(defines.events.on_player_mined_entity, function(event)
 
 	if storage.tas.player == nil or storage.tas.player.character == nil then --early end if in god mode
@@ -1917,6 +2083,19 @@ script.on_event(defines.events.on_player_mined_entity, function(event)
 		return
 	end
 
+	if event.entity.name == "rock-huge" then
+		mining_event_replace(event, "coal", 47)
+		mining_event_replace(event, "stone", 47)
+	end
+
+	if event.entity.name == "rock-big" then
+		-- do nothing, big rocks are always 20 stone
+	end
+
+	if event.entity.name == "sand-rock-big" then
+		mining_event_replace(event, "stone", 24)
+	end
+
 	--change step when tas is running and the current step is mining step
 	if run and steps[storage.tas.step] and steps[storage.tas.step][2] and steps[storage.tas.step][2] == "mine" and storage.tas.ticks_mining > 1 then
 		change_step(1)
@@ -1924,6 +2103,10 @@ script.on_event(defines.events.on_player_mined_entity, function(event)
 
 	storage.tas.mining = 0
 	storage.tas.ticks_mining = 0
+
+	if storage.tas.compatibility_mode then
+		return
+	end
 
 	if run and steps[storage.tas.step] and steps[storage.tas.step][2] and steps[storage.tas.step][2] == "walk" then
 		update_destination_position(steps[storage.tas.step][3][1], steps[storage.tas.step][3][2])
@@ -2019,6 +2202,7 @@ local function create_tas_global_state()
 		pos_neg = false,
 		neg_pos = false,
 		neg_neg = false,
+		compatibility_mode = false,
 		keep_x = false,
 		keep_y = false,
 		diagonal = false,
