@@ -135,10 +135,6 @@ OpenTAS::Category OpenTas::extract_steps(std::ifstream& file, DialogProgressBar*
 			{
 				return OpenTAS::Template;
 			}
-			else if (segment_size >= 0 && segments[0] == save_groups_indicator)
-			{
-				return OpenTAS::Group;
-			}
 			else
 			{
 				return OpenTAS::Invalid;
@@ -152,8 +148,7 @@ OpenTAS::Category OpenTas::extract_steps(std::ifstream& file, DialogProgressBar*
 		}
 		catch (...)
 		{
-			if (segments[0] == "Start" || segments[0] == "start") continue; // Ignore start steps, given that they are obsolete.
-			else return OpenTAS::Invalid;
+			return OpenTAS::Invalid;
 		}
 
 		lines_processed++;

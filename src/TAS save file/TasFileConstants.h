@@ -11,7 +11,6 @@ static const string total_steps_indicator = "Total lines:";
 static const string total_commands_indicator = "Total commands:";
 static const string goal_indicator = "Goal:";
 static const string steps_indicator = "Steps:";
-static const string save_groups_indicator = "Groups:";
 static const string save_templates_indicator = "Templates:";
 static const string save_file_indicator = "Save file location:";
 static const string code_file_indicator = "Step folder location:";
