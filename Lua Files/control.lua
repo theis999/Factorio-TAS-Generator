@@ -316,20 +316,20 @@ local function take_all()
 	end
 
 	local contents = storage.tas.target_inventory.get_contents()
-	for name, count in pairs(contents or storage.tas.target_inventory) do
-		local item_stack = storage.tas.target_inventory.find_item_stack(name)
+	for id, super_item in pairs(contents or storage.tas.target_inventory) do
+		local item_stack = storage.tas.target_inventory.find_item_stack(super_item.name)
 		if not item_stack then Error("Item stack "..storage.tas.item.." not found for put") return false end
 		local health, durability, ammo = item_stack.health, item_stack.is_tool and item_stack.durability or 1, item_stack.is_ammo and item_stack.ammo or 10
 		
 		storage.tas.amount = storage.tas.player.insert{
-			name=name,
+			name=super_item.name,
 			durability=durability,
 			health=health,
 			ammo=ammo,
-			count=storage.tas.target_inventory.remove{name=name, count=count, durability=durability}
+			count=storage.tas.target_inventory.remove{name=super_item.name, count=super_item.count, durability=durability}
 		}
 
-		local text = string.format("+%d %s (%d)", storage.tas.amount, format_name(name), storage.tas.player.get_item_count(name)) --"+2 Iron plate (5)"
+		local text = string.format("+%d %s (%d)", storage.tas.amount, format_name(super_item.name), storage.tas.player.get_item_count(super_item.name)) --"+2 Iron plate (5)"
 		local pos = {x = storage.tas.target_inventory.entity_owner.position.x + #text/2 * font_size, y = storage.tas.target_inventory.entity_owner.position.y }
 		storage.tas.player.play_sound{path="utility/inventory_move"}
 		storage.tas.player.create_local_flying_text{
