@@ -41,6 +41,7 @@
 #include <wx/aui/aui.h>
 #include <wx/listbook.h>
 #include <wx/listctrl.h>
+#include <wx/wrapsizer.h>
 #include <wx/dialog.h>
 #include <wx/gauge.h>
 
@@ -376,14 +377,13 @@ class Shortcut_changer : public wxDialog
 
 	protected:
 		wxBoxSizer* sc_vertical_sizer;
-		wxStaticText* sc_help_label;
+		wxStaticText* sc_help_label1;
+		wxStaticLine* m_staticline3;
+		wxStaticText* sc_help_label2;
 		wxListbook* sc_item_book;
 		wxPanel* sc_panel_file;
 		wxBoxSizer* sc_file_sizer;
 		wxFlexGridSizer* sc_grid_sizer_file;
-		wxPanel* sc_panel_script;
-		wxBoxSizer* sc_script_sizer;
-		wxFlexGridSizer* sc_grid_sizer_script;
 		wxPanel* sc_panel_steptypes;
 		wxBoxSizer* sc_steptypes_sizer;
 		wxFlexGridSizer* sc_grid_sizer_steptypes;
@@ -393,9 +393,6 @@ class Shortcut_changer : public wxDialog
 		wxPanel* sc_panel_goals;
 		wxBoxSizer* sc_goal_sizer;
 		wxFlexGridSizer* sc_grid_sizer_goals;
-		wxPanel* sc_panel_auto;
-		wxBoxSizer* sc_auto_sizer;
-		wxFlexGridSizer* sc_grid_sizer_auto;
 		wxButton* sc_reset_button;
 		wxButton* sc_save_button;
 

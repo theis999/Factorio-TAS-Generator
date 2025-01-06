@@ -1764,15 +1764,33 @@ Shortcut_changer::Shortcut_changer( wxWindow* parent, wxWindowID id, const wxStr
 
 	sc_vertical_sizer = new wxBoxSizer( wxVERTICAL );
 
-	sc_help_label = new wxStaticText( this, wxID_ANY, wxT("HELP: \nThe input fields expect a keybinding -> [<modifierkey>+<key>]\nYou can have multiple modifier keys among [\"Alt\", \"Ctrl\", \"Shift\"] separated with +.\nYou can only have one key in uppercase.\nYou can use F keys like \"F1\".\n\nExamples: \nAlt+G\nCtrl+Shift+G\nCtrl+F1"), wxDefaultPosition, wxDefaultSize, 0 );
-	sc_help_label->Wrap( -1 );
-	sc_vertical_sizer->Add( sc_help_label, 0, wxALL|wxEXPAND, 5 );
+	wxWrapSizer* wSizer1;
+	wSizer1 = new wxWrapSizer( wxHORIZONTAL, wxWRAPSIZER_DEFAULT_FLAGS );
+
+	wxBoxSizer* bSizer80;
+	bSizer80 = new wxBoxSizer( wxHORIZONTAL );
+
+	sc_help_label1 = new wxStaticText( this, wxID_ANY, wxT("HELP: \nThe input fields expect a keybinding -> [<modifierkey>+<key>]\nYou can have multiple modifier keys among [\"Alt\", \"Ctrl\", \"Shift\"] separated with +.\nYou can only have one key in uppercase.\nYou can use F keys like \"F1\"."), wxDefaultPosition, wxDefaultSize, 0 );
+	sc_help_label1->Wrap( -1 );
+	bSizer80->Add( sc_help_label1, 0, wxALL, 5 );
+
+	m_staticline3 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
+	m_staticline3->SetMaxSize( wxSize( -1,80 ) );
+
+	bSizer80->Add( m_staticline3, 0, wxEXPAND | wxALL, 5 );
+
+	sc_help_label2 = new wxStaticText( this, wxID_ANY, wxT("Examples: \nAlt+G\nCtrl+Shift+G\nCtrl+F1"), wxDefaultPosition, wxDefaultSize, 0 );
+	sc_help_label2->Wrap( -1 );
+	bSizer80->Add( sc_help_label2, 0, wxALL, 5 );
+
+
+	wSizer1->Add( bSizer80, 1, wxEXPAND, 5 );
 
 	wxBoxSizer* bSizer72;
 	bSizer72 = new wxBoxSizer( wxVERTICAL );
 
 	sc_item_book = new wxListbook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLB_DEFAULT|wxBORDER_RAISED|wxBORDER_THEME );
-	sc_item_book->SetMinSize( wxSize( 800,340 ) );
+	sc_item_book->SetMinSize( wxSize( 800,440 ) );
 	sc_item_book->SetMaxSize( wxSize( 1500,700 ) );
 
 	sc_panel_file = new wxPanel( sc_item_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
@@ -1790,21 +1808,6 @@ Shortcut_changer::Shortcut_changer( wxWindow* parent, wxWindowID id, const wxStr
 	sc_panel_file->Layout();
 	sc_file_sizer->Fit( sc_panel_file );
 	sc_item_book->AddPage( sc_panel_file, wxT("File"), false );
-	sc_panel_script = new wxPanel( sc_item_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	sc_script_sizer = new wxBoxSizer( wxVERTICAL );
-
-	sc_grid_sizer_script = new wxFlexGridSizer( 0, 3, 5, 5 );
-	sc_grid_sizer_script->SetFlexibleDirection( wxBOTH );
-	sc_grid_sizer_script->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
-
-
-	sc_script_sizer->Add( sc_grid_sizer_script, 1, wxEXPAND, 5 );
-
-
-	sc_panel_script->SetSizer( sc_script_sizer );
-	sc_panel_script->Layout();
-	sc_script_sizer->Fit( sc_panel_script );
-	sc_item_book->AddPage( sc_panel_script, wxT("Script"), false );
 	sc_panel_steptypes = new wxPanel( sc_item_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	sc_steptypes_sizer = new wxBoxSizer( wxVERTICAL );
 
@@ -1850,21 +1853,6 @@ Shortcut_changer::Shortcut_changer( wxWindow* parent, wxWindowID id, const wxStr
 	sc_panel_goals->Layout();
 	sc_goal_sizer->Fit( sc_panel_goals );
 	sc_item_book->AddPage( sc_panel_goals, wxT("Goals"), false );
-	sc_panel_auto = new wxPanel( sc_item_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	sc_auto_sizer = new wxBoxSizer( wxVERTICAL );
-
-	sc_grid_sizer_auto = new wxFlexGridSizer( 0, 3, 5, 5 );
-	sc_grid_sizer_auto->SetFlexibleDirection( wxBOTH );
-	sc_grid_sizer_auto->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
-
-
-	sc_auto_sizer->Add( sc_grid_sizer_auto, 1, wxEXPAND, 5 );
-
-
-	sc_panel_auto->SetSizer( sc_auto_sizer );
-	sc_panel_auto->Layout();
-	sc_auto_sizer->Fit( sc_panel_auto );
-	sc_item_book->AddPage( sc_panel_auto, wxT("Auto put"), false );
 	#ifdef __WXGTK__ // Small icon style not supported in GTK
 	wxListView* sc_item_bookListView = sc_item_book->GetListView();
 	long sc_item_bookFlags = sc_item_bookListView->GetWindowStyleFlag();
@@ -1877,9 +1865,6 @@ Shortcut_changer::Shortcut_changer( wxWindow* parent, wxWindowID id, const wxStr
 
 	bSizer72->Add( sc_item_book, 1, wxALL|wxEXPAND, 5 );
 
-
-	sc_vertical_sizer->Add( bSizer72, 1, wxEXPAND, 5 );
-
 	wxBoxSizer* sc_control_sizer;
 	sc_control_sizer = new wxBoxSizer( wxHORIZONTAL );
 
@@ -1890,7 +1875,13 @@ Shortcut_changer::Shortcut_changer( wxWindow* parent, wxWindowID id, const wxStr
 	sc_control_sizer->Add( sc_save_button, 0, wxALL, 5 );
 
 
-	sc_vertical_sizer->Add( sc_control_sizer, 0, wxALIGN_CENTER_HORIZONTAL, 5 );
+	bSizer72->Add( sc_control_sizer, 0, wxALIGN_CENTER_HORIZONTAL, 5 );
+
+
+	wSizer1->Add( bSizer72, 1, wxEXPAND, 5 );
+
+
+	sc_vertical_sizer->Add( wSizer1, 1, wxEXPAND, 5 );
 
 
 	this->SetSizer( sc_vertical_sizer );
