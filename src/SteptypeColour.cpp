@@ -89,33 +89,37 @@ void SteptypeColourHandler::Build()
 	vector<gridtypes> steptypeToGridtype{unknown};
 	{
 		steptypeToGridtype.resize(StepNames.size() + 1);
+
 		steptypeToGridtype[e_stop] = Game;
-		steptypeToGridtype[e_build] = Building;
-		steptypeToGridtype[e_craft] = Character;
 		steptypeToGridtype[e_game_speed] = Game;
 		steptypeToGridtype[e_pause] = Game;
 		steptypeToGridtype[e_save] = Game;
+		steptypeToGridtype[e_never_idle] = Game;
+		steptypeToGridtype[e_keep_walking] = Game;
+		steptypeToGridtype[e_keep_on_path] = Game;
+		steptypeToGridtype[e_keep_crafting] = Game;
+
+		steptypeToGridtype[e_build] = Building;
 		steptypeToGridtype[e_recipe] = Building;
 		steptypeToGridtype[e_limit] = Building;
 		steptypeToGridtype[e_filter] = Building;
 		steptypeToGridtype[e_rotate] = Building;
 		steptypeToGridtype[e_priority] = Building;
 		steptypeToGridtype[e_put] = Building;
-		steptypeToGridtype[e_take] = Building;
-		steptypeToGridtype[e_mine] = Character;
+		steptypeToGridtype[e_take] = Building;	
 		steptypeToGridtype[e_launch] = Building;
 		steptypeToGridtype[e_next] = Building;
+
 		steptypeToGridtype[e_walk] = Character;
+		steptypeToGridtype[e_mine] = Character;
 		steptypeToGridtype[e_tech] = Character;
 		steptypeToGridtype[e_drop] = Character;
 		steptypeToGridtype[e_pick_up] = Character;
+		steptypeToGridtype[e_craft] = Character;
 		steptypeToGridtype[e_idle] = Character;
 		steptypeToGridtype[e_cancel_crafting] = Character;
-		steptypeToGridtype[e_never_idle] = Game;
-		steptypeToGridtype[e_keep_walking] = Game;
-		steptypeToGridtype[e_keep_on_path] = Game;
-		steptypeToGridtype[e_keep_crafting] = Game;
 		steptypeToGridtype[e_shoot] = Character;
+		steptypeToGridtype[e_equip] = Character;
 		steptypeToGridtype[e_throw] = Character;
 	}
 
@@ -144,7 +148,7 @@ void SteptypeColourHandler::Build()
 void SteptypeColourHandler::DefaultColours()
 {
 	state.colours = {};
-	for (int i = 1; i < StepNames.size(); i++)
+	for (int i = 0; i < StepNames.size(); i++)
 	{
 		state.colours[StepNames[i]] = DefaultColour(StepType(i)).GetAsString();
 	}
