@@ -616,40 +616,19 @@ local function build()
 	end
 end
 
+local walking_threshhold = 0.05
 local function walk_pos_pos()
 	local _player_position = storage.tas.player.position
-	if storage.tas.keep_x then
-		if _player_position.y > storage.tas.destination.y then
-			return {walking = true, direction = defines.direction.north}
-		else
-			return {walking = false, direction = storage.tas.walking.direction}
-		end
-	end
+	local delta_y = _player_position.y > storage.tas.destination.y + walking_threshhold
 
-	if storage.tas.keep_y then
-		if _player_position.x > storage.tas.destination.x then
-			return {walking = true, direction = defines.direction.west}
-		else
-			return {walking = false, direction = storage.tas.walking.direction}
-		end
-	end
-
-	if storage.tas.diagonal then
-		if _player_position.x > storage.tas.destination.x or _player_position.y > storage.tas.destination.y then
-			return {walking = true, direction = defines.direction.northwest}
-		else
-			return {walking = false, direction = storage.tas.walking.direction}
-		end
-	end
-
-	if _player_position.x > storage.tas.destination.x then
-		if _player_position.y > storage.tas.destination.y then
+	if _player_position.x > storage.tas.destination.x + walking_threshhold then
+		if delta_y then
 			return {walking = true, direction = defines.direction.northwest}
 		else
 			return {walking = true, direction = defines.direction.west}
 		end
 	else
-		if _player_position.y > storage.tas.destination.y then
+		if delta_y then
 			return {walking = true, direction = defines.direction.north}
 		else
 			return {walking = false, direction = storage.tas.walking.direction}
@@ -659,38 +638,16 @@ end
 
 local function walk_pos_neg()
 	local _player_position = storage.tas.player.position
-	if storage.tas.keep_x then
-		if _player_position.y < storage.tas.destination.y then
-			return {walking = true, direction = defines.direction.south}
-		else
-			return {walking = false, direction = storage.tas.walking.direction}
-		end
-	end
+	local delta_y = _player_position.y < storage.tas.destination.y - walking_threshhold
 
-	if storage.tas.keep_y then
-		if _player_position.x > storage.tas.destination.x then
-			return {walking = true, direction = defines.direction.west}
-		else
-			return {walking = false, direction = storage.tas.walking.direction}
-		end
-	end
-
-	if storage.tas.diagonal then
-		if _player_position.x > storage.tas.destination.x or _player_position.y < storage.tas.destination.y then
-			return {walking = true, direction = defines.direction.southwest}
-		else
-			return {walking = false, direction = storage.tas.walking.direction}
-		end
-	end
-
-	if _player_position.x > storage.tas.destination.x then
-		if _player_position.y < storage.tas.destination.y then
+	if _player_position.x > storage.tas.destination.x + walking_threshhold then
+		if delta_y then
 			return {walking = true, direction = defines.direction.southwest}
 		else
 			return {walking = true, direction = defines.direction.west}
 		end
 	else
-		if _player_position.y < storage.tas.destination.y then
+		if delta_y then
 			return {walking = true, direction = defines.direction.south}
 		else
 			return {walking = false, direction = storage.tas.walking.direction}
@@ -700,38 +657,16 @@ end
 
 local function walk_neg_pos()
 	local _player_position = storage.tas.player.position
-	if storage.tas.keep_x then
-		if _player_position.y > storage.tas.destination.y then
-			return {walking = true, direction = defines.direction.north}
-		else
-			return {walking = false, direction = storage.tas.walking.direction}
-		end
-	end
+	local delta_y = _player_position.y > storage.tas.destination.y + walking_threshhold
 
-	if storage.tas.keep_y then
-		if _player_position.x < storage.tas.destination.x then
-			return {walking = true, direction = defines.direction.east}
-		else
-			return {walking = false, direction = storage.tas.walking.direction}
-		end
-	end
-
-	if storage.tas.diagonal then
-		if _player_position.x < storage.tas.destination.x or _player_position.y > storage.tas.destination.y then
-			return {walking = true, direction = defines.direction.northeast}
-		else
-			return {walking = false, direction = storage.tas.walking.direction}
-		end
-	end
-
-	if _player_position.x < storage.tas.destination.x then
-		if _player_position.y > storage.tas.destination.y then
+	if _player_position.x < storage.tas.destination.x - walking_threshhold then
+		if delta_y then
 			return {walking = true, direction = defines.direction.northeast}
 		else
 			return {walking = true, direction = defines.direction.east}
 		end
 	else
-		if _player_position.y > storage.tas.destination.y then
+		if delta_y then
 			return {walking = true, direction = defines.direction.north}
 		else
 			return {walking = false, direction = storage.tas.walking.direction}
@@ -741,38 +676,16 @@ end
 
 local function walk_neg_neg()
 	local _player_position = storage.tas.player.position
-	if storage.tas.keep_x then
-		if _player_position.y < storage.tas.destination.y then
-			return {walking = true, direction = defines.direction.south}
-		else
-			return {walking = false, direction = storage.tas.walking.direction}
-		end
-	end
+	local delta_y = _player_position.y < storage.tas.destination.y - walking_threshhold
 
-	if storage.tas.keep_y then
-		if _player_position.x < storage.tas.destination.x then
-			return {walking = true, direction = defines.direction.east}
-		else
-			return {walking = false, direction = storage.tas.walking.direction}
-		end
-	end
-
-	if storage.tas.diagonal then
-		if _player_position.x < storage.tas.destination.x or _player_position.y < storage.tas.destination.y then
-			return {walking = true, direction = defines.direction.southeast}
-		else
-			return {walking = false, direction = storage.tas.walking.direction}
-		end
-	end
-
-	if _player_position.x < storage.tas.destination.x then
-		if _player_position.y < storage.tas.destination.y then
+	if _player_position.x < storage.tas.destination.x - walking_threshhold then
+		if delta_y then
 			return {walking = true, direction = defines.direction.southeast}
 		else
 			return {walking = true, direction = defines.direction.east}
 		end
 	else
-		if _player_position.y < storage.tas.destination.y then
+		if delta_y then
 			return {walking = true, direction = defines.direction.south}
 		else
 			return {walking = false, direction = storage.tas.walking.direction}
@@ -803,14 +716,17 @@ local function find_walking_pattern()
 	storage.tas.neg_pos = false
 	storage.tas.neg_neg = false
 
-	if (_player_position.x - storage.tas.destination.x >= 0) then
-		if (_player_position.y - storage.tas.destination.y >= 0) then
+	local delta_x = _player_position.x - storage.tas.destination.x
+	local delta_y = _player_position.y - storage.tas.destination.y
+
+	if (delta_x >= 0) then
+		if (delta_y >= 0) then
 			storage.tas.pos_pos = true
 		else
 			storage.tas.pos_neg = true
 		end
 	else
-		if (_player_position.y - storage.tas.destination.y >= 0) then
+		if (delta_y >= 0) then
 			storage.tas.neg_pos = true
 		else
 			storage.tas.neg_neg = true
@@ -820,22 +736,6 @@ end
 
 local function update_destination_position(x, y)
 	storage.tas.destination = { x = x, y = y }
-
-	storage.tas.keep_x = false
-	storage.tas.keep_y = false
-	storage.tas.diagonal = false
-
-	if steps[storage.tas.step] and steps[storage.tas.step][5] and steps[storage.tas.step][5] == "same_x" then
-		storage.tas.keep_x = true
-	end
-
-	if steps[storage.tas.step] and steps[storage.tas.step][6] and steps[storage.tas.step][6] == "same_y" then
-		storage.tas.keep_y = true
-	end
-
-	if steps[storage.tas.step] and steps[storage.tas.step][5] and steps[storage.tas.step][5] == "diagonal" then
-		storage.tas.diagonal = true
-	end
 
 	script.raise_event(tas_walk_target_change, {
 		step = storage.tas.step,
@@ -1930,9 +1830,6 @@ local function create_tas_global_state()
 		pos_neg = false,
 		neg_pos = false,
 		neg_neg = false,
-		keep_x = false,
-		keep_y = false,
-		diagonal = false,
 		never_stop = false,
 		use_all_ticks = false,
 		step_executed = false,
