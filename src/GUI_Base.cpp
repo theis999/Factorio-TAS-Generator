@@ -635,7 +635,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	detail_sizer_X = new wxBoxSizer( wxHORIZONTAL );
 
 	detail_sizer_X->SetMinSize( wxSize( 10,10 ) );
-	label_x_cord = new wxStaticText( detail_panel, wxID_ANY, wxT("X-Cord:"), wxDefaultPosition, wxSize( 60,-1 ), wxALIGN_RIGHT );
+	label_x_cord = new wxStaticText( detail_panel, wxID_ANY, wxT("X:"), wxDefaultPosition, wxSize( 60,-1 ), wxALIGN_RIGHT );
 	label_x_cord->Wrap( -1 );
 	detail_sizer_X->Add( label_x_cord, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
@@ -651,7 +651,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	wxBoxSizer* detail_sizer_Y;
 	detail_sizer_Y = new wxBoxSizer( wxHORIZONTAL );
 
-	label_y_cord = new wxStaticText( detail_panel, wxID_ANY, wxT("Y-Cord:"), wxDefaultPosition, wxSize( 60,-1 ), wxALIGN_RIGHT );
+	label_y_cord = new wxStaticText( detail_panel, wxID_ANY, wxT("Y:"), wxDefaultPosition, wxSize( 60,-1 ), wxALIGN_RIGHT );
 	label_y_cord->Wrap( -1 );
 	detail_sizer_Y->Add( label_y_cord, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
