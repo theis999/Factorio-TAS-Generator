@@ -811,7 +811,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	step_modifier_panel_sizer = new wxBoxSizer( wxVERTICAL );
 
 	wxFlexGridSizer* step_modifier_flex;
-	step_modifier_flex = new wxFlexGridSizer( 0, 3, 5, 5 );
+	step_modifier_flex = new wxFlexGridSizer( 0, 2, 5, 5 );
 	step_modifier_flex->SetFlexibleDirection( wxBOTH );
 	step_modifier_flex->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 
