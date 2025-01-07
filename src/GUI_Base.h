@@ -70,7 +70,7 @@ class GUI_Base : public wxFrame
 		wxRadioButton* rbtn_walk;
 		wxRadioButton* rbtn_craft;
 		wxRadioButton* rbtn_tech;
-		wxRadioButton* rbtn_idle;
+		wxRadioButton* rbtn_wait;
 		wxRadioButton* rbtn_pick_up;
 		wxRadioButton* rbtn_drop;
 		wxRadioButton* rbtn_cancel_crafting;
@@ -213,7 +213,7 @@ class GUI_Base : public wxFrame
 		virtual void OnWalkMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnCraftMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnTechMenuSelected( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnIdleMenuSelected( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnWaitMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnPickUpMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnDropMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnCancelCraftingMenuSelected( wxCommandEvent& event ) { event.Skip(); }
@@ -268,7 +268,7 @@ class GUI_Base : public wxFrame
 		virtual void OnWalkChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnCraftChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnTechChosen( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnIdleChosen( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnWaitChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnPickUpChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnDropChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnCancelCraftingChosen( wxCommandEvent& event ) { event.Skip(); }

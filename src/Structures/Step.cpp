@@ -16,7 +16,7 @@ string Step::AmountLua()
 		return to_string(static_cast<float>(amount < 1 ? 1 : amount) / 100.0);
 	else if (amount <= 0)
 	{
-		if (type == e_rotate || type == e_idle || type == e_pick_up)
+		if (type == e_rotate || type == e_wait || type == e_pick_up)
 			return "1";
 		else if (type == e_mine)
 			return "1000";

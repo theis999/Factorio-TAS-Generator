@@ -46,7 +46,7 @@ const struct parameter_choices_struct
 	//player state interactions
 	const int walk = point | comment,
 		pick = amount | comment,
-		idle = amount | comment,
+		wait = amount | comment,
 		mining = point | amount | comment,
 		shoot = point | amount | comment,
 		equip = amount | item | from_to | comment,
@@ -95,7 +95,7 @@ const vector<int> listStepTypeToParameterChoices = {
 	parameter_choices.tech, 
 	parameter_choices.drop, 
 	parameter_choices.pick, 
-	parameter_choices.idle, 
+	parameter_choices.wait, 
 	parameter_choices.cancel_crafting,
 	parameter_choices.never_idle, 
 	parameter_choices.keep_walking, 

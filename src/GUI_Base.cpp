@@ -65,9 +65,9 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	shortcut_tech = new wxMenuItem( menu_steptypes, wxID_ANY, wxString( wxT("Tech") ) + wxT('\t') + wxT("Alt+3"), wxEmptyString, wxITEM_NORMAL );
 	menu_steptypes->Append( shortcut_tech );
 
-	wxMenuItem* shortcut_idle;
-	shortcut_idle = new wxMenuItem( menu_steptypes, wxID_ANY, wxString( wxT("Idle") ) + wxT('\t') + wxT("Alt+6"), wxEmptyString, wxITEM_NORMAL );
-	menu_steptypes->Append( shortcut_idle );
+	wxMenuItem* shortcut_wait;
+	shortcut_wait = new wxMenuItem( menu_steptypes, wxID_ANY, wxString( wxT("Wait") ) + wxT('\t') + wxT("Alt+6"), wxEmptyString, wxITEM_NORMAL );
+	menu_steptypes->Append( shortcut_wait );
 
 	wxMenuItem* shortcut_pick_up;
 	shortcut_pick_up = new wxMenuItem( menu_steptypes, wxID_ANY, wxString( wxT("Pick Up") ) + wxT('\t') + wxT("Shift+4"), wxEmptyString, wxITEM_NORMAL );
@@ -325,10 +325,10 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	fgSizer4->Add( rbtn_tech, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
-	rbtn_idle = new wxRadioButton( character_panel, wxID_ANY, wxT("Idle"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_idle->SetToolTip( wxT("Makes the character do nothing for X ticks") );
+	rbtn_wait = new wxRadioButton( character_panel, wxID_ANY, wxT("Wait"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_wait->SetToolTip( wxT("Makes the character do nothing for X ticks while walking, driving or standing still.") );
 
-	fgSizer4->Add( rbtn_idle, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+	fgSizer4->Add( rbtn_wait, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 	rbtn_pick_up = new wxRadioButton( character_panel, wxID_ANY, wxT("Pick Up"), wxDefaultPosition, wxDefaultSize, 0 );
 	rbtn_pick_up->SetToolTip( wxT("Makes the character start to pick up items on the floor, same as pressing ( f )") );
@@ -1511,7 +1511,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnWalkMenuSelected ), this, shortcut_walk->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnCraftMenuSelected ), this, shortcut_craft->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnTechMenuSelected ), this, shortcut_tech->GetId());
-	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnIdleMenuSelected ), this, shortcut_idle->GetId());
+	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnWaitMenuSelected ), this, shortcut_wait->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnPickUpMenuSelected ), this, shortcut_pick_up->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnDropMenuSelected ), this, shortcut_drop->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnCancelCraftingMenuSelected ), this, shortcut_cancel_crafting->GetId());
@@ -1566,7 +1566,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	rbtn_walk->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnWalkChosen ), NULL, this );
 	rbtn_craft->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnCraftChosen ), NULL, this );
 	rbtn_tech->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnTechChosen ), NULL, this );
-	rbtn_idle->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnIdleChosen ), NULL, this );
+	rbtn_wait->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnWaitChosen ), NULL, this );
 	rbtn_pick_up->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnPickUpChosen ), NULL, this );
 	rbtn_drop->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnDropChosen ), NULL, this );
 	rbtn_cancel_crafting->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnCancelCraftingChosen ), NULL, this );
@@ -1664,7 +1664,7 @@ GUI_Base::~GUI_Base()
 	rbtn_walk->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnWalkChosen ), NULL, this );
 	rbtn_craft->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnCraftChosen ), NULL, this );
 	rbtn_tech->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnTechChosen ), NULL, this );
-	rbtn_idle->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnIdleChosen ), NULL, this );
+	rbtn_wait->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnWaitChosen ), NULL, this );
 	rbtn_pick_up->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnPickUpChosen ), NULL, this );
 	rbtn_drop->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnDropChosen ), NULL, this );
 	rbtn_cancel_crafting->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnCancelCraftingChosen ), NULL, this );

@@ -86,7 +86,7 @@ protected:
 	void OnWalkMenuSelected(wxCommandEvent& event);
 	void OnCraftMenuSelected(wxCommandEvent& event);
 	void OnTechMenuSelected(wxCommandEvent& event);
-	void OnIdleMenuSelected(wxCommandEvent& event);
+	void OnWaitMenuSelected(wxCommandEvent& event);
 	void OnPickUpMenuSelected(wxCommandEvent& event);
 	void OnDropMenuSelected(wxCommandEvent& event);
 	void OnCancelCraftingMenuSelected(wxCommandEvent& event);
@@ -151,7 +151,7 @@ protected:
 	void OnCancelCraftingChosen(wxCommandEvent& event);
 	void OnPriorityChosen(wxCommandEvent& event);
 	void OnLimitChosen(wxCommandEvent& event);
-	void OnIdleChosen(wxCommandEvent& event);
+	void OnWaitChosen(wxCommandEvent& event);
 	void OnShootChosen(wxCommandEvent& event);
 	void OnEquipChosen(wxCommandEvent& event);
 	void OnThrowChosen(wxCommandEvent& event);

@@ -1691,8 +1691,8 @@ void cMain::UpdateParametersChangeType(wxCommandEvent& event, StepType step)
 		case e_pick_up:
 			OnPickUpMenuSelected(event);
 			break;
-		case e_idle:
-			OnIdleMenuSelected(event);
+		case e_wait:
+			OnWaitMenuSelected(event);
 			break;
 		case e_shoot:
 			OnShootMenuSelected(event);
@@ -1917,7 +1917,7 @@ int cMain::ExtractAmount()
 	{
 		return amount < 1 ? 1 : amount > 5 ? 5 : amount;
 	}
-	if (amount < 1 && (rbtn_rotate->GetValue() || rbtn_idle->GetValue() || rbtn_pick_up->GetValue() || rbtn_game_speed->GetValue()))
+	if (amount < 1 && (rbtn_rotate->GetValue() || rbtn_wait->GetValue() || rbtn_pick_up->GetValue() || rbtn_game_speed->GetValue()))
 	{
 		return 1;
 	}
@@ -1950,7 +1950,7 @@ GridEntry cMain::PrepareStepForGrid(Step* step)
 			gridEntry.Amount = step->AmountGrid();
 			break;
 
-		case e_idle:
+		case e_wait:
 		case e_pick_up:
 			gridEntry.Amount = step->AmountGrid();
 			break;
@@ -2149,7 +2149,7 @@ bool cMain::ValidateStep(const int& row, Step& step, bool validateBuildSteps)
 		case e_save:
 		case e_stop:
 		case e_pick_up:
-		case e_idle:
+		case e_wait:
 		case e_drop:
 		case e_cancel_crafting:
 		case e_never_idle:

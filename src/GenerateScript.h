@@ -147,7 +147,7 @@ private:
 	void launch(string step, string x_cord, string y_cord, string comment);
 	void next(string step, string comment);
 	void save(string step, string nameOfSaveGame);
-	void idle(string step, string amount, string comment);
+	void wait(string step, string amount, string comment);
 	void pick(string step, string amount, string comment);
 
 	void shoot(string step, string x_cord, string y_cord, string amount, string comment);

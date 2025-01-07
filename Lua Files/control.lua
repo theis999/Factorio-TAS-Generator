@@ -1264,10 +1264,6 @@ local function doStep(current_step)
 		storage.tas.player.picking_state = true
 		return true
 
-	elseif current_step[2] == "idle" then
-		storage.tas.idle = current_step[3]
-		return true
-
 	elseif current_step[2] == "launch" then
 		storage.tas.task_category = "launch"
         storage.tas.task = current_step[1]
@@ -1387,46 +1383,51 @@ local function handle_pre_step()
 			run = false
 			raise_state_change()
 			return
-		elseif (steps[storage.tas.step][2] == "speed") then
+		end
+		local _current_step, _current_name = steps[storage.tas.step], steps[storage.tas.step][2]
+		if (_current_name == "speed") then
 			if LOGLEVEL < 2 then
-				Comment(steps[storage.tas.step].comment)
-				Debug(string.format("Step: %s, Action: %s, Step: %s - Game speed: %d", steps[storage.tas.step][1][1], steps[storage.tas.step][1][2], storage.tas.step, steps[storage.tas.step][3]))
-				speed(steps[storage.tas.step][3])
+				Comment(_current_step.comment)
+				Debug(string.format("Step: %s, Action: %s, Step: %s - Game speed: %d", _current_step[1][1], _current_step[1][2], storage.tas.step, _current_step[3]))
+				speed(_current_step[3])
 			end
 			storage.tas.step = storage.tas.step + 1
-		elseif steps[storage.tas.step][2] == "save" then
-			queued_save = LOGLEVEL < 2 and {name = steps[storage.tas.step][1][1], step = steps[storage.tas.step][3]} or nil
+		elseif _current_name == "save" then
+			queued_save = LOGLEVEL < 2 and {name = _current_step[1][1], step = _current_step[3]} or nil
 			storage.tas.step = storage.tas.step + 1
-		elseif steps[storage.tas.step][2] == "pick" then
-			Comment(steps[storage.tas.step].comment)
+		elseif _current_name == "pick" then
+			Comment(_current_step.comment)
 			if storage.tas.pickup_ticks and storage.tas.pickup_ticks > 0 then
-				Debug(string.format("Previous pickup not completed with %d ticks left before adding %d extra.", storage.tas.pickup_ticks, steps[storage.tas.step][3]))
+				Debug(string.format("Previous pickup not completed with %d ticks left before adding %d extra.", storage.tas.pickup_ticks, _current_step[3]))
 			end
-			storage.tas.pickup_ticks = storage.tas.pickup_ticks + steps[storage.tas.step][3] - 1
+			storage.tas.pickup_ticks = storage.tas.pickup_ticks + _current_step[3] - 1
 			storage.tas.player.picking_state = true
 			storage.tas.step = storage.tas.step + 1
-		elseif(steps[storage.tas.step][2] == "walk" and (storage.tas.walking.walking == false or storage.walk_towards_state) and storage.tas.idle < 1 and storage.riding_duration < 1) then
-			update_destination_position(steps[storage.tas.step][3][1], steps[storage.tas.step][3][2])
-			storage.walk_towards_state = steps[storage.tas.step].walk_towards
+		elseif(_current_name == "walk" and (storage.tas.walking.walking == false or storage.walk_towards_state) and storage.tas.wait < 1 and storage.riding_duration < 1) then
+			update_destination_position(_current_step[3][1], _current_step[3][2])
+			storage.walk_towards_state = _current_step.walk_towards
 			find_walking_pattern()
 			storage.tas.walking = walk()
 			change_step(1)
-		elseif(steps[storage.tas.step][2] == "drive" and (not storage.riding_state or storage.tas.walking.walking == false or storage.walk_towards_state) and storage.tas.idle < 1 and storage.riding_duration < 1) then
-			storage.riding_duration = steps[storage.tas.step][3]
-			storage.riding_state = {acceleration = steps[storage.tas.step][4], direction = steps[storage.tas.step][5]}
+		elseif(_current_name == "drive" and (not storage.riding_state or storage.tas.walking.walking == false or storage.walk_towards_state) and storage.tas.wait < 1 and storage.riding_duration < 1) then
+			storage.riding_duration = _current_step[3]
+			storage.riding_state = {acceleration = _current_step[4], direction = _current_step[5]}
 			storage.tas.player.riding_state = storage.riding_state
 			storage.walk_towards_state = false
 			change_step(1)
-		elseif steps[storage.tas.step][2] == warnings.never_idle then
+		elseif _current_name == "wait" then
+			storage.tas.wait = _current_step[3]
+			return
+		elseif _current_name == warnings.never_idle then
 			storage.state.never_idle = not storage.state.never_idle
 			storage.tas.step = storage.tas.step + 1
-		elseif steps[storage.tas.step][2] == warnings.keep_walking then
+		elseif _current_name == warnings.keep_walking then
 			storage.state.keep_walking = not storage.state.keep_walking
 			storage.tas.step = storage.tas.step + 1
-		elseif steps[storage.tas.step][2] == warnings.keep_on_path then
+		elseif _current_name == warnings.keep_on_path then
 			storage.state.keep_on_path = not storage.state.keep_on_path
 			storage.tas.step = storage.tas.step + 1
-		elseif steps[storage.tas.step][2] == warnings.keep_crafting then
+		elseif _current_name == warnings.keep_crafting then
 			storage.state.keep_crafting = not storage.state.keep_crafting
 			storage.tas.step = storage.tas.step + 1
 		else
@@ -1445,51 +1446,38 @@ local function handle_ontick()
 		storage.riding_duration = storage.riding_duration - 1
 		if storage.riding_duration < 1 then storage.riding_state = nil end
 	end
+	if storage.tas.wait > 0 and storage.tas.wait > storage.tas.wait_duration then
+		storage.tas.wait_duration = storage.tas.wait_duration + 1
+		Debug(string.format("Step: %s, Action: %s, Step: %s - Waited for %d", steps[storage.tas.step][1][1]-1, steps[storage.tas.step][1][2], storage.tas.step-1, storage.tas.wait_duration))
+		if storage.tas.wait == storage.tas.wait_duration then
+			storage.tas.wait = 0
+			storage.tas.wait_duration = 0
+			Comment(steps[storage.tas.step].comment)
+			change_step(1)
+			storage.tas.step_executed = true
+		end
+		return
+	end
 
 	if storage.tas.walking.walking == false and storage.tas.player.driving == false then
-		if storage.tas.idle > 0 then
-			storage.tas.idle = storage.tas.idle - 1
-			storage.tas.idled = storage.tas.idled + 1
-
-			Debug(string.format("Step: %s, Action: %s, Step: %s - idled for %d", steps[storage.tas.step][1][1]-1, steps[storage.tas.step][1][2], storage.tas.step-1, storage.tas.idled))
-
-			if storage.tas.idle == 0 then
-				storage.tas.idled = 0
-				Comment(steps[storage.tas.step].comment)
-
-				if steps[storage.tas.step][2] == "walk" then
-					update_destination_position(steps[storage.tas.step][3][1], steps[storage.tas.step][3][2])
-					storage.walk_towards_state = steps[storage.tas.step].walk_towards
-
-					find_walking_pattern()
-					storage.tas.walking = walk()
-
-					change_step(1)
-					storage.tas.step_executed = true
-				end
-			end
-		elseif steps[storage.tas.step][2] == "walk" then
+		if steps[storage.tas.step][2] == "walk" then
 			Comment(steps[storage.tas.step].comment)
 			update_destination_position(steps[storage.tas.step][3][1], steps[storage.tas.step][3][2])
 			storage.walk_towards_state = steps[storage.tas.step].walk_towards
-			
 			find_walking_pattern()
 			storage.tas.walking = walk()
-			
 			change_step(1)
 
 		elseif steps[storage.tas.step][2] == "mine" then
 			if storage.tas.duration and storage.tas.duration == 0 then Comment(steps[storage.tas.step].comment) end
 			
 			storage.tas.player.update_selected_entity(steps[storage.tas.step][3])
-
 			storage.tas.player.mining_state = {mining = true, position = steps[storage.tas.step][3]}
 			if storage.use_all_ticks_warning_mode then
 				end_use_all_ticks_warning_mode()
 			end
 
 			storage.tas.duration = steps[storage.tas.step][4]
-
 			storage.tas.ticks_mining = storage.tas.ticks_mining + 1
 
 			if storage.tas.ticks_mining >= storage.tas.duration then
@@ -1519,13 +1507,9 @@ local function handle_ontick()
 	else
 		if storage.walk_towards_state and steps[storage.tas.step][2] == "mine" then
 			if storage.tas.duration and storage.tas.duration == 0 then Comment(steps[storage.tas.step].comment) end
-			
 			storage.tas.player.update_selected_entity(steps[storage.tas.step][3])
-
 			storage.tas.player.mining_state = {mining = true, position = steps[storage.tas.step][3]}
-
 			storage.tas.duration = steps[storage.tas.step][4]
-
 			storage.tas.ticks_mining = storage.tas.ticks_mining + 1
 
 			if storage.tas.ticks_mining >= storage.tas.duration then
@@ -1549,7 +1533,7 @@ local function handle_ontick()
 				storage.tas.step_executed = true
 				change_step(1)
 			end
-		elseif steps[storage.tas.step][2] ~= "walk" and steps[storage.tas.step][2] ~= "enter" and steps[storage.tas.step][2] ~= "idle" and steps[storage.tas.step][2] ~= "mine" then
+		elseif steps[storage.tas.step][2] ~= "walk" and steps[storage.tas.step][2] ~= "enter" and steps[storage.tas.step][2] ~= "mine" then
 			if doStep(steps[storage.tas.step]) then
 				-- Do step while walking
 				Comment(steps[storage.tas.step].comment)
@@ -1573,16 +1557,18 @@ local function handle_posttick()
 
 	if storage.shoot_ammo and storage.tas.player.shooting_state.state == defines.shooting.not_shooting  then-- steps[storage.tas.step][2] ~= "shoot" then
 		local character = storage.tas.player.character
-		local ammo = character.get_inventory(defines.inventory.character_ammo)[character.selected_gun_index]
-		ammo = ammo and ammo.valid_for_read and ammo.ammo + ammo.count * ammo.prototype.magazine_size or nil
-		if not ammo then
-			Debug("Debug shooting, ammo capacity not available for read")
-		elseif ammo - storage.shoot_ammo == 0 then
-			Warning("Shooting: ammo count unchanged")
-		elseif ammo - storage.shoot_ammo < -1 then
-			Debug("Shot more than twice")
+		if character then
+			local ammo = character.get_inventory(defines.inventory.character_ammo)[character.selected_gun_index]
+			ammo = ammo and ammo.valid_for_read and ammo.ammo + ammo.count * ammo.prototype.magazine_size or nil
+			if not ammo then
+				Debug("Debug shooting, ammo capacity not available for read")
+			elseif ammo - storage.shoot_ammo == 0 then
+				Warning("Shooting: ammo count unchanged")
+			elseif ammo - storage.shoot_ammo < -1 then
+				Debug("Shot more than twice")
+			end
+			storage.shoot_ammo = nil
 		end
-		storage.shoot_ammo = nil
 	end
 
 	do -- check warning states
@@ -1603,7 +1589,7 @@ local function handle_posttick()
 		end
 
 		if storage.state.keep_walking then
-			if storage.tas.walking.walking or storage.tas.mining ~= 0 or storage.tas.idle ~= 0 then
+			if storage.tas.walking.walking or storage.tas.mining ~= 0 or storage.tas.wait ~= 0 then
 				end_state_warning_mode(warnings.keep_walking)
 			else
 				storage[warnings.keep_walking] = storage[warnings.keep_walking] or {step = storage.tas.step, start = game.tick}
@@ -1630,7 +1616,7 @@ local function handle_posttick()
 		change_step(1)
 	end
 	
-	if storage.tas.walking.walking or storage.tas.mining ~= 0 or storage.tas.idle ~= 0 or storage.tas.pickup_ticks ~= 0 then
+	if storage.tas.walking.walking or storage.tas.mining ~= 0 or storage.tas.wait ~= 0 or storage.tas.pickup_ticks ~= 0 then
 		-- we wait to finish the previous step before we end the run
 	elseif steps[storage.tas.step] == nil or steps[storage.tas.step][1] == "break" then
 		Message(string.format("(%.2f, %.2f) Complete after %f seconds (%d ticks)", storage.tas.player.position.x, storage.tas.player.position.y, storage.tas.player.online_time / 60, storage.tas.player.online_time))
@@ -1823,7 +1809,7 @@ end)
 local function create_tas_global_state()
 	storage.tas = {
 		step = 1,
-		idle = 0,
+		wait = 0,
 		pickup_ticks = 0,
 		mining = 0,
 		pos_pos = false,
@@ -1835,7 +1821,7 @@ local function create_tas_global_state()
 		step_executed = false,
 		duration = 0,
 		ticks_mining = 0,
-		idled = 0,
+		wait_duration = 0,
 		not_same_step = 1,
 	}
 end

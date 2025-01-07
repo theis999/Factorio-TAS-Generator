@@ -25,7 +25,7 @@ void TypePanel::SetType(wxRadioButton * choosen_btn)
 		parent->rbtn_recipe,
 		parent->rbtn_tech,
 		parent->rbtn_limit,
-		parent->rbtn_idle,
+		parent->rbtn_wait,
 		parent->rbtn_filter,
 		parent->rbtn_pause,
 		parent->rbtn_priority,
@@ -83,7 +83,7 @@ void TypePanel::SwitchStep(StepType type)
 			break;
 		case e_limit: SetType(parent->rbtn_limit);
 			break;
-		case e_idle: SetType(parent->rbtn_idle);
+		case e_wait: SetType(parent->rbtn_wait);
 			break;
 		case e_filter: SetType(parent->rbtn_filter);
 			break;
@@ -221,8 +221,8 @@ string cMain::ExtractSteptypeName()
 	if (rbtn_limit->GetValue())
 		return StepNames[e_limit];
 
-	if (rbtn_idle->GetValue())
-		return StepNames[e_idle];
+	if (rbtn_wait->GetValue())
+		return StepNames[e_wait];
 
 	if (rbtn_filter->GetValue())
 		return StepNames[e_filter];
@@ -468,10 +468,11 @@ void cMain::OnLimitChosen(wxCommandEvent& event)
 	SetupModifiers(e_limit);
 }
 
-void cMain::OnIdleChosen(wxCommandEvent& event)
+void cMain::OnWaitChosen(wxCommandEvent& event)
 {
-	setup_paramters(parameter_choices.idle);
-	SetupModifiers(e_idle);
+	type_panel->SetType(rbtn_wait);
+	setup_paramters(parameter_choices.wait);
+	SetupModifiers(e_wait);
 }
 
 void cMain::OnShootChosen(wxCommandEvent& event)
@@ -737,10 +738,10 @@ void cMain::OnStopMenuSelected(wxCommandEvent& event)
 	event.Skip();
 }
 
-void cMain::OnIdleMenuSelected(wxCommandEvent& event)
+void cMain::OnWaitMenuSelected(wxCommandEvent& event)
 {
-	type_panel->SwitchStep(e_idle);
-	OnIdleChosen(event);
+	type_panel->SwitchStep(e_wait);
+	OnWaitChosen(event);
 	event.Skip();
 }
 

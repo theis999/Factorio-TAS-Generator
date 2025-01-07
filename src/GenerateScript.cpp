@@ -332,8 +332,8 @@ void GenerateScript::generate(wxWindow* parent, DialogProgressBar* dialog_progre
 				save(currentStepNumber, comment);
 				break;
 
-			case e_idle:
-				idle(currentStepNumber, amount, comment);
+			case e_wait:
+				wait(currentStepNumber, amount, comment);
 				break;
 
 			case e_never_idle:
@@ -604,9 +604,9 @@ void GenerateScript::save(string step, string nameOfSaveGame)
 	total_steps += 1;
 }
 
-void GenerateScript::idle(string step, string amount, string comment)
+void GenerateScript::wait(string step, string amount, string comment)
 {
-	step_list += StepSignature(step, "\"idle\", " + amount, comment);
+	step_list += StepSignature(step, "\"wait\", " + amount, comment);
 	total_steps += 1;
 }
 

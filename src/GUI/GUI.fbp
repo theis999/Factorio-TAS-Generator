@@ -186,7 +186,7 @@
             <event name="OnMenuSelection">OnMenuExit</event>
           </object>
         </object>
-        <object class="wxMenu" expanded="false">
+        <object class="wxMenu" expanded="true">
           <property name="label">Step types</property>
           <property name="name">menu_steptypes</property>
           <property name="permission">protected</property>
@@ -257,12 +257,12 @@
             <property name="help"></property>
             <property name="id">wxID_ANY</property>
             <property name="kind">wxITEM_NORMAL</property>
-            <property name="label">Idle</property>
-            <property name="name">shortcut_idle</property>
+            <property name="label">Wait</property>
+            <property name="name">shortcut_wait</property>
             <property name="permission">none</property>
             <property name="shortcut">Alt+6</property>
             <property name="unchecked_bitmap"></property>
-            <event name="OnMenuSelection">OnIdleMenuSelected</event>
+            <event name="OnMenuSelection">OnWaitMenuSelected</event>
           </object>
           <object class="wxMenuItem" expanded="false">
             <property name="bitmap"></property>
@@ -1371,7 +1371,7 @@
                     <property name="gripper">0</property>
                     <property name="hidden">0</property>
                     <property name="id">wxID_ANY</property>
-                    <property name="label">Idle</property>
+                    <property name="label">Wait</property>
                     <property name="max_size"></property>
                     <property name="maximize_button">0</property>
                     <property name="maximum_size"></property>
@@ -1379,7 +1379,7 @@
                     <property name="minimize_button">0</property>
                     <property name="minimum_size"></property>
                     <property name="moveable">1</property>
-                    <property name="name">rbtn_idle</property>
+                    <property name="name">rbtn_wait</property>
                     <property name="pane_border">1</property>
                     <property name="pane_position"></property>
                     <property name="pane_size"></property>
@@ -1392,7 +1392,7 @@
                     <property name="style"></property>
                     <property name="subclass">; ; forward_declare</property>
                     <property name="toolbar_pane">0</property>
-                    <property name="tooltip">Makes the character do nothing for X ticks</property>
+                    <property name="tooltip">Makes the character do nothing for X ticks while walking, driving or standing still.</property>
                     <property name="validator_data_type"></property>
                     <property name="validator_style">wxFILTER_NONE</property>
                     <property name="validator_type">wxDefaultValidator</property>
@@ -1401,7 +1401,7 @@
                     <property name="window_extra_style"></property>
                     <property name="window_name"></property>
                     <property name="window_style"></property>
-                    <event name="OnRadioButton">OnIdleChosen</event>
+                    <event name="OnRadioButton">OnWaitChosen</event>
                   </object>
                 </object>
                 <object class="sizeritem" expanded="false">

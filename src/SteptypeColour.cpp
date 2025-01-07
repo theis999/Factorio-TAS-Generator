@@ -116,7 +116,7 @@ void SteptypeColourHandler::Build()
 		steptypeToGridtype[e_drop] = Character;
 		steptypeToGridtype[e_pick_up] = Character;
 		steptypeToGridtype[e_craft] = Character;
-		steptypeToGridtype[e_idle] = Character;
+		steptypeToGridtype[e_wait] = Character;
 		steptypeToGridtype[e_cancel_crafting] = Character;
 		steptypeToGridtype[e_shoot] = Character;
 		steptypeToGridtype[e_equip] = Character;
