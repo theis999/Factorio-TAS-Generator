@@ -782,7 +782,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	wxBoxSizer* detail_sizer_Orientation;
 	detail_sizer_Orientation = new wxBoxSizer( wxHORIZONTAL );
 
-	label_building_orientation = new wxStaticText( detail_panel, wxID_ANY, wxT("Building orientation:"), wxDefaultPosition, wxSize( 115,-1 ), wxALIGN_RIGHT );
+	label_building_orientation = new wxStaticText( detail_panel, wxID_ANY, wxT("Orientation:"), wxDefaultPosition, wxSize( 80,-1 ), wxALIGN_RIGHT );
 	label_building_orientation->Wrap( -1 );
 	detail_sizer_Orientation->Add( label_building_orientation, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
@@ -795,7 +795,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	detail_sizer_col3->Add( detail_sizer_Orientation, 1, 0, 5 );
 
 
-	detail_sizer_flex->Add( detail_sizer_col3, 1, wxEXPAND, 5 );
+	detail_sizer_flex->Add( detail_sizer_col3, 1, 0, 5 );
 
 
 	detail_sizer->Add( detail_sizer_flex, 1, wxEXPAND, 5 );
