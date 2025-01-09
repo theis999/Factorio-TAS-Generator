@@ -1154,18 +1154,18 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	// Columns
 	grid_steps->SetColSize( 0, 75 );
-	grid_steps->SetColSize( 1, 49 );
-	grid_steps->SetColSize( 2, 49 );
-	grid_steps->SetColSize( 3, 58 );
+	grid_steps->SetColSize( 1, 60 );
+	grid_steps->SetColSize( 2, 60 );
+	grid_steps->SetColSize( 3, 60 );
 	grid_steps->SetColSize( 4, 140 );
 	grid_steps->SetColSize( 5, 70 );
-	grid_steps->SetColSize( 6, 80 );
-	grid_steps->SetColSize( 7, 112 );
+	grid_steps->SetColSize( 6, 120 );
+	grid_steps->SetColSize( 7, 120 );
 	grid_steps->EnableDragColMove( false );
 	grid_steps->EnableDragColSize( true );
 	grid_steps->SetColLabelValue( 0, wxT("Step") );
-	grid_steps->SetColLabelValue( 1, wxT("X-cord") );
-	grid_steps->SetColLabelValue( 2, wxT("Y-cord") );
+	grid_steps->SetColLabelValue( 1, wxT("X") );
+	grid_steps->SetColLabelValue( 2, wxT("Y") );
 	grid_steps->SetColLabelValue( 3, wxT("Amount") );
 	grid_steps->SetColLabelValue( 4, wxT("Item") );
 	grid_steps->SetColLabelValue( 5, wxT("Orientation") );
@@ -1194,7 +1194,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	step_panel->SetSizer( step_panel_sizer );
 	step_panel->Layout();
 	step_panel_sizer->Fit( step_panel );
-	main_book->AddPage( step_panel, wxT("Steps"), true, wxNullBitmap );
+	main_book->AddPage( step_panel, wxT("Steps"), false, wxNullBitmap );
 	reorder_panel = new wxPanel( main_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* reorder_sizer;
 	reorder_sizer = new wxBoxSizer( wxVERTICAL );
@@ -1453,18 +1453,18 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	// Columns
 	grid_template->SetColSize( 0, 75 );
-	grid_template->SetColSize( 1, 49 );
-	grid_template->SetColSize( 2, 49 );
-	grid_template->SetColSize( 3, 50 );
+	grid_template->SetColSize( 1, 60 );
+	grid_template->SetColSize( 2, 60 );
+	grid_template->SetColSize( 3, 60 );
 	grid_template->SetColSize( 4, 150 );
 	grid_template->SetColSize( 5, 70 );
-	grid_template->SetColSize( 6, 60 );
-	grid_template->SetColSize( 7, 139 );
+	grid_template->SetColSize( 6, 120 );
+	grid_template->SetColSize( 7, 140 );
 	grid_template->EnableDragColMove( false );
 	grid_template->EnableDragColSize( true );
 	grid_template->SetColLabelValue( 0, wxT("Step") );
-	grid_template->SetColLabelValue( 1, wxT("X-cord") );
-	grid_template->SetColLabelValue( 2, wxT("Y-cord") );
+	grid_template->SetColLabelValue( 1, wxT("X") );
+	grid_template->SetColLabelValue( 2, wxT("Y") );
 	grid_template->SetColLabelValue( 3, wxT("Amount") );
 	grid_template->SetColLabelValue( 4, wxT("Item") );
 	grid_template->SetColLabelValue( 5, wxT("Orientation") );
@@ -1492,7 +1492,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	template_panel->SetSizer( template_sizer );
 	template_panel->Layout();
 	template_sizer->Fit( template_panel );
-	main_book->AddPage( template_panel, wxT("Templates"), false, wxNullBitmap );
+	main_book->AddPage( template_panel, wxT("Templates"), true, wxNullBitmap );
 
 
 	m_mgr.Update();

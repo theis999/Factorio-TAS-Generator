@@ -7491,7 +7491,7 @@
         <object class="auinotebookpage" expanded="true">
           <property name="bitmap"></property>
           <property name="label">Steps</property>
-          <property name="select">1</property>
+          <property name="select">0</property>
           <object class="wxPanel" expanded="true">
             <property name="BottomDockable">1</property>
             <property name="LeftDockable">1</property>
@@ -8265,10 +8265,10 @@
                       <property name="close_button">1</property>
                       <property name="col_label_horiz_alignment">wxALIGN_CENTER</property>
                       <property name="col_label_size"></property>
-                      <property name="col_label_values">&quot;Step&quot; &quot;X-cord&quot; &quot;Y-cord&quot; &quot;Amount&quot; &quot;Item&quot; &quot;Orientation&quot; &quot;Modifier&quot; &quot;Comment&quot;</property>
+                      <property name="col_label_values">&quot;Step&quot; &quot;X&quot; &quot;Y&quot; &quot;Amount&quot; &quot;Item&quot; &quot;Orientation&quot; &quot;Modifier&quot; &quot;Comment&quot;</property>
                       <property name="col_label_vert_alignment">wxALIGN_CENTER</property>
                       <property name="cols">8</property>
-                      <property name="column_sizes">75,49,49,58,140,70,80,112</property>
+                      <property name="column_sizes">75,60,60,60,140,70,120,120</property>
                       <property name="context_help"></property>
                       <property name="context_menu">1</property>
                       <property name="default_pane">0</property>
@@ -8739,7 +8739,7 @@
         <object class="auinotebookpage" expanded="true">
           <property name="bitmap"></property>
           <property name="label">Templates</property>
-          <property name="select">0</property>
+          <property name="select">1</property>
           <object class="wxPanel" expanded="true">
             <property name="BottomDockable">1</property>
             <property name="LeftDockable">1</property>
@@ -10456,10 +10456,10 @@
                       <property name="close_button">1</property>
                       <property name="col_label_horiz_alignment">wxALIGN_CENTER</property>
                       <property name="col_label_size"></property>
-                      <property name="col_label_values">&quot;Step&quot; &quot;X-cord&quot; &quot;Y-cord&quot; &quot;Amount&quot; &quot;Item&quot; &quot;Orientation&quot; &quot;Modifiers&quot; &quot;Comment&quot;</property>
+                      <property name="col_label_values">&quot;Step&quot; &quot;X&quot; &quot;Y&quot; &quot;Amount&quot; &quot;Item&quot; &quot;Orientation&quot; &quot;Modifiers&quot; &quot;Comment&quot;</property>
                       <property name="col_label_vert_alignment">wxALIGN_CENTER</property>
                       <property name="cols">8</property>
-                      <property name="column_sizes">75,49,49,50,150,70,60,139</property>
+                      <property name="column_sizes">75,60,60,60,150,70,120,140</property>
                       <property name="context_help"></property>
                       <property name="context_menu">1</property>
                       <property name="default_pane">0</property>

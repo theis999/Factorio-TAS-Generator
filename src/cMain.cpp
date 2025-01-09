@@ -1160,9 +1160,6 @@ void cMain::GridTransfer(wxGrid* from, const int& fromRow, wxGrid* to, const int
 	to->SetCellValue(toRow, 5, from->GetCellValue(fromRow, 5));
 	to->SetCellValue(toRow, 6, from->GetCellValue(fromRow, 6));
 	to->SetCellValue(toRow, 7, from->GetCellValue(fromRow, 7));
-	to->SetCellValue(toRow, 8, from->GetCellValue(fromRow, 8));
-	to->SetCellValue(toRow, 9, from->GetCellValue(fromRow, 9));
-	to->SetCellValue(toRow, 10, from->GetCellValue(fromRow, 10));
 }
 
 
