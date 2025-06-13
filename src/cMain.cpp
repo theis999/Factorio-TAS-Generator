@@ -7,7 +7,7 @@
 
 cMain::cMain() : GUI_Base(nullptr, wxID_ANY, window_title, wxPoint(30, 30), wxSize(1840, 950))
 {
-	SetIcon(icon_xpm);
+	SetIcons(wxIcon(icon_xpm));
 	SetLabel(window_title);
 
 	// Ensure that realocations shouldn't be needed for a long while.
