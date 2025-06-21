@@ -55,7 +55,7 @@ bool ImportStepsPanel::extract_steps(wxString steps_text, vector<Step>& steps, v
 		counter++;
 		if (segments.size() != step_segment_size)
 		{
-			wxMessageBox("It was not possible to read line ["+ std::to_string(counter) + "] as it only contained [" + std::to_string(segments.size()) + "] semicolons", "Text import error");
+			wxMessageBox("It was not possible to read line ["+ std::to_string(counter) + "] as it contained [" + std::to_string(segments.size()) + "] semicolons. Instead of the "+ std::to_string(step_segment_size)+" expected.", "Text import error");
 			return false;
 		}
 
