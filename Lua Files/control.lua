@@ -127,7 +127,7 @@ local warnings = {
 local function end_state_warning_mode(warning, extra)
 	if storage[warning] then
 		game.print(
-			{"step-warning."..warning, steps[storage[warning].step][1][1], game.tick - storage[warning].start, extra}
+			{"step-warning."..warning, steps[storage[warning].step][1], game.tick - storage[warning].start, extra}
 		)
 		storage[warning] = nil
 	end
@@ -136,8 +136,8 @@ end
 ---@param by number
 local function change_step(by)
 	local _task = 0
-	if steps and steps[storage.tas.step] and steps[storage.tas.step][1][1] then
-		_task = steps[storage.tas.step][1][1]
+	if steps and steps[storage.tas.step] and steps[storage.tas.step][1] then
+		_task = steps[storage.tas.step][1]
 	end
 	storage.tas.step = storage.tas.step + by
 	script.raise_event(tas_step_change, {
@@ -184,7 +184,7 @@ local function check_selection_reach()
 
 	if not storage.tas.player_selection then
 		if not storage.tas.walking.walking then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - %s: Cannot select entity", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.task_category))
+			Warning(string.format("Step: %s - %s: Cannot select entity", storage.tas.task, storage.tas.task_category))
 		end
 
 		return false
@@ -192,7 +192,7 @@ local function check_selection_reach()
 
 	if not storage.tas.player.can_reach_entity(storage.tas.player_selection) then
 		if not storage.tas.walking.walking then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - %s: Cannot reach entity", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.task_category))
+			Warning(string.format("Step: %s - %s: Cannot reach entity", storage.tas.task, storage.tas.task_category))
 		end
 
 		return false
@@ -207,7 +207,7 @@ local function check_inventory()
 
 	if not storage.tas.target_inventory then
 		if not storage.tas.walking.walking then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - %s: Cannot get entity inventory", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.task_category))
+			Warning(string.format("Step: %s - %s: Cannot get entity inventory", storage.tas.task, storage.tas.task_category))
 		end
 
 		return false
@@ -236,7 +236,7 @@ local function put()
 
 	if removalable_items == 0 then
 		if not storage.tas.walking.walking then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Put: %s is not available in your inventory", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+			Warning(string.format("Step: %s - Put: %s is not available in your inventory", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 		end
 
 		return false;
@@ -244,7 +244,7 @@ local function put()
 
 	if insertable_items == 0 then
 		if not storage.tas.walking.walking then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Put: %s can't be put into target inventory", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+			Warning(string.format("Step: %s - Put: %s can't be put into target inventory", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 		end
 
 		return false;
@@ -252,7 +252,7 @@ local function put()
 
 	if storage.tas.amount > removalable_items or storage.tas.amount > insertable_items then
 		if not storage.tas.walking.walking then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Put: not enough %s can be transferred. Amount: %d Removalable: %d Insertable: %d", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper), storage.tas.amount, removalable_items, insertable_items))
+			Warning(string.format("Step: %s - Put: not enough %s can be transferred. Amount: %d Removalable: %d Insertable: %d", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper), storage.tas.amount, removalable_items, insertable_items))
 		end
 
 		return false
@@ -276,7 +276,7 @@ local function put()
 		}
 
 		if _amount ~= count then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Put: %s can not be transferred. Amount: %d Removalable: %d Insertable: %d", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper), storage.tas.amount, removalable_items, insertable_items))
+			Warning(string.format("Step: %s - Put: %s can not be transferred. Amount: %d Removalable: %d Insertable: %d", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper), storage.tas.amount, removalable_items, insertable_items))
 			return false
 		end
 
@@ -289,7 +289,7 @@ local function put()
 		}
 
 		if _amount ~= count then
-			Error(string.format("Step: %s, Action: %s, Step: %d - Put: %s can not be transferred. Amount: %d Removalable: %d Insertable: %d", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper), storage.tas.amount, removalable_items, insertable_items))
+			Error(string.format("Step: %s - Put: %s can not be transferred. Amount: %d Removalable: %d Insertable: %d", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper), storage.tas.amount, removalable_items, insertable_items))
 			return false
 		end
 	end
@@ -299,7 +299,7 @@ local function put()
 	storage.tas.player.play_sound{path="utility/inventory_move"}
 	storage.tas.player.create_local_flying_text{ text=text, position=pos}
 
-	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Put: [item=%s]", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item ))
+	end_warning_mode(string.format("Step: %s - Put: [item=%s]", storage.tas.task, storage.tas.item ))
 	return true
 end
 
@@ -338,7 +338,7 @@ local function take_all()
 	end
 	
 
-	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Take: [item=%s]", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item ))
+	end_warning_mode(string.format("Step: %s - Take: [item=%s]", storage.tas.task, storage.tas.item ))
 	return true
 end
 
@@ -356,14 +356,14 @@ local function take()
 	end
 
 	local removalable_items = storage.tas.target_inventory.get_item_count(storage.tas.item)
-	local insertable_items = storage.tas.player.get_main_inventory().get_insertable_count(storage.tas.item)
+	local insertable_items = storage.tas.player.character.get_main_inventory().get_insertable_count(storage.tas.item)
 	if storage.tas.amount < 1 then
 		storage.tas.amount = math.min(removalable_items, insertable_items)
 	end
 
 	if removalable_items == 0 then
 		if not storage.tas.walking.walking then
-			Warning({"step-warning.take", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper), "is not available from the inventory"})
+			Warning({"step-warning.take", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper), "is not available from the inventory"})
 		end
 
 		return false;
@@ -371,7 +371,7 @@ local function take()
 
 	if insertable_items == 0 then
 		if not storage.tas.walking.walking then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Take: %s can't be put into your inventory", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+			Warning(string.format("Step: %s - Take: %s can't be put into your inventory", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 		end
 
 		return false;
@@ -379,7 +379,7 @@ local function take()
 
 	if storage.tas.amount > removalable_items or storage.tas.amount > insertable_items then
 		if not storage.tas.walking.walking then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Take: not enough %s can be transferred. Amount: %d Removalable: %d Insertable: %d", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper), storage.tas.amount, removalable_items, insertable_items))
+			Warning(string.format("Step: %s - Take: not enough %s can be transferred. Amount: %d Removalable: %d Insertable: %d", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper), storage.tas.amount, removalable_items, insertable_items))
 		end
 
 		return false
@@ -401,7 +401,7 @@ local function take()
 			ammo=ammo,
 			count=storage.tas.target_inventory.remove{name=storage.tas.item, count=stack_count, durability=durability, health=health, ammo=ammo}
 		} then
-			Error(string.format("Step: %s, Action: %s, Step: %d - Take: %s can not be transferred. Amount: %d Removalable: %d Insertable: %d", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper), storage.tas.amount, removalable_items, insertable_items))
+			Error(string.format("Step: %s - Take: %s can not be transferred. Amount: %d Removalable: %d Insertable: %d", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper), storage.tas.amount, removalable_items, insertable_items))
 			return false
 		end
 	end
@@ -413,7 +413,7 @@ local function take()
 		text=text,
 		position=pos}
 
-	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Take: [item=%s]", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item ))
+	end_warning_mode(string.format("Step: %s - Take: [item=%s]", storage.tas.task, storage.tas.item ))
 	return true
 end
 
@@ -421,7 +421,7 @@ end
 local function craft()
 	if not storage.tas.player.force.recipes[storage.tas.item].enabled then
 		if(storage.tas.step > step_reached) then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Craft: It is not possible to craft %s - It needs to be researched first.", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+			Warning(string.format("Step: %s - Craft: It is not possible to craft %s - It needs to be researched first.", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 			step_reached = storage.tas.step
 		end
 
@@ -432,7 +432,7 @@ local function craft()
 		storage.tas.player.cancel_crafting{ index = 1, count = 1000000}
 		return false
 	elseif storage.wait_for_recipe and storage.tas.player.crafting_queue_size > 0 then
-		Warning(string.format("Step: %s, Action: %s, Step: %d - Craft [item=%s]: It is not possible to craft as the queue is not empty", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+		Warning(string.format("Step: %s - Craft [item=%s]: It is not possible to craft as the queue is not empty", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 		step_reached = storage.tas.step
 		return false
 	else
@@ -449,16 +449,16 @@ local function craft()
 			storage.tas.player.begin_crafting{count = storage.tas.count, recipe = storage.tas.item}
 		else
 			if not storage.tas.walking.walking then
-				Warning(string.format("Step: %s, Action: %s, Step: %d - Craft: It is not possible to craft %s - Only possible to craft %d of %d", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper), storage.tas.amount, storage.tas.count))
+				Warning(string.format("Step: %s - Craft: It is not possible to craft %s - Only possible to craft %d of %d", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper), storage.tas.amount, storage.tas.count))
 			end
 
 			return false
 		end
-		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Craft: [item=%s]", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item ))
+		end_warning_mode(string.format("Step: %s - Craft: [item=%s]", storage.tas.task, storage.tas.item ))
 		return true
     else
         if(storage.tas.step > step_reached) then
-            Warning(string.format("Step: %s, Action: %s, Step: %d - Craft: It is not possible to craft %s - Please check the script", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+            Warning(string.format("Step: %s - Craft: It is not possible to craft %s - Please check the script", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
             step_reached = storage.tas.step
 		end
 
@@ -474,19 +474,19 @@ local function cancel_crafting()
 		if queue[i].recipe == storage.tas.item then
 			if storage.tas.count == -1 then
 				storage.tas.player.cancel_crafting{index = i, count = 1000000}
-				end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Cancel: [item=%s]", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item ))
+				end_warning_mode(string.format("Step: %s - Cancel: [item=%s]", storage.tas.task, storage.tas.item ))
 				return true
 			elseif queue[i].count >= storage.tas.count then
 				storage.tas.player.cancel_crafting{index = i, count = storage.tas.count}
-				end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Cancel: [item=%s]", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item ))
+				end_warning_mode(string.format("Step: %s - Cancel: [item=%s]", storage.tas.task, storage.tas.item ))
 				return true
 			else
-				Warning(string.format("Step: %s, Action: %s, Step: %d - Cancel craft: It is not possible to cancel %s - Please check the script", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+				Warning(string.format("Step: %s - Cancel craft: It is not possible to cancel %s - Please check the script", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 				return false
 			end
 		end
 	end
-	Warning(string.format("Step: %s, Action: %s, Step: %d - Cancel craft: It is not possible to cancel %s - Please check the script", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+	Warning(string.format("Step: %s - Cancel craft: It is not possible to cancel %s - Please check the script", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 	return false
 end
 
@@ -513,26 +513,28 @@ end
 ---@return boolean true if an entity is created.
 local function create_entity_replace()
 
-	local stack, stack_location = storage.tas.player.get_inventory(1).find_item_stack(storage.tas.item)
+	local stack, stack_location = storage.tas.player.character.get_inventory(1).find_item_stack(storage.tas.item)
 	if not stack or not stack.valid then
 		Error("Trying to create an entity of "..storage.tas.item.." but couldn't find an stack of them in players inventory")
 		return false
 	end
-	
-	storage.tas.player.clear_cursor()
-	storage.tas.player.cursor_stack.swap_stack(stack)
-	storage.tas.player.hand_location = {inventory = 1, slot = stack_location}
-	
+
+	if storage.tas.player.controller_type == defines.controllers.character then
+		storage.tas.player.clear_cursor()
+		storage.tas.player.cursor_stack.swap_stack(stack)
+		storage.tas.player.hand_location = {inventory = 1, slot = stack_location}
+	end
+
 	if storage.tas.player.can_build_from_cursor{position = storage.tas.target_position, direction = storage.tas.direction, } then
 		storage.tas.player.build_from_cursor{position = storage.tas.target_position, direction = storage.tas.direction, }
 		storage.tas.player.clear_cursor()
 		--if old_cursor then storage.tas.player.cursor_stack.swap_stack(old_cursor) else storage.tas.player.clear_cursor() end
-		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item ))
+		end_warning_mode(string.format("Step: %s - Build: [item=%s]", storage.tas.task, storage.tas.item ))
 		return true
 	else
 		--storage.tas.player.clear_cursor()
 		--storage.tas.player.cursor_stack.set_stack(old_cursor)
-		if not storage.tas.player.walking.walking or not storage.tas.player.driving then
+		if not storage.tas.player.walking_state.walking or not storage.tas.player.driving then
 			--idk
 		end
 
@@ -550,7 +552,7 @@ local function build()
 	if _count < 1 or take_4items and _count < 4 then
 		if(storage.tas.step > step_reached) then
 			if storage.tas.walking.walking == false then
-				Warning(string.format("Step: %s, Action: %s, Step: %d - Build: %s not available", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+				Warning(string.format("Step: %s - Build: %s not available", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 				step_reached = storage.tas.step
 			end
 		end
@@ -576,21 +578,21 @@ local function build()
 				end
 
 				storage.tas.player.remove_item({name = storage.tas.item, count = 1})
-				end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item ))
+				end_warning_mode(string.format("Step: %s - Build: [item=%s]", storage.tas.task, storage.tas.item ))
 				return true
 
 			elseif not storage.tas.walking.walking then
-				Warning(string.format("Step: %s, Action: %s, Step: %d - Build: %s not in reach", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+				Warning(string.format("Step: %s - Build: %s not in reach", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 			end
 
 			return false
 
 		elseif storage.tas.player.can_place_entity{name = storage.tas.item, position = storage.tas.target_position, direction = storage.tas.direction} then
-			end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item ))
+			end_warning_mode(string.format("Step: %s - Build: [item=%s]", storage.tas.task, storage.tas.item ))
 			return create_entity_replace()
 		else
 			if not storage.tas.walking.walking then
-				Warning(string.format("Step: %s, Action: %s, Step: %d - Build: %s cannot be placed", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+				Warning(string.format("Step: %s - Build: %s cannot be placed", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 			end
 
 			return false
@@ -601,14 +603,14 @@ local function build()
 			
 			if storage.tas.player.surface.create_entity{name = storage.tas.item, position = storage.tas.target_position, direction = storage.tas.direction, force="player", raise_built = true} then
 				storage.tas.player.remove_item({name = _item, count = take_4items and 4 or 1})
-				end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Build: [item=%s]", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item ))
+				end_warning_mode(string.format("Step: %s - Build: [item=%s]", storage.tas.task, storage.tas.item ))
 				return true
 			end
 
 
 		else
 			if not storage.tas.walking.walking then
-				Warning(string.format("Step: %s, Action: %s, Step: %d - Build: %s cannot be placed", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+				Warning(string.format("Step: %s - Build: %s cannot be placed", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 			end
 
 			return false
@@ -787,7 +789,7 @@ local function rotate()
 
 	if has_rotated then storage.tas.player.play_sound{path="utility/rotated_small"} end
 
-	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Rotate", storage.tas.task[1], storage.tas.task[2], storage.tas.step ))
+	end_warning_mode(string.format("Step: %s - Rotate", storage.tas.task ))
 	return true
 end
 
@@ -799,7 +801,7 @@ local function recipe()
 
 	if storage.tas.item ~= "none" and not storage.tas.player.force.recipes[storage.tas.item].enabled then
 		if(storage.tas.step > step_reached) then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Recipe: It is not possible to set recipe %s - It needs to be researched first.", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+			Warning(string.format("Step: %s - Recipe: It is not possible to set recipe %s - It needs to be researched first.", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 			step_reached = storage.tas.step
 		end
 
@@ -807,7 +809,7 @@ local function recipe()
 	end
 
 	if storage.wait_for_recipe and storage.tas.player_selection.crafting_progress ~= 0 then
-		Warning(string.format("Step: %s, Action: %s, Step: %d - Set recipe %s: The entity is still crafting.", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+		Warning(string.format("Step: %s - Set recipe %s: The entity is still crafting.", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 		step_reached = storage.tas.step
 		return false
 	end
@@ -820,7 +822,7 @@ local function recipe()
 	end
 
 	storage.tas.player.play_sound{ path = "utility/entity_settings_pasted", }
-	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Recipe: [recipe=%s]", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item ))
+	end_warning_mode(string.format("Step: %s - Recipe: [recipe=%s]", storage.tas.task, storage.tas.item ))
 	return true
 end
 
@@ -879,7 +881,7 @@ local function limit()
 
 	-- Setting set_bar to 1 completely limits all slots, so it's off by one
 	storage.tas.target_inventory.set_bar(storage.tas.amount+1)
-	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Limit", storage.tas.task[1], storage.tas.task[2], storage.tas.step))
+	end_warning_mode(string.format("Step: %s - Limit", storage.tas.task))
 	return true
 end
 
@@ -892,7 +894,7 @@ local function priority()
 	storage.tas.player_selection.splitter_input_priority = storage.tas.input
 	storage.tas.player_selection.splitter_output_priority = storage.tas.output
 
-	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Priority", storage.tas.task[1], storage.tas.task[2], storage.tas.step))
+	end_warning_mode(string.format("Step: %s - Priority", storage.tas.task))
 	return true
 end
 
@@ -909,7 +911,7 @@ local function filter()
 			storage.tas.player_selection.splitter_filter = storage.tas.item
 		end
 
-		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Filter: [item=%s]", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item ))
+		end_warning_mode(string.format("Step: %s - Filter: [item=%s]", storage.tas.task, storage.tas.item ))
 		return true
 	end
 
@@ -926,7 +928,7 @@ local function filter()
 		inv.set_filter(storage.tas.slot, storage.tas.item)
 	end
 
-	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Filter: [item=%s]", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item ))
+	end_warning_mode(string.format("Step: %s - Filter: [item=%s]", storage.tas.task, storage.tas.item ))
 	return true
 end
 
@@ -947,7 +949,7 @@ local function drop()
 			spill = true
 		}
 		storage.tas.player.remove_item({name = storage.tas.drop_item})
-		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Drop: [item=%s]", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item ))
+		end_warning_mode(string.format("Step: %s - Drop: [item=%s]", storage.tas.task, storage.tas.item ))
 		return true
 	end
 
@@ -961,7 +963,7 @@ local function launch()
 		return false
 	end
 
-	end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Launch", storage.tas.task[1], storage.tas.task[2], storage.tas.step ))
+	end_warning_mode(string.format("Step: %s - Launch", storage.tas.task ))
 	return storage.tas.player_selection.launch_rocket()
 end
 
@@ -971,10 +973,10 @@ local function Next()
 	if interface and interface.TAS_Next then
 		local result = remote.call("DunRaider-TAS-supply", "TAS_Next")
 		if not result then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Next is not available", storage.tas.task[1], storage.tas.task[2], storage.tas.step ))
+			Warning(string.format("Step: %s - Next is not available", storage.tas.task ))
 			return false
 		end
-		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Next", storage.tas.task[1], storage.tas.task[2], storage.tas.step ))
+		end_warning_mode(string.format("Step: %s - Next", storage.tas.task ))
 		return result
 	else
 		Error("Called next without the function existing")
@@ -994,12 +996,12 @@ local function shoot()
 		storage.tas.player.shooting_state = {state = defines.shooting.shooting_selected, position = storage.tas.target_position}
 		storage.tas_shooting_amount = storage.tas_shooting_amount - 1
 	else
-		Warning(string.format("Step: %s, Action: %s, Step: %d - Shoot: %d can't shoot location", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.amount ))
+		Warning(string.format("Step: %s - Shoot: %d can't shoot location", storage.tas.task, storage.tas.amount ))
 	end
 
 	if storage.tas_shooting_amount == 0 then
 		storage.tas_shooting_amount = nil
-		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Shoot", storage.tas.task[1], storage.tas.task[2], storage.tas.step))
+		end_warning_mode(string.format("Step: %s - Shoot", storage.tas.task))
 		return true
 	end
 
@@ -1013,14 +1015,14 @@ local function throw()
 	if storage.tas.player.get_item_count (storage.tas.item) > 0 then
 		local stack, index = storage.tas.player.get_main_inventory().find_item_stack(storage.tas.item)
 		if not stack or not index then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - throw: [item=%s] can't find item in player inventory", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item ))
+			Warning(string.format("Step: %s - throw: [item=%s] can't find item in player inventory", storage.tas.task, storage.tas.item ))
 			return false
 		end
 
 		local fish = false
 		local prototype = stack.prototype
 		if not prototype.capsule_action then 
-			Warning(string.format("Step: %s, Action: %s, Step: %d - throw: [item=%s] is not a throwable type", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item ))
+			Warning(string.format("Step: %s - throw: [item=%s] is not a throwable type", storage.tas.task, storage.tas.item ))
 		end
 		if prototype.capsule_action.type == "throw" then 
 			local dist = math.sqrt(
@@ -1028,24 +1030,24 @@ local function throw()
 			)
 			local can_reach = prototype.capsule_action.attack_parameters.range > dist and dist > prototype.capsule_action.attack_parameters.min_range
 			if not can_reach then
-				Warning(string.format("Step: %s, Action: %s, Step: %d - throw: [item=%s] target is out of range", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item ))
+				Warning(string.format("Step: %s - throw: [item=%s] target is out of range", storage.tas.task, storage.tas.item ))
 				return false
 			end
 		elseif prototype.capsule_action.type == "use-on-self" then
 			fish = true
 		else
-			Warning(string.format("Step: %s, Action: %s, Step: %d - throw: [item=%s] is not a throwable type", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item ))
+			Warning(string.format("Step: %s - throw: [item=%s] is not a throwable type", storage.tas.task, storage.tas.item ))
 		end	
 
 		storage.tas_throw_cooldown = storage.tas_throw_cooldown or 0
 		if game.tick < storage.tas_throw_cooldown then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - throw: [item=%s] is still on cooldown", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item ))
+			Warning(string.format("Step: %s - throw: [item=%s] is still on cooldown", storage.tas.task, storage.tas.item ))
 			return false
 		end
 
 		storage.tas_throw_cooldown = game.tick + prototype.capsule_action.attack_parameters.cooldown
 		local created_entities = stack.use_capsule(storage.tas.player.character, storage.tas.target_position)
-		end_warning_mode(string.format("Step: %s, Action: %s, Step: %d - Throw: [item=%s]", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item ))
+		end_warning_mode(string.format("Step: %s - Throw: [item=%s]", storage.tas.task, storage.tas.item ))
 		return fish or (created_entities and #created_entities > 0)
 	end
 	return false
@@ -1082,7 +1084,7 @@ local function equip()
 			return true
 		end
 		if main_count < storage.tas.amount then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - As the character does not hold enough in their inventory.", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+			Warning(string.format("Step: %s - Equip: It is not possible to equip %s - As the character does not hold enough in their inventory.", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 			return false
 		end
 		local _stack = main_inventory.find_item_stack(storage.tas.item)
@@ -1092,7 +1094,7 @@ local function equip()
 			count = storage.tas.amount})
 		local c = stack.set_stack({ name = storage.tas.item, count = main_removed, ammo = ammo})
 		if not c then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - Maybe the corresponding ammo/weapon slot is not clear.", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+			Warning(string.format("Step: %s - Equip: It is not possible to equip %s - Maybe the corresponding ammo/weapon slot is not clear.", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 			main_inventory.insert({
 				name = storage.tas.item,
 				count = main_removed})
@@ -1104,18 +1106,18 @@ local function equip()
 		stack.clear()
 		
 		if removed_stack_amount > returned_stack_amount then
-			Error(string.format("Step: %s, Action: %s, Step: %d - Equip: More items removed from the target inventory than inserted into main inventory - maybe there wasn't room in the main inventory", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+			Error(string.format("Step: %s - Equip: More items removed from the target inventory than inserted into main inventory - maybe there wasn't room in the main inventory", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 			run = false
 			return false
 		end
 	elseif stack.name ~= storage.tas.item then -- change slot item
 		if main_count < storage.tas.amount then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - As the character does not hold enough in their inventory.", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+			Warning(string.format("Step: %s - Equip: It is not possible to equip %s - As the character does not hold enough in their inventory.", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 			return false
 		end
 		local returned_stack_amount = main_inventory.insert( stack )
 		if stack.count > returned_stack_amount then
-			Error(string.format("Step: %s, Action: %s, Step: %d - Equip: More items removed from the target inventory than inserted into main inventory - maybe there wasn't room in the main inventory", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+			Error(string.format("Step: %s - Equip: More items removed from the target inventory than inserted into main inventory - maybe there wasn't room in the main inventory", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 			run = false
 			return false
 		end
@@ -1125,7 +1127,7 @@ local function equip()
 			count = storage.tas.amount})
 		local c = stack.set_stack({ name = storage.tas.item, count = main_removed})
 		if not c then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - Maybe the corresponding ammo/weapon slot is not clear.", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+			Warning(string.format("Step: %s - Equip: It is not possible to equip %s - Maybe the corresponding ammo/weapon slot is not clear.", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 			main_inventory.insert({
 				name = storage.tas.item,
 				count = main_removed})
@@ -1134,7 +1136,7 @@ local function equip()
 	
 	elseif stack.count < storage.tas.amount then -- add more items to the slot
 		if main_count + stack.count < storage.tas.amount then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - As the character does not hold enough in their inventory.", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+			Warning(string.format("Step: %s - Equip: It is not possible to equip %s - As the character does not hold enough in their inventory.", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 			return false
 		end
 		local _stack = main_inventory.find_item_stack(storage.tas.item)
@@ -1144,7 +1146,7 @@ local function equip()
 			count = storage.tas.amount - stack.count})
 		local c = stack.transfer_stack({ name = storage.tas.item, count = main_removed, ammo = ammo})
 		if not c then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - Unknown error.", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+			Warning(string.format("Step: %s - Equip: It is not possible to equip %s - Unknown error.", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 			return false
 		end
 	elseif stack.count > storage.tas.amount then -- remove items from the slot
@@ -1156,7 +1158,7 @@ local function equip()
 		stack.clear()
 		local c = stack.set_stack({ name = storage.tas.item, count = storage.tas.amount})
 		if not c then
-			Warning(string.format("Step: %s, Action: %s, Step: %d - Equip: It is not possible to equip %s - Unknown error.", storage.tas.task[1], storage.tas.task[2], storage.tas.step, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
+			Warning(string.format("Step: %s - Equip: It is not possible to equip %s - Unknown error.", storage.tas.task, storage.tas.item:gsub("-", " "):gsub("^%l", string.upper)))
 			return false
 		end
 	end
@@ -1371,7 +1373,7 @@ local function execute_StepBlock()
 		_step = steps[_step_index]
 		_success = doStep(_step)
 		if _success then
-			Debug(string.format("Executed %d - Type: %s, Step: %d", _step[1][1], _step[2]:gsub("^%l", string.upper), _step_index), true)
+			Debug(string.format("Executed %d - Type: %s", _step[1], _step[2]:gsub("^%l", string.upper)), true)
 			table.remove(storage.step_block, i)
 			table.insert(storage.executed_step_block, _step)
 			if i == 1 and #storage.step_block > 1 then
@@ -1396,7 +1398,7 @@ local function execute_StepBlock()
 		for i = 1, #storage.step_block do
 			_step_index = storage.step_block[i]
 			_step = steps[_step_index]
-			Warning(string.format("Step %d failed - Type: %s, substep: %d", _step[1][1], _step[2]:gsub("^%l", string.upper), _step_index))
+			Warning(string.format("Step %d failed - Type: %s", _step[1], _step[2]:gsub("^%l", string.upper)))
 		end
 		run = false
 		raise_state_change()
@@ -1417,12 +1419,12 @@ local function handle_pre_step()
 		if (_current_name == "speed") then
 			if LOGLEVEL < 2 then
 				Comment(_current_step.comment)
-				Debug(string.format("Step: %s, Action: %s, Step: %s - Game speed: %d", _current_step[1][1], _current_step[1][2], storage.tas.step, _current_step[3]))
+				Debug(string.format("Step: %s - Game speed: %d", storage.tas.step, _current_step[3]))
 				speed(_current_step[3])
 			end
 			storage.tas.step = storage.tas.step + 1
 		elseif _current_name == "save" then
-			queued_save = LOGLEVEL < 2 and {name = _current_step[1][1], step = _current_step[3]} or nil
+			queued_save = LOGLEVEL < 2 and {name = _current_step[1], step = _current_step[3]} or nil
 			storage.tas.step = storage.tas.step + 1
 		elseif _current_name == "pick" then
 			Comment(_current_step.comment)
@@ -1477,7 +1479,7 @@ local function handle_ontick()
 	end
 	if storage.tas.wait > 0 and storage.tas.wait > storage.tas.wait_duration then
 		storage.tas.wait_duration = storage.tas.wait_duration + 1
-		Debug(string.format("Step: %s, Action: %s, Step: %s - Waited for %d", steps[storage.tas.step][1][1]-1, steps[storage.tas.step][1][2], storage.tas.step-1, storage.tas.wait_duration))
+		Debug(string.format("Step: %s, - Waited for %d", steps[storage.tas.step][1]-1, storage.tas.wait_duration))
 		if storage.tas.wait == storage.tas.wait_duration then
 			storage.tas.wait = 0
 			storage.tas.wait_duration = 0
@@ -1520,7 +1522,7 @@ local function handle_ontick()
 			if storage.tas.mining > 5 then
 				if storage.tas.player.character_mining_progress == 0 then
 					if not storage.walk_towards_state then
-						Error(string.format("Step: %s, Action: %s, Step: %s - Mine: Cannot reach resource", steps[storage.tas.step][1][1], steps[storage.tas.step][1][2], storage.tas.step))
+						Error(string.format("Step: %s - Mine: Cannot reach resource", steps[storage.tas.step][1]))
 					end
 				else
 					storage.tas.mining = 0
@@ -1550,7 +1552,7 @@ local function handle_ontick()
 			storage.tas.mining = storage.tas.mining + 1
 			if storage.tas.mining > 5 then
 				if storage.tas.player.character_mining_progress == 0 then
-					Debug(string.format("Step: %s, Action: %s, Step: %s - Mine: Cannot reach resource", steps[storage.tas.step][1][1], steps[storage.tas.step][1][2], storage.tas.step))
+					Debug(string.format("Step: %s - Mine: Cannot reach resource", steps[storage.tas.step][1]))
 				else
 					storage.tas.mining = 0
 				end
@@ -1695,12 +1697,12 @@ script.on_event(defines.events.on_tick, function(event)
 		if steps[storage.tas.step].comment == "Never Stop" then
 			storage.tas.never_stop = not storage.tas.never_stop
 
-			Message(string.format("Step: %d - Never Stop: %s", steps[storage.tas.step][1][1], storage.tas.never_stop))
+			Message(string.format("Step: %d - Never Stop: %s", steps[storage.tas.step][1], storage.tas.never_stop))
 			storage.tas.not_same_step = storage.tas.step
 		elseif steps[storage.tas.step].comment == "Use All Ticks" then
 			storage.tas.use_all_ticks = not storage.tas.use_all_ticks
 			
-			Message(string.format("Step: %d - Use All Ticks: %s", steps[storage.tas.step][1][1], storage.tas.use_all_ticks))
+			Message(string.format("Step: %d - Use All Ticks: %s", steps[storage.tas.step][1], storage.tas.use_all_ticks))
 			storage.tas.not_same_step = storage.tas.step
 		end
 	end
@@ -1719,7 +1721,7 @@ script.on_event(defines.events.on_tick, function(event)
 	end
 
 	if storage.tas.use_all_ticks and not storage.tas.step_executed and storage.use_all_ticks_warning_mode == nil and not storage.tas.player.mining_state.mining then
-		storage.use_all_ticks_warning_mode = {start = game.tick, step = steps[storage.tas.step][1][1]}
+		storage.use_all_ticks_warning_mode = {start = game.tick, step = steps[storage.tas.step][1]}
 	end
 
 	if storage.never_stop_modifier_warning_mode and storage.tas.walking.walking then
@@ -1727,7 +1729,7 @@ script.on_event(defines.events.on_tick, function(event)
 	end
 
 	if storage.tas.never_stop and storage.never_stop_modifier_warning_mode == nil and storage.tas.walking.walking == false then
-		storage.never_stop_modifier_warning_mode = {start = game.tick, step = steps[storage.tas.step][1][1]}
+		storage.never_stop_modifier_warning_mode = {start = game.tick, step = steps[storage.tas.step][1]}
 	end
 
 	storage.tas.player.walking_state = storage.tas.walking
@@ -1916,7 +1918,7 @@ local function re_order_step_block()
 
 	local lines = {}
     for i, _step in ipairs(storage.executed_step_block) do
-		local s = _step and string.format("%d;%d;%d;",i,_step[1][1], _step[1][2]) or nil
+		local s = _step and string.format("%d;%d;",i,_step[1]) or nil
 		if s then
             table.insert(lines, s)
         end

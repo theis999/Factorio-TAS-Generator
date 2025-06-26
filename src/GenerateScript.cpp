@@ -492,7 +492,7 @@ string GenerateScript::check_item_name(string item)
 
 string GenerateScript::signature(string step)
 {
-	return "step[" + std::to_string(total_steps) + "] = {{" + step + "}, ";
+	return "step[" + std::to_string(total_steps) + "] = {" + step + ", ";
 }
 
 string GenerateScript::Comment(string comment)
