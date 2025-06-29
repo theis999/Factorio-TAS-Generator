@@ -259,13 +259,12 @@ protected:
 	struct ReorderStruct
 	{
 		int index,
-			step_number,
-			substep_number;
+			step_number;
 	};
 	struct ReorderStep
 	{
 		Step step;
-		int step_number, substep_number;
+		int step_number;
 	};
 	void OnReorderReorderButtonClicked(wxCommandEvent& event);
 	void OnReorderLocatorButtonClicked(wxCommandEvent& event);

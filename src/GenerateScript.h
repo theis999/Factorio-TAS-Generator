@@ -93,16 +93,16 @@ private:
 		{"Energy shield", "energy-shield-equipment"},
 		{"Energy shield MK2", "energy-shield-mk2-equipment"},
 		{"Portable fusion reactor", "fusion-reactor-equipment"},
-		{"Efficiency module", "effectivity-module"},
-		{"Efficiency module 2", "effectivity-module-2"},
-		{"Efficiency module 3", "effectivity-module-3"}
+		{"Efficiency module", "efficiency-module"},
+		{"Efficiency module 2", "efficiency-module-2"},
+		{"Efficiency module 3", "efficiency-module-3"}
 	};
 
 
 	const map<string, string> map_translation_research{
-		{"efficiency-module", "effectivity-module"},
-		{"efficiency-module-2", "effectivity-module-2"},
-		{"efficiency-module-3", "effectivity-module-3"},
+		{"efficiency-module", "efficiency-module"},
+		{"efficiency-module-2", "efficiency-module-2"},
+		{"efficiency-module-3", "efficiency-module-3"},
 		{"lab-research-speed-1", "research-speed-1"},
 		{"lab-research-speed-2", "research-speed-2"},
 		{"lab-research-speed-3", "research-speed-3"},

@@ -332,10 +332,10 @@ void cMain::OnReorderReorderButtonClicked(wxCommandEvent& event)
 	{
 		Step& step = StepGridData[i];
 		change.before.push_back({i, step});
-		if (step.type == e_rotate && step.amount != 3)
-			for (int k = 0; k < step.amount; k++) reorder_steplist.push_back({step, i, 0});
-		else
-			reorder_steplist.push_back({step, i, 0});
+		//if (step.type == e_rotate && step.amount != 3)
+		//	for (int k = 0; k < step.amount; k++) reorder_steplist.push_back({step, i, 0});
+		//else
+			reorder_steplist.push_back({step, i});
 	}
 
 	// set number of buildings to 1 since multibuild has been unrolled
@@ -352,7 +352,7 @@ void cMain::OnReorderReorderButtonClicked(wxCommandEvent& event)
 		bool found = false;
 		for (ReorderStep& step : reorder_steplist)
 		{
-			if (step.step_number == new_position.step_number && step.substep_number == new_position.substep_number)
+			if (step.step_number == new_position.step_number)
 			{
 				steplist.push_back(step.step);
 				found = true;
@@ -413,11 +413,11 @@ bool cMain::OnReorderTextValidate(vector<ReorderStruct>& out)
 	};
 	for (string line; std::getline(input, line);)
 	{
-		if (line.size() < 6) continue; // There needs to be at least 6 chars to be valid
+		if (line.size() < 4) continue; // There needs to be at least 6 chars to be valid
 		ReorderStruct out_segment{};
 		stringstream line_input{line};
 		string segment;
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < 2; i++)
 		{
 			if (!std::getline(line_input, segment, ';')) 
 				return false;
@@ -426,7 +426,6 @@ bool cMain::OnReorderTextValidate(vector<ReorderStruct>& out)
 				{
 					case 0: out_segment.index = stoi(segment); break;
 					case 1: out_segment.step_number = stoi(segment) - 1; break;
-					case 2: out_segment.substep_number = stoi(segment) - 1; break;
 				}
 			}
 			catch (...)
