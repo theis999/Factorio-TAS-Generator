@@ -8,14 +8,12 @@ bool SaveTas::Save(
 	wxWindow* parent,
 	DialogProgressBar* dialog_progress_bar,
 	bool save_as,
-	vector<bool> auto_list,
 	vector<Step> steps,
 	map<string, vector<Step>> templates,
 	string folder_location,
 	string folder_location_generate,
 	string goal,
 	log_config logconfig,
-	generate_config generateconfig,
 	wxGridBlockCoordsVector selected_rows,
 	int import_into_row,
 	bool set_last_location)
@@ -88,52 +86,18 @@ bool SaveTas::Save(
 	myfile << code_file_indicator << std::endl;
 	myfile << folder_location_generate << ";" << std::endl;
 
-	myfile << auto_close_indicator << std::endl;
-	myfile << auto_close_generate_script_text << ";" << bool_to_string(auto_list[0]) << std::endl;
-	myfile << auto_close_open_text << ";" << bool_to_string(auto_list[1]) << std::endl;
-	myfile << auto_close_save_text << ";" << bool_to_string(auto_list[2]) << std::endl;
-	myfile << auto_close_save_as_text << ";" << bool_to_string(auto_list[3]) << std::endl;
-
-	myfile << auto_put_indicator << std::endl;
-	myfile << auto_put_furnace_text << ";" << bool_to_string(auto_list[4]) << std::endl;
-	myfile << auto_put_burner_text << ";" << bool_to_string(auto_list[5]) << std::endl;
-	myfile << auto_put_lab_text << ";" << bool_to_string(auto_list[6]) << std::endl;
-	myfile << auto_put_recipe_text << ";" << bool_to_string(auto_list[7]) << std::endl;
-
 	string s_selected_rows = "";
 	for (auto p : selected_rows) 
 		s_selected_rows += to_string(p.GetTopRow()) + ";" + to_string(p.GetBottomRow()) + ";";
 	myfile << "selected rows;" << s_selected_rows << std::endl;
 	myfile << import_into_row_indicator << ";" << import_into_row << std::endl;
 	myfile << logging_indicator << ";" << logconfig.to_string() << std::endl;
-	myfile << generate_indicator << ";" << generateconfig.to_string();
 
 	myfile.close();
 
 	dialog_progress_bar->set_progress(100);
-	if (save_as)
-	{
-		if (auto_list[8])
-		{
-			dialog_progress_bar->Close();
-		}
-		else
-		{
-			dialog_progress_bar->set_button_enable(true);
-		}
-	}
-	else
-	{
-		if (auto_list[9])
-		{
-			dialog_progress_bar->Close();
-		}
-		else
-		{
-			dialog_progress_bar->set_button_enable(true);
-		}
-	}
-
+	dialog_progress_bar->Close();
+	
 	if (set_last_location)
 	{
 		settings::SaveLastTas(folder_location);

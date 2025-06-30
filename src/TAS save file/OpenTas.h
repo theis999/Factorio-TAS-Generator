@@ -45,16 +45,7 @@ struct open_file_return_data
 			save_as = false;
 	} auto_close;
 
-	struct
-	{
-		bool furnace = false,
-			burner = false,
-			lab = false,
-			recipe = false;
-	} auto_put;
-
 	log_config logconfig;
-	generate_config generateConfig;
 
 	WarningsStatesCounters warnings_states_counters;
 };
@@ -89,13 +80,9 @@ private:
 	bool extract_total_steps(std::ifstream& file);
 	bool extract_goal(std::ifstream& file);
 	OpenTAS::Category extract_steps(std::ifstream& file, DialogProgressBar* dialog_progress_bar);
-	bool extract_groups(std::ifstream& file, DialogProgressBar* dialog_progress_bar);
 	bool extract_templates(std::ifstream& file, DialogProgressBar* dialog_progress_bar);
 	bool extract_save_location(std::ifstream& file);
 	bool extract_script_location(std::ifstream& file);
-	bool extract_auto_close(std::ifstream& file);
-	bool extract_auto_put(std::ifstream& file);
-	bool extract_generate_config(std::ifstream& file);
 	bool extract_log_config(std::ifstream & file);
 
 	Step ReadStep(const size_t, int&, std::vector<string>::iterator);

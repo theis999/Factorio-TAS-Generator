@@ -29,7 +29,7 @@ enum StepType
 	e_tech,
 	e_drop, 
 	e_pick_up, 
-	e_idle, 
+	e_wait, 
 	e_cancel_crafting,
 	e_never_idle, 
 	e_keep_walking, 
@@ -65,7 +65,7 @@ static const vector<string> StepNames = {
 	"Tech", 
 	"Drop", 
 	"Pick up", 
-	"Idle", 
+	"Wait", 
 	"Cancel",
 	"Never idle", 
 	"Keep walking", 
@@ -141,7 +141,7 @@ static struct ModifierTypeSets{
 		e_tech,
 		e_drop,
 		e_pick_up,
-		e_idle,
+		e_wait,
 		e_cancel_crafting,
 		e_never_idle,
 		e_keep_walking,
@@ -154,29 +154,7 @@ static struct ModifierTypeSets{
 		e_drive,
 		e_send,
 	};
-	set<StepType> force{
-		//character steps
-		e_drop, 
-		e_mine,
-		//building steps
-		e_take, 
-		e_put, 
-		e_build, 
-		e_recipe, 
-		e_limit,
-		e_filter,
-		e_priority,
-		e_launch,
-		e_rotate,
-	};
 	set<StepType> split{
-		e_mine,
-	};
-	set<StepType> vehicle{
-		e_take,
-		e_put,
-		e_limit,
-		e_filter,
 		e_mine,
 	};
 } modifier_types;

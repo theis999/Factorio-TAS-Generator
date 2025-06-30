@@ -1693,7 +1693,7 @@ script.on_event(defines.events.on_tick, function(event)
 	end
 
 	if steps[storage.tas.step].comment and storage.tas.step > storage.tas.not_same_step then
-		if steps[storage.tas.step].comment == "Never Stop" then
+		if steps[storage.tas.step].comment == "Neer Stop" then
 			storage.tas.never_stop = not storage.tas.never_stop
 
 			Message(string.format("Step: %d - Never Stop: %s", steps[storage.tas.step][1], storage.tas.never_stop))

@@ -6,7 +6,7 @@ using std::set;
 set<StepType> control_types = {
 	e_pause,
 	e_stop,
-	e_idle,
+	e_wait,
 };
 void cMain::SetupWalkPanelUnicodeCharacters()
 {

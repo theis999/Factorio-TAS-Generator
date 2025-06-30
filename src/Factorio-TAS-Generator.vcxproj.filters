@@ -248,7 +248,7 @@
     </Natvis>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="icon.ico">
+    <Image Include="..\icon.ico">
       <Filter>misc</Filter>
     </Image>
   </ItemGroup>
@@ -256,5 +256,10 @@
     <ResourceCompile Include="Factorio-TAS-Generator.rc">
       <Filter>misc</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\icon.xpm">
+      <Filter>misc</Filter>
+    </None>
   </ItemGroup>
 </Project>

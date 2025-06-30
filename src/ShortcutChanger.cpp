@@ -20,11 +20,9 @@ void ShortcutChanger::Build(wxMenuBar* menu)
 
 	vector<std::tuple<wxGridSizer*, string, wxPanel*, wxSizer*> > grids = {
 		{sc_grid_sizer_file, "File", sc_panel_file, sc_file_sizer},
-		{sc_grid_sizer_script, "Script", sc_panel_script, sc_script_sizer},
 		{sc_grid_sizer_steptypes, "Step types", sc_panel_steptypes, sc_steptypes_sizer},
 		{sc_grid_sizer_shortcuts, "Shortcuts", sc_panel_shortcuts, sc_shortcuts_sizer},
 		{sc_grid_sizer_goals, "Goal", sc_panel_goals, sc_goal_sizer},
-		{sc_grid_sizer_auto, "Auto-close", sc_panel_auto, sc_auto_sizer},
 	};
 
 	for (auto&[grid, menu, panel, outer_sizer] : grids)

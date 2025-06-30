@@ -72,7 +72,6 @@ protected:
 	void OnChooseLocation(wxCommandEvent& event);
 	std::string GetGoalConfig();
 	log_config GetLogConfig();
-	generate_config GetGenerateConfig();
 	void OnGenerateScript(wxCommandEvent& event);
 
 	// Goals menu
@@ -87,7 +86,7 @@ protected:
 	void OnWalkMenuSelected(wxCommandEvent& event);
 	void OnCraftMenuSelected(wxCommandEvent& event);
 	void OnTechMenuSelected(wxCommandEvent& event);
-	void OnIdleMenuSelected(wxCommandEvent& event);
+	void OnWaitMenuSelected(wxCommandEvent& event);
 	void OnPickUpMenuSelected(wxCommandEvent& event);
 	void OnDropMenuSelected(wxCommandEvent& event);
 	void OnCancelCraftingMenuSelected(wxCommandEvent& event);
@@ -134,12 +133,6 @@ protected:
 	void OnMoveDownAltMenuSelected(wxCommandEvent& event);
 	void OnSearchMenuSelected(wxCommandEvent& event);
 
-	// Auto-close menu items
-	void OnMenuAutoCloseGenerateScriptClicked(wxCommandEvent& event);
-	void OnMenuAutoCloseOpenClicked(wxCommandEvent& event);
-	void OnMenuAutoCloseSaveClicked(wxCommandEvent& event);
-	void OnMenuAutoCloseSaveAsClicked(wxCommandEvent& event);
-
 	// Radio buttons
 	void OnMineChosen(wxCommandEvent& event);
 	void OnRotateChosen(wxCommandEvent& event);
@@ -158,7 +151,7 @@ protected:
 	void OnCancelCraftingChosen(wxCommandEvent& event);
 	void OnPriorityChosen(wxCommandEvent& event);
 	void OnLimitChosen(wxCommandEvent& event);
-	void OnIdleChosen(wxCommandEvent& event);
+	void OnWaitChosen(wxCommandEvent& event);
 	void OnShootChosen(wxCommandEvent& event);
 	void OnEquipChosen(wxCommandEvent& event);
 	void OnThrowChosen(wxCommandEvent& event);
@@ -179,12 +172,6 @@ protected:
 	void OnNoOrderRightClicked(wxMouseEvent& event);
 	void NoOrderButtonHandle(bool force = false);
 	void OnSkipClicked(wxCommandEvent& event);
-	void OnForceClicked(wxCommandEvent& event);
-	void OnForceRightClicked(wxMouseEvent& event);
-	void ForceButtonHandle(bool force = false);
-	void OnVehicleClicked(wxCommandEvent& event);
-	void OnVehicleRightClicked(wxMouseEvent& event);
-	void VehicleButtonHandle(bool force = false);
 
 	// walk panel
 	void SetupWalkPanelUnicodeCharacters();
@@ -218,11 +205,6 @@ protected:
 	void OnStepsGridRightClick(wxGridEvent& event);
 	void OnStepsGridRangeSelect(wxGridRangeSelectEvent& event);
 	void OnStepColourPickerColourChanged(wxColourPickerEvent& event);
-	void HandleSplitOrMergeToggle(wxArrayInt& rows);
-	void OnSplitMultibuildClicked(wxCommandEvent& event);
-	void OnSplitMultibuildRightClicked(wxMouseEvent& event);
-
-	void SplitMultibuildStep(int row);
 
 	void OnStepsFocusCheckbox(wxCommandEvent & event);
 	void HandleFocusMode(bool checked, bool changed = false);
@@ -277,13 +259,12 @@ protected:
 	struct ReorderStruct
 	{
 		int index,
-			step_number,
-			substep_number;
+			step_number;
 	};
 	struct ReorderStep
 	{
 		Step step;
-		int step_number, substep_number;
+		int step_number;
 	};
 	void OnReorderReorderButtonClicked(wxCommandEvent& event);
 	void OnReorderLocatorButtonClicked(wxCommandEvent& event);
@@ -302,11 +283,6 @@ private:
 
 	string generate_code_folder_location = "";
 	string save_file_location = "";
-
-	bool auto_close_generate_script = true;
-	bool auto_close_open = false;
-	bool auto_close_save = true;
-	bool auto_close_save_as = false;
 
 	bool no_changes = true;
 
@@ -382,7 +358,7 @@ private:
 	int GenerateBuildingSnapShot(int end_row);
 	void PopulateStepGrid();
 
-	vector<StepLine> AddStep(int row, Step step, bool auto_put = true);
+	vector<StepLine> AddStep(int row, Step step);
 	Command ChangeStep(int row, Step step);
 	Command DeleteSteps(wxArrayInt steps, bool auto_confirm = false);
 	void GridTransfer(wxGrid* from, const int& fromRow, wxGrid* to, const int& toRow);

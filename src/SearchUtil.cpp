@@ -16,35 +16,21 @@ tuple<wxString, wxString> Search::ExtractColon(const wxString& s)
 tuple<vector<int>, wxString> Search::HandleColon(const wxString& s)
 {
 	auto [column, text] = ExtractColon(s);
-	vector<int> c; //casd
+	vector<int> c;
 	if (column == "any")
 	{
-		c.reserve(6);
 		double text_todouble_throwaway = 0;
 		
 		if (text.ToDouble(&text_todouble_throwaway))
-		{
-			c.push_back(1);
-			c.push_back(2);
-			c.push_back(3);
-			c.push_back(8);
-			c.push_back(9);
-		}
+			c = {1, 2, 3};
 		else
-		{
-			c.push_back(0);
-			c.push_back(4);
-			c.push_back(5);
-			c.push_back(6);
-			c.push_back(7);
-			c.push_back(10);
-		}
+			c = {0, 4, 5, 6, 7};
 	}
 	else
 	{
 		for (int i = 0; i < column.Length(); i++) column[i] = std::tolower(column[i]); // convert custom column to lower case
 		vector<wxString> columns = StepColumns;
-		for (int i = 0; i < 10; i++)
+		for (int i = 0; i < StepColumns.size(); i++)
 		{
 			if (columns[i].starts_with(column))
 			{

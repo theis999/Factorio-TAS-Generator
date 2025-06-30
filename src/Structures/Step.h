@@ -24,11 +24,7 @@ struct Step
 
 	double X;
 	double Y;
-	double OriginalX;
-	double OriginalY;
 
-	int Size = 1;
-	int Buildings = 1;
 	optional<Building> BuildingIndex{};
 
 	StepModifiers Modifiers;
@@ -45,7 +41,6 @@ struct Step
 	int amount = 0;
 	string Item;
 	Orientation orientation = North;
-	Orientation Direction = North;
 	PriorityStruct priority;
 	Riding riding;
 	string Comment;

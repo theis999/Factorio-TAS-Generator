@@ -33,22 +33,19 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	menu_file_save_as = new wxMenuItem( menu_file, wxID_ANY, wxString( wxT("Save As") ) + wxT('\t') + wxT("CTRL+SHIFT+S"), wxEmptyString, wxITEM_NORMAL );
 	menu_file->Append( menu_file_save_as );
 
+	wxMenuItem* menu_script_choose_location;
+	menu_script_choose_location = new wxMenuItem( menu_file, wxID_ANY, wxString( wxT("Script Location") ) , wxEmptyString, wxITEM_NORMAL );
+	menu_file->Append( menu_script_choose_location );
+
+	wxMenuItem* menu_script_generate_script;
+	menu_script_generate_script = new wxMenuItem( menu_file, wxID_ANY, wxString( wxT("Generate") ) + wxT('\t') + wxT("Alt+G"), wxEmptyString, wxITEM_NORMAL );
+	menu_file->Append( menu_script_generate_script );
+
 	wxMenuItem* menu_file_exit;
 	menu_file_exit = new wxMenuItem( menu_file, wxID_ANY, wxString( wxT("Exit") ) , wxEmptyString, wxITEM_NORMAL );
 	menu_file->Append( menu_file_exit );
 
 	main_menubar->Append( menu_file, wxT("File") );
-
-	menu_script = new wxMenu();
-	wxMenuItem* menu_script_choose_location;
-	menu_script_choose_location = new wxMenuItem( menu_script, wxID_ANY, wxString( wxT("Choose Location") ) , wxEmptyString, wxITEM_NORMAL );
-	menu_script->Append( menu_script_choose_location );
-
-	wxMenuItem* menu_script_generate_script;
-	menu_script_generate_script = new wxMenuItem( menu_script, wxID_ANY, wxString( wxT("Generate Script") ) + wxT('\t') + wxT("Alt+G"), wxEmptyString, wxITEM_NORMAL );
-	menu_script->Append( menu_script_generate_script );
-
-	main_menubar->Append( menu_script, wxT("Script") );
 
 	menu_steptypes = new wxMenu();
 	steptypecolour_changer = new wxMenuItem( menu_steptypes, wxID_ANY, wxString( wxT("Change colours") ) , wxEmptyString, wxITEM_NORMAL );
@@ -68,9 +65,9 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	shortcut_tech = new wxMenuItem( menu_steptypes, wxID_ANY, wxString( wxT("Tech") ) + wxT('\t') + wxT("Alt+3"), wxEmptyString, wxITEM_NORMAL );
 	menu_steptypes->Append( shortcut_tech );
 
-	wxMenuItem* shortcut_idle;
-	shortcut_idle = new wxMenuItem( menu_steptypes, wxID_ANY, wxString( wxT("Idle") ) + wxT('\t') + wxT("Alt+6"), wxEmptyString, wxITEM_NORMAL );
-	menu_steptypes->Append( shortcut_idle );
+	wxMenuItem* shortcut_wait;
+	shortcut_wait = new wxMenuItem( menu_steptypes, wxID_ANY, wxString( wxT("Wait") ) + wxT('\t') + wxT("Alt+6"), wxEmptyString, wxITEM_NORMAL );
+	menu_steptypes->Append( shortcut_wait );
 
 	wxMenuItem* shortcut_pick_up;
 	shortcut_pick_up = new wxMenuItem( menu_steptypes, wxID_ANY, wxString( wxT("Pick Up") ) + wxT('\t') + wxT("Shift+4"), wxEmptyString, wxITEM_NORMAL );
@@ -299,57 +296,6 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	main_menubar->Append( menu_loglevel, wxT("Log level") );
 
-	menu_auto_close = new wxMenu();
-	wxMenuItem* auto_close_generate_script;
-	auto_close_generate_script = new wxMenuItem( menu_auto_close, wxID_ANY, wxString( wxT("Generate Script") ) , wxEmptyString, wxITEM_CHECK );
-	menu_auto_close->Append( auto_close_generate_script );
-	auto_close_generate_script->Check( true );
-
-	wxMenuItem* auto_close_open;
-	auto_close_open = new wxMenuItem( menu_auto_close, wxID_ANY, wxString( wxT("Open") ) , wxEmptyString, wxITEM_CHECK );
-	menu_auto_close->Append( auto_close_open );
-
-	wxMenuItem* auto_close_save;
-	auto_close_save = new wxMenuItem( menu_auto_close, wxID_ANY, wxString( wxT("Save") ) , wxEmptyString, wxITEM_CHECK );
-	menu_auto_close->Append( auto_close_save );
-	auto_close_save->Check( true );
-
-	wxMenuItem* auto_close_save_as;
-	auto_close_save_as = new wxMenuItem( menu_auto_close, wxID_ANY, wxString( wxT("Save As") ) , wxEmptyString, wxITEM_CHECK );
-	menu_auto_close->Append( auto_close_save_as );
-
-	main_menubar->Append( menu_auto_close, wxT("Auto-close") );
-
-	menu_auto_put = new wxMenu();
-	auto_put_furnace = new wxMenuItem( menu_auto_put, wxID_ANY, wxString( wxT("Furnace") ) , wxEmptyString, wxITEM_CHECK );
-	menu_auto_put->Append( auto_put_furnace );
-	auto_put_furnace->Check( true );
-
-	auto_put_burner = new wxMenuItem( menu_auto_put, wxID_ANY, wxString( wxT("Burner") ) , wxEmptyString, wxITEM_CHECK );
-	menu_auto_put->Append( auto_put_burner );
-
-	auto_put_lab = new wxMenuItem( menu_auto_put, wxID_ANY, wxString( wxT("Lab") ) , wxEmptyString, wxITEM_CHECK );
-	menu_auto_put->Append( auto_put_lab );
-	auto_put_lab->Check( true );
-
-	auto_put_recipe = new wxMenuItem( menu_auto_put, wxID_ANY, wxString( wxT("Recipe") ) , wxEmptyString, wxITEM_CHECK );
-	menu_auto_put->Append( auto_put_recipe );
-
-	main_menubar->Append( menu_auto_put, wxT("Auto-put") );
-
-	menu_other = new wxMenu();
-	legacy_mining = new wxMenuItem( menu_other, wxID_ANY, wxString( wxT("Legacy mining") ) , wxT("Legacy mining is 1 tick slower."), wxITEM_CHECK );
-	menu_other->Append( legacy_mining );
-
-	intermediate_walk_towards = new wxMenuItem( menu_other, wxID_ANY, wxString( wxT("Walk towards on intermediate walk") ) , wxT("Adds modifier \"walk towards\" on intermediate walk steps.\nWhich should generally make those walk steps faster to perform."), wxITEM_CHECK );
-	menu_other->Append( intermediate_walk_towards );
-	intermediate_walk_towards->Check( true );
-
-	no_intermediate_walk = new wxMenuItem( menu_other, wxID_ANY, wxString( wxT("Always force") ) , wxT("Removes sanity checks for distance and therefor intermediate walk steps."), wxITEM_CHECK );
-	menu_other->Append( no_intermediate_walk );
-
-	main_menubar->Append( menu_other, wxT("Other") );
-
 	this->SetMenuBar( main_menubar );
 
 	type_panel = new TypePanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), wxBORDER_NONE|wxTAB_TRAVERSAL );
@@ -379,10 +325,10 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	fgSizer4->Add( rbtn_tech, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
-	rbtn_idle = new wxRadioButton( character_panel, wxID_ANY, wxT("Idle"), wxDefaultPosition, wxDefaultSize, 0 );
-	rbtn_idle->SetToolTip( wxT("Makes the character do nothing for X ticks") );
+	rbtn_wait = new wxRadioButton( character_panel, wxID_ANY, wxT("Wait"), wxDefaultPosition, wxDefaultSize, 0 );
+	rbtn_wait->SetToolTip( wxT("Makes the character do nothing for X ticks while walking, driving or standing still.") );
 
-	fgSizer4->Add( rbtn_idle, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
+	fgSizer4->Add( rbtn_wait, 0, wxBOTTOM|wxLEFT|wxTOP, 5 );
 
 	rbtn_pick_up = new wxRadioButton( character_panel, wxID_ANY, wxT("Pick Up"), wxDefaultPosition, wxDefaultSize, 0 );
 	rbtn_pick_up->SetToolTip( wxT("Makes the character start to pick up items on the floor, same as pressing ( f )") );
@@ -689,7 +635,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	detail_sizer_X = new wxBoxSizer( wxHORIZONTAL );
 
 	detail_sizer_X->SetMinSize( wxSize( 10,10 ) );
-	label_x_cord = new wxStaticText( detail_panel, wxID_ANY, wxT("X-Cord:"), wxDefaultPosition, wxSize( 60,-1 ), wxALIGN_RIGHT );
+	label_x_cord = new wxStaticText( detail_panel, wxID_ANY, wxT("X:"), wxDefaultPosition, wxSize( 60,-1 ), wxALIGN_RIGHT );
 	label_x_cord->Wrap( -1 );
 	detail_sizer_X->Add( label_x_cord, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
@@ -705,7 +651,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	wxBoxSizer* detail_sizer_Y;
 	detail_sizer_Y = new wxBoxSizer( wxHORIZONTAL );
 
-	label_y_cord = new wxStaticText( detail_panel, wxID_ANY, wxT("Y-Cord:"), wxDefaultPosition, wxSize( 60,-1 ), wxALIGN_RIGHT );
+	label_y_cord = new wxStaticText( detail_panel, wxID_ANY, wxT("Y:"), wxDefaultPosition, wxSize( 60,-1 ), wxALIGN_RIGHT );
 	label_y_cord->Wrap( -1 );
 	detail_sizer_Y->Add( label_y_cord, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
@@ -836,7 +782,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	wxBoxSizer* detail_sizer_Orientation;
 	detail_sizer_Orientation = new wxBoxSizer( wxHORIZONTAL );
 
-	label_building_orientation = new wxStaticText( detail_panel, wxID_ANY, wxT("Building orientation:"), wxDefaultPosition, wxSize( 115,-1 ), wxALIGN_RIGHT );
+	label_building_orientation = new wxStaticText( detail_panel, wxID_ANY, wxT("Orientation:"), wxDefaultPosition, wxSize( 80,-1 ), wxALIGN_RIGHT );
 	label_building_orientation->Wrap( -1 );
 	detail_sizer_Orientation->Add( label_building_orientation, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
@@ -848,55 +794,8 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	detail_sizer_col3->Add( detail_sizer_Orientation, 1, 0, 5 );
 
-	wxBoxSizer* detail_sizer_Direction;
-	detail_sizer_Direction = new wxBoxSizer( wxHORIZONTAL );
 
-	label_direction_to_build = new wxStaticText( detail_panel, wxID_ANY, wxT("Build direction:"), wxDefaultPosition, wxSize( 115,-1 ), wxALIGN_RIGHT );
-	label_direction_to_build->Wrap( -1 );
-	detail_sizer_Direction->Add( label_direction_to_build, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-	cmb_direction_to_build = new wxComboBox( detail_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize( 80,-1 ), 0, NULL, 0 );
-	cmb_direction_to_build->SetToolTip( wxT("The direction to place the next building") );
-
-	detail_sizer_Direction->Add( cmb_direction_to_build, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-
-	detail_sizer_col3->Add( detail_sizer_Direction, 1, 0, 5 );
-
-	wxBoxSizer* detail_sizer_Size;
-	detail_sizer_Size = new wxBoxSizer( wxHORIZONTAL );
-
-	label_building_size = new wxStaticText( detail_panel, wxID_ANY, wxT("Building size:"), wxDefaultPosition, wxSize( 115,-1 ), wxALIGN_RIGHT );
-	label_building_size->Wrap( -1 );
-	detail_sizer_Size->Add( label_building_size, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-	spin_building_size = new wxSpinCtrl( detail_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT|wxSP_ARROW_KEYS, 1, 10, 1 );
-	spin_building_size->SetToolTip( wxT("Number of tiles the building is wide. Used for placing multiple buildings in a row.") );
-	spin_building_size->SetMinSize( wxSize( 80,-1 ) );
-
-	detail_sizer_Size->Add( spin_building_size, 0, wxALL, 5 );
-
-
-	detail_sizer_col3->Add( detail_sizer_Size, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* detail_sizer_Buildings;
-	detail_sizer_Buildings = new wxBoxSizer( wxHORIZONTAL );
-
-	label_amount_of_buildings = new wxStaticText( detail_panel, wxID_ANY, wxT("Amount of Buildings:"), wxDefaultPosition, wxSize( 115,-1 ), wxALIGN_RIGHT );
-	label_amount_of_buildings->Wrap( -1 );
-	detail_sizer_Buildings->Add( label_amount_of_buildings, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-	spin_building_amount = new wxSpinCtrl( detail_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT|wxSP_ARROW_KEYS, 1, 250, 1 );
-	spin_building_amount->SetToolTip( wxT("The number of buildings to place in a row") );
-	spin_building_amount->SetMinSize( wxSize( 80,-1 ) );
-
-	detail_sizer_Buildings->Add( spin_building_amount, 0, wxALL, 5 );
-
-
-	detail_sizer_col3->Add( detail_sizer_Buildings, 1, wxEXPAND, 5 );
-
-
-	detail_sizer_flex->Add( detail_sizer_col3, 1, wxEXPAND, 5 );
+	detail_sizer_flex->Add( detail_sizer_col3, 1, 0, 5 );
 
 
 	detail_sizer->Add( detail_sizer_flex, 1, wxEXPAND, 5 );
@@ -912,7 +811,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	step_modifier_panel_sizer = new wxBoxSizer( wxVERTICAL );
 
 	wxFlexGridSizer* step_modifier_flex;
-	step_modifier_flex = new wxFlexGridSizer( 0, 3, 5, 5 );
+	step_modifier_flex = new wxFlexGridSizer( 0, 2, 5, 5 );
 	step_modifier_flex->SetFlexibleDirection( wxBOTH );
 	step_modifier_flex->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 
@@ -955,22 +854,6 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	step_modifier_flex->Add( modifier_wait_for_checkbox, 0, wxALL, 5 );
 
-	sizer_force = new wxBoxSizer( wxVERTICAL );
-
-	modifier_force_checkbox = new wxCheckBox( step_modifier_panel, wxID_ANY, wxT("Force"), wxDefaultPosition, wxDefaultSize, 0 );
-	modifier_force_checkbox->SetToolTip( wxT("Tells the generator to not check if the character can reach the entity. This prevents intermediate walk steps which can mess up your execution but it can also leave your character stranded on a step that cannot be executed.") );
-
-	sizer_force->Add( modifier_force_checkbox, 0, wxALL, 5 );
-
-	modifier_force_button = new wxButton( step_modifier_panel, wxID_ANY, wxT("Force"), wxDefaultPosition, wxDefaultSize, 0 );
-	modifier_force_button->Hide();
-	modifier_force_button->SetToolTip( wxT("Tells the generator to ignore distance calculations for these steps.") );
-
-	sizer_force->Add( modifier_force_button, 0, 0, 5 );
-
-
-	step_modifier_flex->Add( sizer_force, 1, wxEXPAND, 5 );
-
 	modifier_cancel_checkbox = new wxCheckBox( step_modifier_panel, wxID_ANY, wxT("Cancel others"), wxDefaultPosition, wxDefaultSize, 0 );
 	modifier_cancel_checkbox->Enable( false );
 	modifier_cancel_checkbox->SetToolTip( wxT("Cancels anything else in your crafting queue or research queue, before adding the new item.") );
@@ -994,22 +877,6 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	modifier_all_checkbox->SetToolTip( wxT("This allows you take all items from the specific inventory. Ignoring item type and amount.") );
 
 	step_modifier_flex->Add( modifier_all_checkbox, 0, wxALL, 5 );
-
-	sizer_vehicle = new wxBoxSizer( wxVERTICAL );
-
-	modifier_vehicle_checkbox = new wxCheckBox( step_modifier_panel, wxID_ANY, wxT("Vehicle"), wxDefaultPosition, wxDefaultSize, 0 );
-	modifier_vehicle_checkbox->SetToolTip( wxT("Tells the generator that this step is associated with a vehicle instead of building.\nThe generator will then not attempt to match the step with a building.\n\nThis will also tell the TAS controller to be lenient when matching the entity with a 5 tile search radius.") );
-
-	sizer_vehicle->Add( modifier_vehicle_checkbox, 0, wxALL, 5 );
-
-	modifier_vehicle_button = new wxButton( step_modifier_panel, wxID_ANY, wxT("Vehicle"), wxDefaultPosition, wxDefaultSize, 0 );
-	modifier_vehicle_button->Hide();
-	modifier_vehicle_button->SetToolTip( wxT("Tells the generator that this step is associated with a vehicle instead of building.\nThe generator will then not attempt to match the step with a building.\n\nThis will also tell the TAS controller to be lenient when matching the entity with a 5 tile search radius.") );
-
-	sizer_vehicle->Add( modifier_vehicle_button, 0, 0, 5 );
-
-
-	step_modifier_flex->Add( sizer_vehicle, 1, wxEXPAND, 5 );
 
 
 	step_modifier_panel_sizer->Add( step_modifier_flex, 1, wxALL|wxEXPAND, 5 );
@@ -1223,11 +1090,6 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	step_search_toggle_updown->SetValue(true);
 	step_panel_search_sizer->Add( step_search_toggle_updown, 0, wxALL, 7 );
 
-	step_split_multibuild_button = new wxButton( step_panel, wxID_ANY, wxT("Split"), wxDefaultPosition, wxDefaultSize, 0 );
-	step_split_multibuild_button->SetToolTip( wxT("Splits a multibuild row into it's separate steps") );
-
-	step_panel_search_sizer->Add( step_split_multibuild_button, 0, wxALL, 5 );
-
 	wxBoxSizer* bSizer65;
 	bSizer65 = new wxBoxSizer( wxHORIZONTAL );
 
@@ -1284,7 +1146,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	grid_steps = new wxGrid( step_panel, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), 0 );
 
 	// Grid
-	grid_steps->CreateGrid( 0, 11 );
+	grid_steps->CreateGrid( 0, 8 );
 	grid_steps->EnableEditing( true );
 	grid_steps->EnableGridLines( true );
 	grid_steps->EnableDragGridSize( false );
@@ -1292,29 +1154,23 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	// Columns
 	grid_steps->SetColSize( 0, 75 );
-	grid_steps->SetColSize( 1, 49 );
-	grid_steps->SetColSize( 2, 49 );
-	grid_steps->SetColSize( 3, 58 );
+	grid_steps->SetColSize( 1, 60 );
+	grid_steps->SetColSize( 2, 60 );
+	grid_steps->SetColSize( 3, 60 );
 	grid_steps->SetColSize( 4, 140 );
 	grid_steps->SetColSize( 5, 70 );
-	grid_steps->SetColSize( 6, 80 );
-	grid_steps->SetColSize( 7, 70 );
-	grid_steps->SetColSize( 8, 50 );
-	grid_steps->SetColSize( 9, 60 );
-	grid_steps->SetColSize( 10, 112 );
+	grid_steps->SetColSize( 6, 120 );
+	grid_steps->SetColSize( 7, 120 );
 	grid_steps->EnableDragColMove( false );
 	grid_steps->EnableDragColSize( true );
 	grid_steps->SetColLabelValue( 0, wxT("Step") );
-	grid_steps->SetColLabelValue( 1, wxT("X-cord") );
-	grid_steps->SetColLabelValue( 2, wxT("Y-cord") );
+	grid_steps->SetColLabelValue( 1, wxT("X") );
+	grid_steps->SetColLabelValue( 2, wxT("Y") );
 	grid_steps->SetColLabelValue( 3, wxT("Amount") );
 	grid_steps->SetColLabelValue( 4, wxT("Item") );
 	grid_steps->SetColLabelValue( 5, wxT("Orientation") );
 	grid_steps->SetColLabelValue( 6, wxT("Modifier") );
-	grid_steps->SetColLabelValue( 7, wxT("Direction") );
-	grid_steps->SetColLabelValue( 8, wxT("Size") );
-	grid_steps->SetColLabelValue( 9, wxT("Buildings") );
-	grid_steps->SetColLabelValue( 10, wxT("Comment") );
+	grid_steps->SetColLabelValue( 7, wxT("Comment") );
 	grid_steps->SetColLabelAlignment( wxALIGN_CENTER, wxALIGN_CENTER );
 
 	// Rows
@@ -1338,7 +1194,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	step_panel->SetSizer( step_panel_sizer );
 	step_panel->Layout();
 	step_panel_sizer->Fit( step_panel );
-	main_book->AddPage( step_panel, wxT("Steps"), true, wxNullBitmap );
+	main_book->AddPage( step_panel, wxT("Steps"), false, wxNullBitmap );
 	reorder_panel = new wxPanel( main_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* reorder_sizer;
 	reorder_sizer = new wxBoxSizer( wxVERTICAL );
@@ -1589,7 +1445,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	grid_template = new wxGrid( template_panel, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), 0 );
 
 	// Grid
-	grid_template->CreateGrid( 0, 11 );
+	grid_template->CreateGrid( 0, 8 );
 	grid_template->EnableEditing( false );
 	grid_template->EnableGridLines( true );
 	grid_template->EnableDragGridSize( false );
@@ -1597,29 +1453,23 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	// Columns
 	grid_template->SetColSize( 0, 75 );
-	grid_template->SetColSize( 1, 49 );
-	grid_template->SetColSize( 2, 49 );
-	grid_template->SetColSize( 3, 50 );
+	grid_template->SetColSize( 1, 60 );
+	grid_template->SetColSize( 2, 60 );
+	grid_template->SetColSize( 3, 60 );
 	grid_template->SetColSize( 4, 150 );
 	grid_template->SetColSize( 5, 70 );
-	grid_template->SetColSize( 6, 60 );
-	grid_template->SetColSize( 7, 70 );
-	grid_template->SetColSize( 8, 50 );
-	grid_template->SetColSize( 9, 60 );
-	grid_template->SetColSize( 10, 139 );
+	grid_template->SetColSize( 6, 120 );
+	grid_template->SetColSize( 7, 140 );
 	grid_template->EnableDragColMove( false );
 	grid_template->EnableDragColSize( true );
 	grid_template->SetColLabelValue( 0, wxT("Step") );
-	grid_template->SetColLabelValue( 1, wxT("X-cord") );
-	grid_template->SetColLabelValue( 2, wxT("Y-cord") );
+	grid_template->SetColLabelValue( 1, wxT("X") );
+	grid_template->SetColLabelValue( 2, wxT("Y") );
 	grid_template->SetColLabelValue( 3, wxT("Amount") );
 	grid_template->SetColLabelValue( 4, wxT("Item") );
 	grid_template->SetColLabelValue( 5, wxT("Orientation") );
 	grid_template->SetColLabelValue( 6, wxT("Modifiers") );
-	grid_template->SetColLabelValue( 7, wxT("Direction") );
-	grid_template->SetColLabelValue( 8, wxT("Size") );
-	grid_template->SetColLabelValue( 9, wxT("Buildings") );
-	grid_template->SetColLabelValue( 10, wxT("Comment") );
+	grid_template->SetColLabelValue( 7, wxT("Comment") );
 	grid_template->SetColLabelAlignment( wxALIGN_CENTER, wxALIGN_CENTER );
 
 	// Rows
@@ -1642,7 +1492,7 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	template_panel->SetSizer( template_sizer );
 	template_panel->Layout();
 	template_sizer->Fit( template_panel );
-	main_book->AddPage( template_panel, wxT("Templates"), false, wxNullBitmap );
+	main_book->AddPage( template_panel, wxT("Templates"), true, wxNullBitmap );
 
 
 	m_mgr.Update();
@@ -1654,14 +1504,14 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	menu_file->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuOpen ), this, menu_file_open->GetId());
 	menu_file->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuSave ), this, menu_file_save->GetId());
 	menu_file->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuSaveAs ), this, menu_file_save_as->GetId());
+	menu_file->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnChooseLocation ), this, menu_script_choose_location->GetId());
+	menu_file->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnGenerateScript ), this, menu_script_generate_script->GetId());
 	menu_file->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuExit ), this, menu_file_exit->GetId());
-	menu_script->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnChooseLocation ), this, menu_script_choose_location->GetId());
-	menu_script->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnGenerateScript ), this, menu_script_generate_script->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnChangeSteptypeColoursMenuSelected ), this, steptypecolour_changer->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnWalkMenuSelected ), this, shortcut_walk->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnCraftMenuSelected ), this, shortcut_craft->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnTechMenuSelected ), this, shortcut_tech->GetId());
-	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnIdleMenuSelected ), this, shortcut_idle->GetId());
+	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnWaitMenuSelected ), this, shortcut_wait->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnPickUpMenuSelected ), this, shortcut_pick_up->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnDropMenuSelected ), this, shortcut_drop->GetId());
 	menu_steptypes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnCancelCraftingMenuSelected ), this, shortcut_cancel_crafting->GetId());
@@ -1713,18 +1563,10 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	menu_loglevel->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuLogDebugSelected ), this, loglevel_debug->GetId());
 	menu_loglevel->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuLogDevelopmentSelected ), this, loglevel_development->GetId());
 	menu_loglevel->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuLogReleaseSelected ), this, loglevel_release->GetId());
-	menu_auto_close->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuAutoCloseGenerateScriptClicked ), this, auto_close_generate_script->GetId());
-	menu_auto_close->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuAutoCloseOpenClicked ), this, auto_close_open->GetId());
-	menu_auto_close->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuAutoCloseSaveClicked ), this, auto_close_save->GetId());
-	menu_auto_close->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuAutoCloseSaveAsClicked ), this, auto_close_save_as->GetId());
-	menu_auto_put->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuAutoCloseGenerateScriptClicked ), this, auto_put_furnace->GetId());
-	menu_auto_put->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuAutoCloseOpenClicked ), this, auto_put_burner->GetId());
-	menu_auto_put->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuAutoCloseSaveClicked ), this, auto_put_lab->GetId());
-	menu_auto_put->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUI_Base::OnMenuAutoCloseSaveAsClicked ), this, auto_put_recipe->GetId());
 	rbtn_walk->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnWalkChosen ), NULL, this );
 	rbtn_craft->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnCraftChosen ), NULL, this );
 	rbtn_tech->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnTechChosen ), NULL, this );
-	rbtn_idle->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnIdleChosen ), NULL, this );
+	rbtn_wait->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnWaitChosen ), NULL, this );
 	rbtn_pick_up->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnPickUpChosen ), NULL, this );
 	rbtn_drop->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnDropChosen ), NULL, this );
 	rbtn_cancel_crafting->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnCancelCraftingChosen ), NULL, this );
@@ -1756,10 +1598,6 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	modifier_no_order_button->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnNoOrderClicked ), NULL, this );
 	modifier_no_order_button->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnNoOrderRightClicked ), NULL, this );
 	modifier_skip_button->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnSkipClicked ), NULL, this );
-	modifier_force_button->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnForceClicked ), NULL, this );
-	modifier_force_button->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnForceRightClicked ), NULL, this );
-	modifier_vehicle_button->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnVehicleClicked ), NULL, this );
-	modifier_vehicle_button->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnVehicleRightClicked ), NULL, this );
 	walk_panel_button_upleft->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpLeftClicked ), NULL, this );
 	walk_panel_button_up->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpClicked ), NULL, this );
 	walk_panel_button_upright->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpRightClicked ), NULL, this );
@@ -1782,8 +1620,6 @@ GUI_Base::GUI_Base( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	step_search_ctrl->Connect( wxEVT_COMMAND_SEARCHCTRL_SEARCH_BTN, wxCommandEventHandler( GUI_Base::StepSeachOnSearchButton ), NULL, this );
 	step_search_ctrl->Connect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( GUI_Base::StepSeachOnText ), NULL, this );
 	step_search_ctrl->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUI_Base::StepSeachOnTextEnter ), NULL, this );
-	step_split_multibuild_button->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnSplitMultibuildClicked ), NULL, this );
-	step_split_multibuild_button->Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnSplitMultibuildRightClicked ), NULL, this );
 	step_colour_picker->Connect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( GUI_Base::OnStepColourPickerColourChanged ), NULL, this );
 	steps_focus_checkbox->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( GUI_Base::OnStepsFocusCheckbox ), NULL, this );
 	btn_add_step->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnAddStepClicked ), NULL, this );
@@ -1828,7 +1664,7 @@ GUI_Base::~GUI_Base()
 	rbtn_walk->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnWalkChosen ), NULL, this );
 	rbtn_craft->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnCraftChosen ), NULL, this );
 	rbtn_tech->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnTechChosen ), NULL, this );
-	rbtn_idle->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnIdleChosen ), NULL, this );
+	rbtn_wait->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnWaitChosen ), NULL, this );
 	rbtn_pick_up->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnPickUpChosen ), NULL, this );
 	rbtn_drop->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnDropChosen ), NULL, this );
 	rbtn_cancel_crafting->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUI_Base::OnCancelCraftingChosen ), NULL, this );
@@ -1860,10 +1696,6 @@ GUI_Base::~GUI_Base()
 	modifier_no_order_button->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnNoOrderClicked ), NULL, this );
 	modifier_no_order_button->Disconnect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnNoOrderRightClicked ), NULL, this );
 	modifier_skip_button->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnSkipClicked ), NULL, this );
-	modifier_force_button->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnForceClicked ), NULL, this );
-	modifier_force_button->Disconnect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnForceRightClicked ), NULL, this );
-	modifier_vehicle_button->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnVehicleClicked ), NULL, this );
-	modifier_vehicle_button->Disconnect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnVehicleRightClicked ), NULL, this );
 	walk_panel_button_upleft->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpLeftClicked ), NULL, this );
 	walk_panel_button_up->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpClicked ), NULL, this );
 	walk_panel_button_upright->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnWalkPanelBtnUpRightClicked ), NULL, this );
@@ -1886,8 +1718,6 @@ GUI_Base::~GUI_Base()
 	step_search_ctrl->Disconnect( wxEVT_COMMAND_SEARCHCTRL_SEARCH_BTN, wxCommandEventHandler( GUI_Base::StepSeachOnSearchButton ), NULL, this );
 	step_search_ctrl->Disconnect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( GUI_Base::StepSeachOnText ), NULL, this );
 	step_search_ctrl->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUI_Base::StepSeachOnTextEnter ), NULL, this );
-	step_split_multibuild_button->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnSplitMultibuildClicked ), NULL, this );
-	step_split_multibuild_button->Disconnect( wxEVT_RIGHT_UP, wxMouseEventHandler( GUI_Base::OnSplitMultibuildRightClicked ), NULL, this );
 	step_colour_picker->Disconnect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( GUI_Base::OnStepColourPickerColourChanged ), NULL, this );
 	steps_focus_checkbox->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( GUI_Base::OnStepsFocusCheckbox ), NULL, this );
 	btn_add_step->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUI_Base::OnAddStepClicked ), NULL, this );
@@ -1934,15 +1764,33 @@ Shortcut_changer::Shortcut_changer( wxWindow* parent, wxWindowID id, const wxStr
 
 	sc_vertical_sizer = new wxBoxSizer( wxVERTICAL );
 
-	sc_help_label = new wxStaticText( this, wxID_ANY, wxT("HELP: \nThe input fields expect a keybinding -> [<modifierkey>+<key>]\nYou can have multiple modifier keys among [\"Alt\", \"Ctrl\", \"Shift\"] separated with +.\nYou can only have one key in uppercase.\nYou can use F keys like \"F1\".\n\nExamples: \nAlt+G\nCtrl+Shift+G\nCtrl+F1"), wxDefaultPosition, wxDefaultSize, 0 );
-	sc_help_label->Wrap( -1 );
-	sc_vertical_sizer->Add( sc_help_label, 0, wxALL|wxEXPAND, 5 );
+	wxWrapSizer* wSizer1;
+	wSizer1 = new wxWrapSizer( wxHORIZONTAL, wxWRAPSIZER_DEFAULT_FLAGS );
+
+	wxBoxSizer* bSizer80;
+	bSizer80 = new wxBoxSizer( wxHORIZONTAL );
+
+	sc_help_label1 = new wxStaticText( this, wxID_ANY, wxT("HELP: \nThe input fields expect a keybinding -> [<modifierkey>+<key>]\nYou can have multiple modifier keys among [\"Alt\", \"Ctrl\", \"Shift\"] separated with +.\nYou can only have one key in uppercase.\nYou can use F keys like \"F1\"."), wxDefaultPosition, wxDefaultSize, 0 );
+	sc_help_label1->Wrap( -1 );
+	bSizer80->Add( sc_help_label1, 0, wxALL, 5 );
+
+	m_staticline3 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
+	m_staticline3->SetMaxSize( wxSize( -1,80 ) );
+
+	bSizer80->Add( m_staticline3, 0, wxEXPAND | wxALL, 5 );
+
+	sc_help_label2 = new wxStaticText( this, wxID_ANY, wxT("Examples: \nAlt+G\nCtrl+Shift+G\nCtrl+F1"), wxDefaultPosition, wxDefaultSize, 0 );
+	sc_help_label2->Wrap( -1 );
+	bSizer80->Add( sc_help_label2, 0, wxALL, 5 );
+
+
+	wSizer1->Add( bSizer80, 1, wxEXPAND, 5 );
 
 	wxBoxSizer* bSizer72;
 	bSizer72 = new wxBoxSizer( wxVERTICAL );
 
 	sc_item_book = new wxListbook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLB_DEFAULT|wxBORDER_RAISED|wxBORDER_THEME );
-	sc_item_book->SetMinSize( wxSize( 800,340 ) );
+	sc_item_book->SetMinSize( wxSize( 800,440 ) );
 	sc_item_book->SetMaxSize( wxSize( 1500,700 ) );
 
 	sc_panel_file = new wxPanel( sc_item_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
@@ -1960,21 +1808,6 @@ Shortcut_changer::Shortcut_changer( wxWindow* parent, wxWindowID id, const wxStr
 	sc_panel_file->Layout();
 	sc_file_sizer->Fit( sc_panel_file );
 	sc_item_book->AddPage( sc_panel_file, wxT("File"), false );
-	sc_panel_script = new wxPanel( sc_item_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	sc_script_sizer = new wxBoxSizer( wxVERTICAL );
-
-	sc_grid_sizer_script = new wxFlexGridSizer( 0, 3, 5, 5 );
-	sc_grid_sizer_script->SetFlexibleDirection( wxBOTH );
-	sc_grid_sizer_script->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
-
-
-	sc_script_sizer->Add( sc_grid_sizer_script, 1, wxEXPAND, 5 );
-
-
-	sc_panel_script->SetSizer( sc_script_sizer );
-	sc_panel_script->Layout();
-	sc_script_sizer->Fit( sc_panel_script );
-	sc_item_book->AddPage( sc_panel_script, wxT("Script"), false );
 	sc_panel_steptypes = new wxPanel( sc_item_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	sc_steptypes_sizer = new wxBoxSizer( wxVERTICAL );
 
@@ -2020,21 +1853,6 @@ Shortcut_changer::Shortcut_changer( wxWindow* parent, wxWindowID id, const wxStr
 	sc_panel_goals->Layout();
 	sc_goal_sizer->Fit( sc_panel_goals );
 	sc_item_book->AddPage( sc_panel_goals, wxT("Goals"), false );
-	sc_panel_auto = new wxPanel( sc_item_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	sc_auto_sizer = new wxBoxSizer( wxVERTICAL );
-
-	sc_grid_sizer_auto = new wxFlexGridSizer( 0, 3, 5, 5 );
-	sc_grid_sizer_auto->SetFlexibleDirection( wxBOTH );
-	sc_grid_sizer_auto->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
-
-
-	sc_auto_sizer->Add( sc_grid_sizer_auto, 1, wxEXPAND, 5 );
-
-
-	sc_panel_auto->SetSizer( sc_auto_sizer );
-	sc_panel_auto->Layout();
-	sc_auto_sizer->Fit( sc_panel_auto );
-	sc_item_book->AddPage( sc_panel_auto, wxT("Auto put"), false );
 	#ifdef __WXGTK__ // Small icon style not supported in GTK
 	wxListView* sc_item_bookListView = sc_item_book->GetListView();
 	long sc_item_bookFlags = sc_item_bookListView->GetWindowStyleFlag();
@@ -2047,9 +1865,6 @@ Shortcut_changer::Shortcut_changer( wxWindow* parent, wxWindowID id, const wxStr
 
 	bSizer72->Add( sc_item_book, 1, wxALL|wxEXPAND, 5 );
 
-
-	sc_vertical_sizer->Add( bSizer72, 1, wxEXPAND, 5 );
-
 	wxBoxSizer* sc_control_sizer;
 	sc_control_sizer = new wxBoxSizer( wxHORIZONTAL );
 
@@ -2060,7 +1875,13 @@ Shortcut_changer::Shortcut_changer( wxWindow* parent, wxWindowID id, const wxStr
 	sc_control_sizer->Add( sc_save_button, 0, wxALL, 5 );
 
 
-	sc_vertical_sizer->Add( sc_control_sizer, 0, wxALIGN_CENTER_HORIZONTAL, 5 );
+	bSizer72->Add( sc_control_sizer, 0, wxALIGN_CENTER_HORIZONTAL, 5 );
+
+
+	wSizer1->Add( bSizer72, 1, wxEXPAND, 5 );
+
+
+	sc_vertical_sizer->Add( wSizer1, 1, wxEXPAND, 5 );
 
 
 	this->SetSizer( sc_vertical_sizer );
@@ -2159,7 +1980,7 @@ StepTypeColoursDialog::StepTypeColoursDialog( wxWindow* parent, wxWindowID id, c
 	StepTypeColoursDialog_sizer->Add( steptype_colour_label, 0, wxALL, 5 );
 
 	steptype_colour_book = new wxListbook( this, wxID_ANY, wxDefaultPosition, wxSize( 600,600 ), wxLB_DEFAULT );
-	steptype_colour_book->SetMinSize( wxSize( 430,200 ) );
+	steptype_colour_book->SetMinSize( wxSize( 430,250 ) );
 	steptype_colour_book->SetMaxSize( wxSize( 1200,1000 ) );
 
 	steptype_colour_character_panel = new wxPanel( steptype_colour_book, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );

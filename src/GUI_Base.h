@@ -41,6 +41,7 @@
 #include <wx/aui/aui.h>
 #include <wx/listbook.h>
 #include <wx/listctrl.h>
+#include <wx/wrapsizer.h>
 #include <wx/dialog.h>
 #include <wx/gauge.h>
 
@@ -56,7 +57,6 @@ class GUI_Base : public wxFrame
 	protected:
 		wxMenuBar* main_menubar;
 		wxMenu* menu_file;
-		wxMenu* menu_script;
 		wxMenu* menu_steptypes;
 		wxMenuItem* steptypecolour_changer;
 		wxMenu* menu_shortcuts;
@@ -65,18 +65,12 @@ class GUI_Base : public wxFrame
 		wxMenuItem* logging_savegame;
 		wxMenuItem* logging_tech;
 		wxMenuItem* logging_comment;
-		wxMenu* menu_auto_close;
-		wxMenu* menu_auto_put;
-		wxMenu* menu_other;
-		wxMenuItem* legacy_mining;
-		wxMenuItem* intermediate_walk_towards;
-		wxMenuItem* no_intermediate_walk;
 		TypePanel* type_panel;
 		wxPanel* character_panel;
 		wxRadioButton* rbtn_walk;
 		wxRadioButton* rbtn_craft;
 		wxRadioButton* rbtn_tech;
-		wxRadioButton* rbtn_idle;
+		wxRadioButton* rbtn_wait;
 		wxRadioButton* rbtn_pick_up;
 		wxRadioButton* rbtn_drop;
 		wxRadioButton* rbtn_cancel_crafting;
@@ -133,12 +127,6 @@ class GUI_Base : public wxFrame
 		wxRadioBox* radio_output;
 		wxStaticText* label_building_orientation;
 		wxComboBox* cmb_building_orientation;
-		wxStaticText* label_direction_to_build;
-		wxComboBox* cmb_direction_to_build;
-		wxStaticText* label_building_size;
-		wxSpinCtrl* spin_building_size;
-		wxStaticText* label_amount_of_buildings;
-		wxSpinCtrl* spin_building_amount;
 		wxPanel* step_modifier_panel;
 		wxBoxSizer* sizer_no_order;
 		wxCheckBox* modifier_no_order_checkbox;
@@ -147,16 +135,10 @@ class GUI_Base : public wxFrame
 		wxCheckBox* modifier_skip_checkbox;
 		wxButton* modifier_skip_button;
 		wxCheckBox* modifier_wait_for_checkbox;
-		wxBoxSizer* sizer_force;
-		wxCheckBox* modifier_force_checkbox;
-		wxButton* modifier_force_button;
 		wxCheckBox* modifier_cancel_checkbox;
 		wxCheckBox* modifier_split_checkbox;
 		wxCheckBox* modifier_walk_towards_checkbox;
 		wxCheckBox* modifier_all_checkbox;
-		wxBoxSizer* sizer_vehicle;
-		wxCheckBox* modifier_vehicle_checkbox;
-		wxButton* modifier_vehicle_button;
 		wxPanel* walk_panel;
 		wxSpinCtrlDouble* walk_panel_increment_spin;
 		wxPanel* walk_panel_grid_panel;
@@ -180,7 +162,6 @@ class GUI_Base : public wxFrame
 		wxPanel* step_panel;
 		wxSearchCtrl* step_search_ctrl;
 		wxCheckBox* step_search_toggle_updown;
-		wxButton* step_split_multibuild_button;
 		wxColourPickerCtrl* step_colour_picker;
 		wxCheckBox* steps_focus_checkbox;
 		wxButton* btn_add_step;
@@ -225,14 +206,14 @@ class GUI_Base : public wxFrame
 		virtual void OnMenuOpen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuSave( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuSaveAs( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnMenuExit( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnChooseLocation( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnGenerateScript( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnMenuExit( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnChangeSteptypeColoursMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnWalkMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnCraftMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnTechMenuSelected( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnIdleMenuSelected( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnWaitMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnPickUpMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnDropMenuSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnCancelCraftingMenuSelected( wxCommandEvent& event ) { event.Skip(); }
@@ -284,14 +265,10 @@ class GUI_Base : public wxFrame
 		virtual void OnMenuLogDebugSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuLogDevelopmentSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuLogReleaseSelected( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnMenuAutoCloseGenerateScriptClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnMenuAutoCloseOpenClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnMenuAutoCloseSaveClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnMenuAutoCloseSaveAsClicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnWalkChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnCraftChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnTechChosen( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnIdleChosen( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnWaitChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnPickUpChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnDropChosen( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnCancelCraftingChosen( wxCommandEvent& event ) { event.Skip(); }
@@ -323,10 +300,6 @@ class GUI_Base : public wxFrame
 		virtual void OnNoOrderClicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnNoOrderRightClicked( wxMouseEvent& event ) { event.Skip(); }
 		virtual void OnSkipClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnForceClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnForceRightClicked( wxMouseEvent& event ) { event.Skip(); }
-		virtual void OnVehicleClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnVehicleRightClicked( wxMouseEvent& event ) { event.Skip(); }
 		virtual void OnWalkPanelBtnUpLeftClicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnWalkPanelBtnUpClicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnWalkPanelBtnUpRightClicked( wxCommandEvent& event ) { event.Skip(); }
@@ -349,8 +322,6 @@ class GUI_Base : public wxFrame
 		virtual void StepSeachOnSearchButton( wxCommandEvent& event ) { event.Skip(); }
 		virtual void StepSeachOnText( wxCommandEvent& event ) { event.Skip(); }
 		virtual void StepSeachOnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnSplitMultibuildClicked( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnSplitMultibuildRightClicked( wxMouseEvent& event ) { event.Skip(); }
 		virtual void OnStepColourPickerColourChanged( wxColourPickerEvent& event ) { event.Skip(); }
 		virtual void OnStepsFocusCheckbox( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnAddStepClicked( wxCommandEvent& event ) { event.Skip(); }
@@ -388,10 +359,6 @@ class GUI_Base : public wxFrame
 
 
 	public:
-		wxMenuItem* auto_put_furnace;
-		wxMenuItem* auto_put_burner;
-		wxMenuItem* auto_put_lab;
-		wxMenuItem* auto_put_recipe;
 		wxString import_steps_into_template_ctrl_validator;
 
 		GUI_Base( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Factorio TAS Generator"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 1840,1080 ), long style = wxDEFAULT_FRAME_STYLE|wxSYSTEM_MENU|wxTAB_TRAVERSAL );
@@ -410,14 +377,13 @@ class Shortcut_changer : public wxDialog
 
 	protected:
 		wxBoxSizer* sc_vertical_sizer;
-		wxStaticText* sc_help_label;
+		wxStaticText* sc_help_label1;
+		wxStaticLine* m_staticline3;
+		wxStaticText* sc_help_label2;
 		wxListbook* sc_item_book;
 		wxPanel* sc_panel_file;
 		wxBoxSizer* sc_file_sizer;
 		wxFlexGridSizer* sc_grid_sizer_file;
-		wxPanel* sc_panel_script;
-		wxBoxSizer* sc_script_sizer;
-		wxFlexGridSizer* sc_grid_sizer_script;
 		wxPanel* sc_panel_steptypes;
 		wxBoxSizer* sc_steptypes_sizer;
 		wxFlexGridSizer* sc_grid_sizer_steptypes;
@@ -427,9 +393,6 @@ class Shortcut_changer : public wxDialog
 		wxPanel* sc_panel_goals;
 		wxBoxSizer* sc_goal_sizer;
 		wxFlexGridSizer* sc_grid_sizer_goals;
-		wxPanel* sc_panel_auto;
-		wxBoxSizer* sc_auto_sizer;
-		wxFlexGridSizer* sc_grid_sizer_auto;
 		wxButton* sc_reset_button;
 		wxButton* sc_save_button;
 

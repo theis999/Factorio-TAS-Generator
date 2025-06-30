@@ -15,7 +15,7 @@ static const double invalidX = 0.3543534;
 static const struct GeneratorThumbprint
 {
 	string name = "Factorio TAS Generator";
-	string version = "0.6.1";
+	string version = "2.0.0";
 } generator_thumbprint;
 
 static const vector<string> fuel_list = {
@@ -279,19 +279,6 @@ static const std::vector<std::string> drills_list =
 
 static const struct
 {
-	std::string stone = "Stone furnace";
-	std::string steel = "Steel furnace";
-} struct_auto_put_furnace_list;
-
-static const struct
-{
-	std::string burner_mining_drill = "Burner mining drill";
-	std::string burner_inserter = "Burner inserter";
-	std::string boiler = "Boiler";
-} struct_auto_put_burner_list;
-
-static const struct
-{
 	std::string wood = "Wood";
 	std::string coal = "Coal";
 	std::string solid_fuel = "Solid fuel";
@@ -322,18 +309,6 @@ struct log_config
 	std::string to_string()
 	{
 		return std::to_string(savegame) + ";" + std::to_string(tech) + ";" + std::to_string(comment) + ";" + std::to_string(level) + ";";
-	}
-};
-
-// Additional script generation configurations
-struct generate_config
-{
-	bool legacy_mining = false;
-	bool intermediate_walk_towards = false;
-	bool no_intermediate_walk = false;
-	std::string to_string()
-	{
-		return std::to_string(legacy_mining) + ";" + std::to_string(intermediate_walk_towards) + ";" + std::to_string(no_intermediate_walk) + ";";
 	}
 };
 

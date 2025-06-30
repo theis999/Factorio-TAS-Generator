@@ -361,14 +361,12 @@ void cMain::TemplateAlterStep(Step& step, const int direction, int x_off, int y_
 	auto param = listStepTypeToParameterChoices[step.type];
 	if (param & building_orientation)
 		step.orientation = tranform(step.orientation, (template_direction_choice)direction);
-	
-	step.Direction = tranform(step.Direction, (template_direction_choice)direction);
 
 	if (step.X == invalidX) return;
 	
 	auto [x,y] = transform(step.X + x_off, step.Y + y_off, (template_direction_choice)direction);
-	step.X = step.OriginalX = x;
-	step.Y = step.OriginalY = y;
+	step.X = x;
+	step.Y = y;
 }
 #pragma endregion othercontrol
 

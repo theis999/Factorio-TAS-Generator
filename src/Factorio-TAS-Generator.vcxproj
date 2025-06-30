@@ -254,7 +254,7 @@
       <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)/scenarios/supply/</DestinationFolders>
       <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)/scenarios/supply/</DestinationFolders>
     </CopyFileToFolders>
-    <Image Include="icon.ico" />
+    <Image Include="..\icon.ico" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Factorio-TAS-Generator.rc" />
@@ -343,6 +343,9 @@
       <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)/scenarios/supply/locale/en</DestinationFolders>
       <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)/scenarios/supply/locale/en</DestinationFolders>
     </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\icon.xpm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

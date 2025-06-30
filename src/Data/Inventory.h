@@ -211,6 +211,7 @@ static inline const string GetInventoryTypeForEntityInternal(InventoryType type,
 	static const string Lab = "Lab";
 	static const string Beacon = "Beacon";
 	static const string Drill = "Electric mining drill";
+	static const string PumpJack = "Pump jack";
 
 	switch (type)
 	{
@@ -228,7 +229,7 @@ static inline const string GetInventoryTypeForEntityInternal(InventoryType type,
 				return inventory_defines.beacon_modules;
 			else if (entity == Lab)
 				return inventory_defines.lab_modules;
-			else if (entity == Drill)
+			else if (entity == Drill || entity == PumpJack)
 				return inventory_defines.drill_modules;
 			else
 				return inventory_defines.assembly_modules;
