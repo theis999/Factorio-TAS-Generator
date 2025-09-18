@@ -18,127 +18,169 @@ using std::map;
 /// </summary>
 struct Item
 {
-	/* 
+	Item();
+	Item(int);
+	string Name();
+
+	// Finds the Item matching or throws an error
+	static Item MapStringToItem(const string str);
+	// Finds the Item matching or throws an error
+	static Item MapStringToItem(const wxString str);
+	// Finds the Item matching and assigns it to item. Returns whether an Item was found
+	static bool MapStringToItem(const string str, Item& item);
+	// Finds the Item matching and assigns it to item. Returns whether an Item was found
+	static bool MapStringToItem(const wxString str, Item& item);
+
+	// Categorisation of items.
+	// An item can only fit into 1 of [building, tile, vehicle & item].
+	// It is possible an item is in multiple other categories.
+	struct Category
+	{
+		enum ItemCategory
+		{
+			c_building = 1 << 0, // placeable as a building [transport belt, inserter, rocket silo, etc]
+			c_tile = 1 << 1, // placeable as a tile [stone brick, landfill, etc]
+			c_vehicle = 1 << 2, // placeable as a vehicle [car, spidertron, cargowagon, etc]
+			c_item = 1 << 3, // not a placeable item
+
+			c_product = 1 << 4, // the result of a recipe
+			c_ingredient = 1 << 5, // an ingredient to a recipe
+
+			c_module = 1 << 6, // can be used in the module slot
+			c_fuel = 1 << 7, // can be used in the fuel slot
+			c_sciencepack = 1 << 8, // can be used in a lab
+
+			c_capsule = 1 << 9, // can be thrown [grendades, defender robots, etc]
+			c_ammo = 1 << 10, // can be placed in an ammo slot, maybe in a vehicle
+			c_weapon = 1 << 11, // can be placed in a weapon slot
+			c_armor = 1 << 12, // can be placed in the armor slot
+			c_equipment = 1 << 13, // can be placed in an armors equipment grid
+
+			c_repairpack = 1 << 14, // repair pack is the only item in this category
+		};
+
+		int bit_vector;
+
+		Category(int);
+		bool IsCategory(ItemCategory);
+		bool IsPlaceable();
+	} category;
+
+	/*
 	* Lua import script
-	game.write_file(file,"")
+	helpers.write_file(file,"")
 
-    --[[
-    game.write_file(file, "\nenum ItemType\n{\n", true)
-    for _, prototype in pairs(game.item_prototypes) do
-        if not prototype.flags or not prototype.flags["hidden"] then
-            game.write_file(file, string.format("\t%s,\n", prototype.name:gsub("-", "_")),true)
-        end
-    end
-    game.write_file(file, "};\n", true)--]]
+	helpers.write_file(file, "\nenum ItemType\n{\n", true)
+	for _, prototype in pairs(prototypes.item) do
+		if not prototype.hidden then
+			helpers.write_file(file, string.format("\t%s,\n", prototype.name:gsub("-", "_")),true)
+		end
+	end
+	helpers.write_file(file, "} type;\n", true)
 
-    --[[
-    game.write_file(file, "\nstatic inline const vector<Category> map_itemtype_to_category = {\n", true)
-    for _, prototype in pairs(game.item_prototypes) do
-        if not prototype.flags or not prototype.flags["hidden"] then
-            local cat = prototype.type == "item-with-entity-data" and "c_vehicle" or
-                prototype.place_result and "c_building" or
-                prototype.place_as_tile_result and "c_tile" or
-                "c_item"
-            cat = "Category::"..cat
-            local r,i = false, false
-            for __, recipe in pairs(game.recipe_prototypes) do
-                if not i then
-                    for ___, ingre in pairs(recipe.ingredients) do
-                        if ingre.name == prototype.name then
-                            
-                            i = true
-                            break
-                        end
-                    end
-                end
-                if not r then 
-                    for ___, prod in pairs(recipe.products) do
-                        if prod.name == prototype.name then
-                            
-                            r = true
-                            break
-                        end
-                    end
-                end
-                if r and i then break end
-            end
-            if i then cat = cat .. " | Category::c_ingredient" end
-            if r then cat = cat .. " | Category::c_product" end
+	helpers.write_file(file, "\nstatic inline const vector<Category> map_itemtype_to_category = {\n", true)
+	for _, prototype in pairs(prototypes.item) do
+		if not prototype.hidden then
+			local cat = prototype.type == "item-with-entity-data" and "c_vehicle" or
+				prototype.place_result and "c_building" or
+				prototype.place_as_tile_result and "c_tile" or
+				"c_item"
+			cat = "Category::"..cat
+			local r,i = false, false
+			for __, recipe in pairs(prototypes.recipe) do
+				if not i then
+					for ___, ingre in pairs(recipe.ingredients) do
+						if ingre.name == prototype.name then
 
-            if prototype.type == "module" then
-                cat = cat .. " | Category::c_module"
-            end
+							i = true
+							break
+						end
+					end
+				end
+				if not r then
+					for ___, prod in pairs(recipe.products) do
+						if prod.name == prototype.name then
 
-            if prototype.fuel_category then
-                cat = cat .. " | Category::c_fuel"
-            end
+							r = true
+							break
+						end
+					end
+				end
+				if r and i then break end
+			end
+			if i then cat = cat .. " | Category::c_ingredient" end
+			if r then cat = cat .. " | Category::c_product" end
 
-            if prototype.subgroup.name == "science-pack" then
-                cat = cat .. " | Category::c_sciencepack"
-            end
+			if prototype.type == "module" then
+				cat = cat .. " | Category::c_module"
+			end
 
-            if prototype.type == "capsule" then
-                cat = cat .. " | Category::c_capsule"
-            end
+			if prototype.fuel_category then
+				cat = cat .. " | Category::c_fuel"
+			end
 
-            if prototype.type == "ammo" then
-                cat = cat .. " | Category::c_ammo"
-            end
+			if prototype.subgroup.name == "science-pack" then
+				cat = cat .. " | Category::c_sciencepack"
+			end
 
-            if prototype.type == "gun" then
-                cat = cat .. " | Category::c_weapon"
-            end
+			if prototype.type == "capsule" then
+				cat = cat .. " | Category::c_capsule"
+			end
 
-            if prototype.type == "armor" then
-                cat = cat .. " | Category::c_armor"
-            end
+			if prototype.type == "ammo" then
+				cat = cat .. " | Category::c_ammo"
+			end
 
-            if prototype.name == "repair-pack" then
-                cat = cat .. " | Category::c_repairpack"
-            end
+			if prototype.type == "gun" then
+				cat = cat .. " | Category::c_weapon"
+			end
 
-            game.write_file(file, string.format("\t%s,\n", cat),true)
-        end
-    end
-    game.write_file(file, "};\n", true) --]]
+			if prototype.type == "armor" then
+				cat = cat .. " | Category::c_armor"
+			end
 
+			if prototype.name == "repair-pack" then
+				cat = cat .. " | Category::c_repairpack"
+			end
 
-    --[[
-    game.write_file(file, "\nstatic inline const vector<string> names = {\n", true)
-    for _, prototype in pairs(game.item_prototypes) do
-        if not prototype.flags or not prototype.flags["hidden"] then
-            game.write_file(file, string.format("\t\"", prototype.name),true)
-            game.write_file(file, prototype.localised_name,true)
-            game.write_file(file, string.format("\",\n", prototype.name),true)
-        end
-    end
-    game.write_file(file, "};\n", true) --]]
+			helpers.write_file(file, string.format("\t%s,\n", cat),true)
+		end
+	end
+	helpers.write_file(file, "};\n", true)
 
-    --[[
-    game.write_file(file, "\nstatic inline const vector<string> itemtype_to_luaname{\n", true)
-    for _, prototype in pairs(game.item_prototypes) do
-        if not prototype.flags or not prototype.flags["hidden"] then
-            game.write_file(file, string.format("\t\"%s\",\n", prototype.name),true)
-        end
-    end
-    game.write_file(file, "};\n", true) --]]
+	helpers.write_file(file, "\nstatic inline const vector<string> names = {\n", true)
+	for _, prototype in pairs(prototypes.item) do
+		if not prototype.hidden then
+			helpers.write_file(file, string.format("\t\"", prototype.name),true)
+			helpers.write_file(file, prototype.localised_name,true)
+			helpers.write_file(file, string.format("\",\n", prototype.name),true)
+		end
+	end
+	helpers.write_file(file, "};\n", true)
 
-    --
-    game.write_file(file, "\nstatic inline const map<string, ItemType> map_itemname_to_itemtype = {\n", true)
-    for _, prototype in pairs(game.item_prototypes) do
-        if not prototype.flags or not prototype.flags["hidden"] then
-            game.write_file(file, string.format("\t{names[%s], %s},\n", prototype.name:gsub("-", "_"), prototype.name:gsub("-", "_")),true)
-        end
-    end
+	helpers.write_file(file, "\nstatic inline const vector<string> itemtype_to_luaname{\n", true)
+	for _, prototype in pairs(prototypes.item) do
+		if not prototype.hidden then
+			helpers.write_file(file, string.format("\t\"%s\",\n", prototype.name),true)
+		end
+	end
+	helpers.write_file(file, "};\n", true)
+	--
+	helpers.write_file(file, "\nstatic inline const map<string, ItemType> map_itemname_to_itemtype = {\n", true)
+	for _, prototype in pairs(prototypes.item) do
+		if not prototype.hidden then
+			helpers.write_file(file, string.format("\t{names[%s], %s},\n", prototype.name:gsub("-", "_"), prototype.name:gsub("-", "_")),true)
+		end
+	end
 
-    for _, prototype in pairs(game.item_prototypes) do
-        if not prototype.flags or not prototype.flags["hidden"] then
-            game.write_file(file, string.format("\t{to_lower(names[%s]), %s},\n", prototype.name:gsub("-", "_"), prototype.name:gsub("-", "_")),true)
-        end
-    end
+	for _, prototype in pairs(prototypes.item) do
+		if not prototype.hidden then
+			helpers.write_file(file, string.format("\t{to_lower(names[%s]), %s},\n", prototype.name:gsub("-", "_"), prototype.name:gsub("-", "_")),true)
+		end
+	end
 
-    game.write_file(file, "};\n", true)--]]
-	
+	helpers.write_file(file, "};\n", true)
+
 	*/
 
 	/// <summary> Enumeration of all items, matching vector:names. </summary>
@@ -161,9 +203,7 @@ struct Item
 		inserter,
 		long_handed_inserter,
 		fast_inserter,
-		filter_inserter,
-		stack_inserter,
-		stack_filter_inserter,
+		bulk_inserter,
 		small_electric_pole,
 		medium_electric_pole,
 		big_electric_pole,
@@ -182,23 +222,22 @@ struct Item
 		car,
 		tank,
 		spidertron,
-		spidertron_remote,
 		logistic_robot,
 		construction_robot,
-		logistic_chest_active_provider,
-		logistic_chest_passive_provider,
-		logistic_chest_storage,
-		logistic_chest_buffer,
-		logistic_chest_requester,
+		active_provider_chest,
+		passive_provider_chest,
+		storage_chest,
+		buffer_chest,
+		requester_chest,
 		roboport,
 		small_lamp,
-		red_wire,
-		green_wire,
 		arithmetic_combinator,
 		decider_combinator,
+		selector_combinator,
 		constant_combinator,
 		power_switch,
 		programmable_speaker,
+		display_panel,
 		stone_brick,
 		concrete,
 		hazard_concrete,
@@ -237,13 +276,14 @@ struct Item
 		speed_module,
 		speed_module_2,
 		speed_module_3,
-		effectivity_module,
-		effectivity_module_2,
-		effectivity_module_3,
+		efficiency_module,
+		efficiency_module_2,
+		efficiency_module_3,
 		productivity_module,
 		productivity_module_2,
 		productivity_module_3,
 		rocket_silo,
+		cargo_landing_pad,
 		satellite,
 		wood,
 		coal,
@@ -254,37 +294,36 @@ struct Item
 		raw_fish,
 		iron_plate,
 		copper_plate,
-		solid_fuel,
 		steel_plate,
+		solid_fuel,
 		plastic_bar,
 		sulfur,
 		battery,
 		explosives,
-		crude_oil_barrel,
-		heavy_oil_barrel,
-		light_oil_barrel,
-		lubricant_barrel,
-		petroleum_gas_barrel,
-		sulfuric_acid_barrel,
 		water_barrel,
-		copper_cable,
-		iron_stick,
+		crude_oil_barrel,
+		petroleum_gas_barrel,
+		light_oil_barrel,
+		heavy_oil_barrel,
+		lubricant_barrel,
+		sulfuric_acid_barrel,
 		iron_gear_wheel,
-		empty_barrel,
+		iron_stick,
+		copper_cable,
+		barrel,
 		electronic_circuit,
 		advanced_circuit,
 		processing_unit,
 		engine_unit,
 		electric_engine_unit,
 		flying_robot_frame,
-		rocket_control_unit,
 		low_density_structure,
 		rocket_fuel,
-		nuclear_fuel,
 		uranium_235,
 		uranium_238,
 		uranium_fuel_cell,
-		used_up_uranium_fuel_cell,
+		depleted_uranium_fuel_cell,
+		nuclear_fuel,
 		automation_science_pack,
 		logistic_science_pack,
 		military_science_pack,
@@ -298,7 +337,6 @@ struct Item
 		combat_shotgun,
 		rocket_launcher,
 		flamethrower,
-		land_mine,
 		firearm_magazine,
 		piercing_rounds_magazine,
 		uranium_rounds_magazine,
@@ -326,7 +364,7 @@ struct Item
 		power_armor,
 		power_armor_mk2,
 		solar_panel_equipment,
-		fusion_reactor_equipment,
+		fission_reactor_equipment,
 		battery_equipment,
 		battery_mk2_equipment,
 		belt_immunity_equipment,
@@ -338,51 +376,31 @@ struct Item
 		energy_shield_mk2_equipment,
 		personal_laser_defense_equipment,
 		discharge_defense_equipment,
-		discharge_defense_remote,
 		stone_wall,
 		gate,
+		radar,
+		land_mine,
 		gun_turret,
 		laser_turret,
 		flamethrower_turret,
 		artillery_turret,
+		parameter_0,
+		parameter_1,
+		parameter_2,
+		parameter_3,
+		parameter_4,
+		parameter_5,
+		parameter_6,
+		parameter_7,
+		parameter_8,
+		parameter_9,
+		copper_wire,
+		green_wire,
+		red_wire,
+		spidertron_remote,
+		discharge_defense_remote,
 		artillery_targeting_remote,
-		radar,
 	} type;
-
-	// Categorisation of items. 
-	// An item can only fit into 1 of [building, tile, vehicle & item].
-	// It is possible an item is in multiple other categories.
-	struct Category
-	{
-		enum ItemCategory
-		{
-			c_building = 1 << 0, // placeable as a building [transport belt, inserter, rocket silo, etc]
-			c_tile = 1 << 1, // placeable as a tile [stone brick, landfill, etc]
-			c_vehicle = 1 << 2, // placeable as a vehicle [car, spidertron, cargowagon, etc]
-			c_item = 1 << 3, // not a placeable item
-
-			c_product = 1 << 4, // the result of a recipe
-			c_ingredient = 1 << 5, // an ingredient to a recipe
-
-			c_module = 1 << 6, // can be used in the module slot
-			c_fuel = 1 << 7, // can be used in the fuel slot
-			c_sciencepack = 1 << 8, // can be used in a lab
-
-			c_capsule = 1 << 9, // can be thrown [grendades, defender robots, etc]
-			c_ammo = 1 << 10, // can be placed in an ammo slot, maybe in a vehicle
-			c_weapon = 1 << 11, // can be placed in a weapon slot
-			c_armor = 1 << 12, // can be placed in the armor slot
-			c_equipment = 1 << 13, // can be placed in an armors equipment grid
-
-			c_repairpack = 1 << 14, // repair pack is the only item in this category
-		};
-		
-		int bit_vector;
-
-		Category(int);
-		bool IsCategory(ItemCategory);
-		bool IsPlaceable();
-	} category;
 
 	static inline const vector<Category> map_itemtype_to_category = {
 		Category::c_building | Category::c_product,
@@ -403,18 +421,16 @@ struct Item
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_ingredient | Category::c_product,
 		Category::c_building | Category::c_product,
-		Category::c_building | Category::c_ingredient | Category::c_product,
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_product,
-		Category::c_building | Category::c_product,
-		Category::c_building | Category::c_product,
-		Category::c_building | Category::c_product,
-		Category::c_building | Category::c_ingredient | Category::c_product,
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_ingredient | Category::c_product,
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_product,
+		Category::c_building | Category::c_ingredient | Category::c_product,
+		Category::c_building | Category::c_product,
+		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_product,
 		Category::c_vehicle | Category::c_product,
 		Category::c_vehicle | Category::c_product,
@@ -423,7 +439,6 @@ struct Item
 		Category::c_vehicle | Category::c_product,
 		Category::c_vehicle | Category::c_product,
 		Category::c_vehicle | Category::c_product,
-		Category::c_item | Category::c_product,
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_product,
@@ -433,8 +448,8 @@ struct Item
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_product,
-		Category::c_item | Category::c_product,
-		Category::c_item | Category::c_product,
+		Category::c_building | Category::c_product,
+		Category::c_building | Category::c_ingredient | Category::c_product,
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_product,
@@ -485,6 +500,7 @@ struct Item
 		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_module,
 		Category::c_item | Category::c_product | Category::c_module,
 		Category::c_building | Category::c_product,
+		Category::c_building | Category::c_product,
 		Category::c_item | Category::c_product,
 		Category::c_item | Category::c_ingredient | Category::c_fuel,
 		Category::c_item | Category::c_ingredient | Category::c_fuel,
@@ -495,37 +511,36 @@ struct Item
 		Category::c_item | Category::c_ingredient | Category::c_capsule,
 		Category::c_item | Category::c_ingredient | Category::c_product,
 		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_fuel,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
+		Category::c_item | Category::c_ingredient | Category::c_product,
 		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_fuel,
 		Category::c_item | Category::c_ingredient | Category::c_product,
 		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
 		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_fuel,
-		Category::c_item | Category::c_product | Category::c_fuel,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_ingredient | Category::c_product,
-		Category::c_item | Category::c_product | Category::c_fuel,
 		Category::c_item | Category::c_ingredient,
+		Category::c_item | Category::c_product | Category::c_fuel,
 		Category::c_item | Category::c_product | Category::c_sciencepack,
 		Category::c_item | Category::c_product | Category::c_sciencepack,
 		Category::c_item | Category::c_product | Category::c_sciencepack,
@@ -539,7 +554,6 @@ struct Item
 		Category::c_item | Category::c_product | Category::c_weapon,
 		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_weapon,
 		Category::c_item | Category::c_product | Category::c_weapon,
-		Category::c_building | Category::c_product,
 		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_ammo,
 		Category::c_item | Category::c_ingredient | Category::c_product | Category::c_ammo,
 		Category::c_item | Category::c_product | Category::c_ammo,
@@ -579,29 +593,31 @@ struct Item
 		Category::c_item | Category::c_product,
 		Category::c_item | Category::c_product,
 		Category::c_item | Category::c_product,
-		Category::c_item | Category::c_product | Category::c_capsule,
+		Category::c_building | Category::c_ingredient | Category::c_product,
+		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_ingredient | Category::c_product,
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_ingredient | Category::c_product,
 		Category::c_building | Category::c_product,
 		Category::c_building | Category::c_product,
-		Category::c_item | Category::c_product | Category::c_capsule,
-		Category::c_building | Category::c_ingredient | Category::c_product,
+		Category::c_item,
+		Category::c_item,
+		Category::c_item,
+		Category::c_item,
+		Category::c_item,
+		Category::c_item,
+		Category::c_item,
+		Category::c_item,
+		Category::c_item,
+		Category::c_item,
+		Category::c_item,
+		Category::c_item,
+		Category::c_item,
+		Category::c_item,
+		Category::c_item | Category::c_capsule,
+		Category::c_item | Category::c_capsule,
 	};
-
-	Item();
-	Item(int);
-	string Name();
-
-	// Finds the Item matching or throws an error
-	static Item MapStringToItem(const string str); 
-	// Finds the Item matching or throws an error
-	static Item MapStringToItem(const wxString str); 
-	// Finds the Item matching and assigns it to item. Returns whether an Item was found
-	static bool MapStringToItem(const string str, Item& item); 
-	// Finds the Item matching and assigns it to item. Returns whether an Item was found
-	static bool MapStringToItem(const wxString str, Item& item);
 
 	static inline const vector<string> names = {
 		"Wooden chest",
@@ -621,9 +637,7 @@ struct Item
 		"Inserter",
 		"Long-handed inserter",
 		"Fast inserter",
-		"Filter inserter",
-		"Stack inserter",
-		"Stack filter inserter",
+		"Bulk inserter",
 		"Small electric pole",
 		"Medium electric pole",
 		"Big electric pole",
@@ -642,7 +656,6 @@ struct Item
 		"Car",
 		"Tank",
 		"Spidertron",
-		"Spidertron remote",
 		"Logistic robot",
 		"Construction robot",
 		"Active provider chest",
@@ -652,13 +665,13 @@ struct Item
 		"Requester chest",
 		"Roboport",
 		"Lamp",
-		"Red wire",
-		"Green wire",
 		"Arithmetic combinator",
 		"Decider combinator",
+		"Selector combinator",
 		"Constant combinator",
 		"Power switch",
 		"Programmable speaker",
+		"Display panel",
 		"Stone brick",
 		"Concrete",
 		"Hazard concrete",
@@ -704,6 +717,7 @@ struct Item
 		"Productivity module 2",
 		"Productivity module 3",
 		"Rocket silo",
+		"Cargo landing pad",
 		"Satellite",
 		"Wood",
 		"Coal",
@@ -714,37 +728,36 @@ struct Item
 		"Raw fish",
 		"Iron plate",
 		"Copper plate",
-		"Solid fuel",
 		"Steel plate",
+		"Solid fuel",
 		"Plastic bar",
 		"Sulfur",
 		"Battery",
 		"Explosives",
-		"Crude oil barrel",
-		"Heavy oil barrel",
-		"Light oil barrel",
-		"Lubricant barrel",
-		"Petroleum gas barrel",
-		"Sulfuric acid barrel",
 		"Water barrel",
-		"Copper cable",
-		"Iron stick",
+		"Crude oil barrel",
+		"Petroleum gas barrel",
+		"Light oil barrel",
+		"Heavy oil barrel",
+		"Lubricant barrel",
+		"Sulfuric acid barrel",
 		"Iron gear wheel",
-		"Empty barrel",
+		"Iron stick",
+		"Copper cable",
+		"Barrel",
 		"Electronic circuit",
 		"Advanced circuit",
 		"Processing unit",
 		"Engine unit",
 		"Electric engine unit",
 		"Flying robot frame",
-		"Rocket control unit",
 		"Low density structure",
 		"Rocket fuel",
-		"Nuclear fuel",
 		"Uranium-235",
 		"Uranium-238",
 		"Uranium fuel cell",
-		"Used-up uranium fuel cell",
+		"Depleted uranium fuel cell",
+		"Nuclear fuel",
 		"Automation science pack",
 		"Logistic science pack",
 		"Military science pack",
@@ -758,7 +771,6 @@ struct Item
 		"Combat shotgun",
 		"Rocket launcher",
 		"Flamethrower",
-		"Land mine",
 		"Firearm magazine",
 		"Piercing rounds magazine",
 		"Uranium rounds magazine",
@@ -786,7 +798,7 @@ struct Item
 		"Power armor",
 		"Power armor MK2",
 		"Portable solar panel",
-		"Portable fusion reactor",
+		"Portable fission reactor",
 		"Personal battery",
 		"Personal battery MK2",
 		"Belt immunity equipment",
@@ -798,15 +810,30 @@ struct Item
 		"Energy shield MK2",
 		"Personal laser defense",
 		"Discharge defense",
-		"Discharge defense remote",
 		"Wall",
 		"Gate",
+		"Radar",
+		"Land mine",
 		"Gun turret",
 		"Laser turret",
 		"Flamethrower turret",
 		"Artillery turret",
+		"Parameter 0",
+		"Parameter 1",
+		"Parameter 2",
+		"Parameter 3",
+		"Parameter 4",
+		"Parameter 5",
+		"Parameter 6",
+		"Parameter 7",
+		"Parameter 8",
+		"Parameter 9",
+		"Copper wire",
+		"Green wire",
+		"Red wire",
+		"Spidertron remote",
+		"Discharge defense remote",
 		"Artillery targeting remote",
-		"Radar",
 	};
 
 	static inline const vector<string> itemtype_to_luaname{
@@ -827,9 +854,7 @@ struct Item
 		"inserter",
 		"long-handed-inserter",
 		"fast-inserter",
-		"filter-inserter",
-		"stack-inserter",
-		"stack-filter-inserter",
+		"bulk-inserter",
 		"small-electric-pole",
 		"medium-electric-pole",
 		"big-electric-pole",
@@ -848,23 +873,22 @@ struct Item
 		"car",
 		"tank",
 		"spidertron",
-		"spidertron-remote",
 		"logistic-robot",
 		"construction-robot",
-		"logistic-chest-active-provider",
-		"logistic-chest-passive-provider",
-		"logistic-chest-storage",
-		"logistic-chest-buffer",
-		"logistic-chest-requester",
+		"active-provider-chest",
+		"passive-provider-chest",
+		"storage-chest",
+		"buffer-chest",
+		"requester-chest",
 		"roboport",
 		"small-lamp",
-		"red-wire",
-		"green-wire",
 		"arithmetic-combinator",
 		"decider-combinator",
+		"selector-combinator",
 		"constant-combinator",
 		"power-switch",
 		"programmable-speaker",
+		"display-panel",
 		"stone-brick",
 		"concrete",
 		"hazard-concrete",
@@ -910,6 +934,7 @@ struct Item
 		"productivity-module-2",
 		"productivity-module-3",
 		"rocket-silo",
+		"cargo-landing-pad",
 		"satellite",
 		"wood",
 		"coal",
@@ -920,37 +945,36 @@ struct Item
 		"raw-fish",
 		"iron-plate",
 		"copper-plate",
-		"solid-fuel",
 		"steel-plate",
+		"solid-fuel",
 		"plastic-bar",
 		"sulfur",
 		"battery",
 		"explosives",
-		"crude-oil-barrel",
-		"heavy-oil-barrel",
-		"light-oil-barrel",
-		"lubricant-barrel",
-		"petroleum-gas-barrel",
-		"sulfuric-acid-barrel",
 		"water-barrel",
-		"copper-cable",
-		"iron-stick",
+		"crude-oil-barrel",
+		"petroleum-gas-barrel",
+		"light-oil-barrel",
+		"heavy-oil-barrel",
+		"lubricant-barrel",
+		"sulfuric-acid-barrel",
 		"iron-gear-wheel",
-		"empty-barrel",
+		"iron-stick",
+		"copper-cable",
+		"barrel",
 		"electronic-circuit",
 		"advanced-circuit",
 		"processing-unit",
 		"engine-unit",
 		"electric-engine-unit",
 		"flying-robot-frame",
-		"rocket-control-unit",
 		"low-density-structure",
 		"rocket-fuel",
-		"nuclear-fuel",
 		"uranium-235",
 		"uranium-238",
 		"uranium-fuel-cell",
-		"used-up-uranium-fuel-cell",
+		"depleted-uranium-fuel-cell",
+		"nuclear-fuel",
 		"automation-science-pack",
 		"logistic-science-pack",
 		"military-science-pack",
@@ -964,7 +988,6 @@ struct Item
 		"combat-shotgun",
 		"rocket-launcher",
 		"flamethrower",
-		"land-mine",
 		"firearm-magazine",
 		"piercing-rounds-magazine",
 		"uranium-rounds-magazine",
@@ -992,7 +1015,7 @@ struct Item
 		"power-armor",
 		"power-armor-mk2",
 		"solar-panel-equipment",
-		"fusion-reactor-equipment",
+		"fission-reactor-equipment",
 		"battery-equipment",
 		"battery-mk2-equipment",
 		"belt-immunity-equipment",
@@ -1004,15 +1027,30 @@ struct Item
 		"energy-shield-mk2-equipment",
 		"personal-laser-defense-equipment",
 		"discharge-defense-equipment",
-		"discharge-defense-remote",
 		"stone-wall",
 		"gate",
+		"radar",
+		"land-mine",
 		"gun-turret",
 		"laser-turret",
 		"flamethrower-turret",
 		"artillery-turret",
+		"parameter-0",
+		"parameter-1",
+		"parameter-2",
+		"parameter-3",
+		"parameter-4",
+		"parameter-5",
+		"parameter-6",
+		"parameter-7",
+		"parameter-8",
+		"parameter-9",
+		"copper-wire",
+		"green-wire",
+		"red-wire",
+		"spidertron-remote",
+		"discharge-defense-remote",
 		"artillery-targeting-remote",
-		"radar",
 	};
 
 	static inline const map<string, ItemType> map_itemname_to_itemtype = {
@@ -1033,9 +1071,7 @@ struct Item
 		{names[inserter], inserter},
 		{names[long_handed_inserter], long_handed_inserter},
 		{names[fast_inserter], fast_inserter},
-		{names[filter_inserter], filter_inserter},
-		{names[stack_inserter], stack_inserter},
-		{names[stack_filter_inserter], stack_filter_inserter},
+		{names[bulk_inserter], bulk_inserter},
 		{names[small_electric_pole], small_electric_pole},
 		{names[medium_electric_pole], medium_electric_pole},
 		{names[big_electric_pole], big_electric_pole},
@@ -1054,23 +1090,22 @@ struct Item
 		{names[car], car},
 		{names[tank], tank},
 		{names[spidertron], spidertron},
-		{names[spidertron_remote], spidertron_remote},
 		{names[logistic_robot], logistic_robot},
 		{names[construction_robot], construction_robot},
-		{names[logistic_chest_active_provider], logistic_chest_active_provider},
-		{names[logistic_chest_passive_provider], logistic_chest_passive_provider},
-		{names[logistic_chest_storage], logistic_chest_storage},
-		{names[logistic_chest_buffer], logistic_chest_buffer},
-		{names[logistic_chest_requester], logistic_chest_requester},
+		{names[active_provider_chest], active_provider_chest},
+		{names[passive_provider_chest], passive_provider_chest},
+		{names[storage_chest], storage_chest},
+		{names[buffer_chest], buffer_chest},
+		{names[requester_chest], requester_chest},
 		{names[roboport], roboport},
 		{names[small_lamp], small_lamp},
-		{names[red_wire], red_wire},
-		{names[green_wire], green_wire},
 		{names[arithmetic_combinator], arithmetic_combinator},
 		{names[decider_combinator], decider_combinator},
+		{names[selector_combinator], selector_combinator},
 		{names[constant_combinator], constant_combinator},
 		{names[power_switch], power_switch},
 		{names[programmable_speaker], programmable_speaker},
+		{names[display_panel], display_panel},
 		{names[stone_brick], stone_brick},
 		{names[concrete], concrete},
 		{names[hazard_concrete], hazard_concrete},
@@ -1109,13 +1144,14 @@ struct Item
 		{names[speed_module], speed_module},
 		{names[speed_module_2], speed_module_2},
 		{names[speed_module_3], speed_module_3},
-		{names[effectivity_module], effectivity_module},
-		{names[effectivity_module_2], effectivity_module_2},
-		{names[effectivity_module_3], effectivity_module_3},
+		{names[efficiency_module], efficiency_module},
+		{names[efficiency_module_2], efficiency_module_2},
+		{names[efficiency_module_3], efficiency_module_3},
 		{names[productivity_module], productivity_module},
 		{names[productivity_module_2], productivity_module_2},
 		{names[productivity_module_3], productivity_module_3},
 		{names[rocket_silo], rocket_silo},
+		{names[cargo_landing_pad], cargo_landing_pad},
 		{names[satellite], satellite},
 		{names[wood], wood},
 		{names[coal], coal},
@@ -1126,37 +1162,36 @@ struct Item
 		{names[raw_fish], raw_fish},
 		{names[iron_plate], iron_plate},
 		{names[copper_plate], copper_plate},
-		{names[solid_fuel], solid_fuel},
 		{names[steel_plate], steel_plate},
+		{names[solid_fuel], solid_fuel},
 		{names[plastic_bar], plastic_bar},
 		{names[sulfur], sulfur},
 		{names[battery], battery},
 		{names[explosives], explosives},
-		{names[crude_oil_barrel], crude_oil_barrel},
-		{names[heavy_oil_barrel], heavy_oil_barrel},
-		{names[light_oil_barrel], light_oil_barrel},
-		{names[lubricant_barrel], lubricant_barrel},
-		{names[petroleum_gas_barrel], petroleum_gas_barrel},
-		{names[sulfuric_acid_barrel], sulfuric_acid_barrel},
 		{names[water_barrel], water_barrel},
-		{names[copper_cable], copper_cable},
-		{names[iron_stick], iron_stick},
+		{names[crude_oil_barrel], crude_oil_barrel},
+		{names[petroleum_gas_barrel], petroleum_gas_barrel},
+		{names[light_oil_barrel], light_oil_barrel},
+		{names[heavy_oil_barrel], heavy_oil_barrel},
+		{names[lubricant_barrel], lubricant_barrel},
+		{names[sulfuric_acid_barrel], sulfuric_acid_barrel},
 		{names[iron_gear_wheel], iron_gear_wheel},
-		{names[empty_barrel], empty_barrel},
+		{names[iron_stick], iron_stick},
+		{names[copper_cable], copper_cable},
+		{names[barrel], barrel},
 		{names[electronic_circuit], electronic_circuit},
 		{names[advanced_circuit], advanced_circuit},
 		{names[processing_unit], processing_unit},
 		{names[engine_unit], engine_unit},
 		{names[electric_engine_unit], electric_engine_unit},
 		{names[flying_robot_frame], flying_robot_frame},
-		{names[rocket_control_unit], rocket_control_unit},
 		{names[low_density_structure], low_density_structure},
 		{names[rocket_fuel], rocket_fuel},
-		{names[nuclear_fuel], nuclear_fuel},
 		{names[uranium_235], uranium_235},
 		{names[uranium_238], uranium_238},
 		{names[uranium_fuel_cell], uranium_fuel_cell},
-		{names[used_up_uranium_fuel_cell], used_up_uranium_fuel_cell},
+		{names[depleted_uranium_fuel_cell], depleted_uranium_fuel_cell},
+		{names[nuclear_fuel], nuclear_fuel},
 		{names[automation_science_pack], automation_science_pack},
 		{names[logistic_science_pack], logistic_science_pack},
 		{names[military_science_pack], military_science_pack},
@@ -1170,7 +1205,6 @@ struct Item
 		{names[combat_shotgun], combat_shotgun},
 		{names[rocket_launcher], rocket_launcher},
 		{names[flamethrower], flamethrower},
-		{names[land_mine], land_mine},
 		{names[firearm_magazine], firearm_magazine},
 		{names[piercing_rounds_magazine], piercing_rounds_magazine},
 		{names[uranium_rounds_magazine], uranium_rounds_magazine},
@@ -1198,7 +1232,7 @@ struct Item
 		{names[power_armor], power_armor},
 		{names[power_armor_mk2], power_armor_mk2},
 		{names[solar_panel_equipment], solar_panel_equipment},
-		{names[fusion_reactor_equipment], fusion_reactor_equipment},
+		{names[fission_reactor_equipment], fission_reactor_equipment},
 		{names[battery_equipment], battery_equipment},
 		{names[battery_mk2_equipment], battery_mk2_equipment},
 		{names[belt_immunity_equipment], belt_immunity_equipment},
@@ -1210,15 +1244,30 @@ struct Item
 		{names[energy_shield_mk2_equipment], energy_shield_mk2_equipment},
 		{names[personal_laser_defense_equipment], personal_laser_defense_equipment},
 		{names[discharge_defense_equipment], discharge_defense_equipment},
-		{names[discharge_defense_remote], discharge_defense_remote},
 		{names[stone_wall], stone_wall},
 		{names[gate], gate},
+		{names[radar], radar},
+		{names[land_mine], land_mine},
 		{names[gun_turret], gun_turret},
 		{names[laser_turret], laser_turret},
 		{names[flamethrower_turret], flamethrower_turret},
 		{names[artillery_turret], artillery_turret},
+		{names[parameter_0], parameter_0},
+		{names[parameter_1], parameter_1},
+		{names[parameter_2], parameter_2},
+		{names[parameter_3], parameter_3},
+		{names[parameter_4], parameter_4},
+		{names[parameter_5], parameter_5},
+		{names[parameter_6], parameter_6},
+		{names[parameter_7], parameter_7},
+		{names[parameter_8], parameter_8},
+		{names[parameter_9], parameter_9},
+		{names[copper_wire], copper_wire},
+		{names[green_wire], green_wire},
+		{names[red_wire], red_wire},
+		{names[spidertron_remote], spidertron_remote},
+		{names[discharge_defense_remote], discharge_defense_remote},
 		{names[artillery_targeting_remote], artillery_targeting_remote},
-		{names[radar], radar},
 		{to_lower(names[wooden_chest]), wooden_chest},
 		{to_lower(names[iron_chest]), iron_chest},
 		{to_lower(names[steel_chest]), steel_chest},
@@ -1236,9 +1285,7 @@ struct Item
 		{to_lower(names[inserter]), inserter},
 		{to_lower(names[long_handed_inserter]), long_handed_inserter},
 		{to_lower(names[fast_inserter]), fast_inserter},
-		{to_lower(names[filter_inserter]), filter_inserter},
-		{to_lower(names[stack_inserter]), stack_inserter},
-		{to_lower(names[stack_filter_inserter]), stack_filter_inserter},
+		{to_lower(names[bulk_inserter]), bulk_inserter},
 		{to_lower(names[small_electric_pole]), small_electric_pole},
 		{to_lower(names[medium_electric_pole]), medium_electric_pole},
 		{to_lower(names[big_electric_pole]), big_electric_pole},
@@ -1257,23 +1304,22 @@ struct Item
 		{to_lower(names[car]), car},
 		{to_lower(names[tank]), tank},
 		{to_lower(names[spidertron]), spidertron},
-		{to_lower(names[spidertron_remote]), spidertron_remote},
 		{to_lower(names[logistic_robot]), logistic_robot},
 		{to_lower(names[construction_robot]), construction_robot},
-		{to_lower(names[logistic_chest_active_provider]), logistic_chest_active_provider},
-		{to_lower(names[logistic_chest_passive_provider]), logistic_chest_passive_provider},
-		{to_lower(names[logistic_chest_storage]), logistic_chest_storage},
-		{to_lower(names[logistic_chest_buffer]), logistic_chest_buffer},
-		{to_lower(names[logistic_chest_requester]), logistic_chest_requester},
+		{to_lower(names[active_provider_chest]), active_provider_chest},
+		{to_lower(names[passive_provider_chest]), passive_provider_chest},
+		{to_lower(names[storage_chest]), storage_chest},
+		{to_lower(names[buffer_chest]), buffer_chest},
+		{to_lower(names[requester_chest]), requester_chest},
 		{to_lower(names[roboport]), roboport},
 		{to_lower(names[small_lamp]), small_lamp},
-		{to_lower(names[red_wire]), red_wire},
-		{to_lower(names[green_wire]), green_wire},
 		{to_lower(names[arithmetic_combinator]), arithmetic_combinator},
 		{to_lower(names[decider_combinator]), decider_combinator},
+		{to_lower(names[selector_combinator]), selector_combinator},
 		{to_lower(names[constant_combinator]), constant_combinator},
 		{to_lower(names[power_switch]), power_switch},
 		{to_lower(names[programmable_speaker]), programmable_speaker},
+		{to_lower(names[display_panel]), display_panel},
 		{to_lower(names[stone_brick]), stone_brick},
 		{to_lower(names[concrete]), concrete},
 		{to_lower(names[hazard_concrete]), hazard_concrete},
@@ -1312,13 +1358,14 @@ struct Item
 		{to_lower(names[speed_module]), speed_module},
 		{to_lower(names[speed_module_2]), speed_module_2},
 		{to_lower(names[speed_module_3]), speed_module_3},
-		{to_lower(names[effectivity_module]), effectivity_module},
-		{to_lower(names[effectivity_module_2]), effectivity_module_2},
-		{to_lower(names[effectivity_module_3]), effectivity_module_3},
+		{to_lower(names[efficiency_module]), efficiency_module},
+		{to_lower(names[efficiency_module_2]), efficiency_module_2},
+		{to_lower(names[efficiency_module_3]), efficiency_module_3},
 		{to_lower(names[productivity_module]), productivity_module},
 		{to_lower(names[productivity_module_2]), productivity_module_2},
 		{to_lower(names[productivity_module_3]), productivity_module_3},
 		{to_lower(names[rocket_silo]), rocket_silo},
+		{to_lower(names[cargo_landing_pad]), cargo_landing_pad},
 		{to_lower(names[satellite]), satellite},
 		{to_lower(names[wood]), wood},
 		{to_lower(names[coal]), coal},
@@ -1329,37 +1376,36 @@ struct Item
 		{to_lower(names[raw_fish]), raw_fish},
 		{to_lower(names[iron_plate]), iron_plate},
 		{to_lower(names[copper_plate]), copper_plate},
-		{to_lower(names[solid_fuel]), solid_fuel},
 		{to_lower(names[steel_plate]), steel_plate},
+		{to_lower(names[solid_fuel]), solid_fuel},
 		{to_lower(names[plastic_bar]), plastic_bar},
 		{to_lower(names[sulfur]), sulfur},
 		{to_lower(names[battery]), battery},
 		{to_lower(names[explosives]), explosives},
-		{to_lower(names[crude_oil_barrel]), crude_oil_barrel},
-		{to_lower(names[heavy_oil_barrel]), heavy_oil_barrel},
-		{to_lower(names[light_oil_barrel]), light_oil_barrel},
-		{to_lower(names[lubricant_barrel]), lubricant_barrel},
-		{to_lower(names[petroleum_gas_barrel]), petroleum_gas_barrel},
-		{to_lower(names[sulfuric_acid_barrel]), sulfuric_acid_barrel},
 		{to_lower(names[water_barrel]), water_barrel},
-		{to_lower(names[copper_cable]), copper_cable},
-		{to_lower(names[iron_stick]), iron_stick},
+		{to_lower(names[crude_oil_barrel]), crude_oil_barrel},
+		{to_lower(names[petroleum_gas_barrel]), petroleum_gas_barrel},
+		{to_lower(names[light_oil_barrel]), light_oil_barrel},
+		{to_lower(names[heavy_oil_barrel]), heavy_oil_barrel},
+		{to_lower(names[lubricant_barrel]), lubricant_barrel},
+		{to_lower(names[sulfuric_acid_barrel]), sulfuric_acid_barrel},
 		{to_lower(names[iron_gear_wheel]), iron_gear_wheel},
-		{to_lower(names[empty_barrel]), empty_barrel},
+		{to_lower(names[iron_stick]), iron_stick},
+		{to_lower(names[copper_cable]), copper_cable},
+		{to_lower(names[barrel]), barrel},
 		{to_lower(names[electronic_circuit]), electronic_circuit},
 		{to_lower(names[advanced_circuit]), advanced_circuit},
 		{to_lower(names[processing_unit]), processing_unit},
 		{to_lower(names[engine_unit]), engine_unit},
 		{to_lower(names[electric_engine_unit]), electric_engine_unit},
 		{to_lower(names[flying_robot_frame]), flying_robot_frame},
-		{to_lower(names[rocket_control_unit]), rocket_control_unit},
 		{to_lower(names[low_density_structure]), low_density_structure},
 		{to_lower(names[rocket_fuel]), rocket_fuel},
-		{to_lower(names[nuclear_fuel]), nuclear_fuel},
 		{to_lower(names[uranium_235]), uranium_235},
 		{to_lower(names[uranium_238]), uranium_238},
 		{to_lower(names[uranium_fuel_cell]), uranium_fuel_cell},
-		{to_lower(names[used_up_uranium_fuel_cell]), used_up_uranium_fuel_cell},
+		{to_lower(names[depleted_uranium_fuel_cell]), depleted_uranium_fuel_cell},
+		{to_lower(names[nuclear_fuel]), nuclear_fuel},
 		{to_lower(names[automation_science_pack]), automation_science_pack},
 		{to_lower(names[logistic_science_pack]), logistic_science_pack},
 		{to_lower(names[military_science_pack]), military_science_pack},
@@ -1373,7 +1419,6 @@ struct Item
 		{to_lower(names[combat_shotgun]), combat_shotgun},
 		{to_lower(names[rocket_launcher]), rocket_launcher},
 		{to_lower(names[flamethrower]), flamethrower},
-		{to_lower(names[land_mine]), land_mine},
 		{to_lower(names[firearm_magazine]), firearm_magazine},
 		{to_lower(names[piercing_rounds_magazine]), piercing_rounds_magazine},
 		{to_lower(names[uranium_rounds_magazine]), uranium_rounds_magazine},
@@ -1401,7 +1446,7 @@ struct Item
 		{to_lower(names[power_armor]), power_armor},
 		{to_lower(names[power_armor_mk2]), power_armor_mk2},
 		{to_lower(names[solar_panel_equipment]), solar_panel_equipment},
-		{to_lower(names[fusion_reactor_equipment]), fusion_reactor_equipment},
+		{to_lower(names[fission_reactor_equipment]), fission_reactor_equipment},
 		{to_lower(names[battery_equipment]), battery_equipment},
 		{to_lower(names[battery_mk2_equipment]), battery_mk2_equipment},
 		{to_lower(names[belt_immunity_equipment]), belt_immunity_equipment},
@@ -1413,15 +1458,29 @@ struct Item
 		{to_lower(names[energy_shield_mk2_equipment]), energy_shield_mk2_equipment},
 		{to_lower(names[personal_laser_defense_equipment]), personal_laser_defense_equipment},
 		{to_lower(names[discharge_defense_equipment]), discharge_defense_equipment},
-		{to_lower(names[discharge_defense_remote]), discharge_defense_remote},
 		{to_lower(names[stone_wall]), stone_wall},
 		{to_lower(names[gate]), gate},
+		{to_lower(names[radar]), radar},
+		{to_lower(names[land_mine]), land_mine},
 		{to_lower(names[gun_turret]), gun_turret},
 		{to_lower(names[laser_turret]), laser_turret},
 		{to_lower(names[flamethrower_turret]), flamethrower_turret},
 		{to_lower(names[artillery_turret]), artillery_turret},
+		{to_lower(names[parameter_0]), parameter_0},
+		{to_lower(names[parameter_1]), parameter_1},
+		{to_lower(names[parameter_2]), parameter_2},
+		{to_lower(names[parameter_3]), parameter_3},
+		{to_lower(names[parameter_4]), parameter_4},
+		{to_lower(names[parameter_5]), parameter_5},
+		{to_lower(names[parameter_6]), parameter_6},
+		{to_lower(names[parameter_7]), parameter_7},
+		{to_lower(names[parameter_8]), parameter_8},
+		{to_lower(names[parameter_9]), parameter_9},
+		{to_lower(names[copper_wire]), copper_wire},
+		{to_lower(names[green_wire]), green_wire},
+		{to_lower(names[red_wire]), red_wire},
+		{to_lower(names[spidertron_remote]), spidertron_remote},
+		{to_lower(names[discharge_defense_remote]), discharge_defense_remote},
 		{to_lower(names[artillery_targeting_remote]), artillery_targeting_remote},
-		{to_lower(names[radar]), radar},
 	};
-
 };
