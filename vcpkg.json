@@ -1,5 +1,0 @@
-{
-  "name": "factorio-tas-generator",
-  "version": "2.0.66",
-  "dependencies": [ "wxwidgets" ]
-}
