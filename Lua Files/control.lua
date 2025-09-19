@@ -46,7 +46,7 @@ end
 ---@param message LocalisedString
 ---@param color Color | nil Message color or default white
 local function Message(message, color)
-    storage.tas.player.print(message, color or {1,1,1})
+    storage.tas.player.print(message, {Color = color or {1,1,1}})
 end
 
 ---Print commment message intended for viewers
@@ -81,7 +81,7 @@ end
 local function Warning(message, color)
     if LOGLEVEL < 2 then
 		storage.warning_mode = storage.warning_mode or {start = game.tick}
-		storage.tas.player.print(message, color or {r=1, g=1,})
+		storage.tas.player.print(message, {Color = color or {r=1, g=1,}})
 	end
 end
 
@@ -91,7 +91,8 @@ end
 local function Error(message, color)
     if LOGLEVEL < 3 then
 		storage.warning_mode = storage.warning_mode or {start = game.tick}
-		storage.tas.player.print(message, color or {r=1,})
+		storage.tas.player.print(message, {Color = color or {r=1,}})
+
 	end
 end
 
@@ -203,7 +204,7 @@ end
 
 -- Check that it is possible to get the inventory of the entity
 local function check_inventory()
-	storage.tas.target_inventory = storage.tas.player_selection.get_inventory(storage.tas.slot) or storage.tas.player_selection.get_inventory(1)
+	storage.tas.target_inventory = storage.tas.player_selection.get_inventory(storage.tas.slot) or storage.tas.player_selection.get_inventory(defines.inventory.character_main)
 
 	if not storage.tas.target_inventory then
 		if not storage.tas.walking.walking then
@@ -513,7 +514,7 @@ end
 ---@return boolean true if an entity is created.
 local function create_entity_replace()
 
-	local stack, stack_location = storage.tas.player.character.get_inventory(1).find_item_stack(storage.tas.item)
+	local stack, stack_location = storage.tas.player.character.get_inventory(defines.inventory.character_main).find_item_stack(storage.tas.item)
 	if not stack or not stack.valid then
 		Error("Trying to create an entity of "..storage.tas.item.." but couldn't find an stack of them in players inventory")
 		return false
@@ -522,7 +523,7 @@ local function create_entity_replace()
 	if storage.tas.player.controller_type == defines.controllers.character then
 		storage.tas.player.clear_cursor()
 		storage.tas.player.cursor_stack.swap_stack(stack)
-		storage.tas.player.hand_location = {inventory = 1, slot = stack_location}
+		storage.tas.player.hand_location = {inventory = defines.inventory.character_main, slot = stack_location}
 	end
 
 	if storage.tas.player.can_build_from_cursor{position = storage.tas.target_position, direction = storage.tas.direction, } then
@@ -817,8 +818,8 @@ local function recipe()
 
 	local items_returned = storage.tas.player_selection.set_recipe(storage.tas.item ~= "none" and storage.tas.item or nil)
 
-	for name, count_ in pairs (items_returned) do
-		storage.tas.player.insert{name = name, count = count_}
+	for _, item in pairs (items_returned) do
+		storage.tas.player.insert{name = item.name, count = item.count}
 	end
 
 	storage.tas.player.play_sound{ path = "utility/entity_settings_pasted", }
