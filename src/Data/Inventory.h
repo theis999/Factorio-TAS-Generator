@@ -11,16 +11,16 @@ using std::string;
 /// Full list available on https://lua-api.factorio.com/latest/defines.html#defines.inventory
 /// </summary>
 static const struct
-{	
+{
 	string fuel = "defines.inventory.fuel";
 	string chest = "defines.inventory.chest";
 	string lab_input = "defines.inventory.lab_input";
 	string lab_modules = "defines.inventory.lab_modules";
 	string beacon_modules = "defines.inventory.beacon_modules";
 	string drill_modules = "defines.inventory.mining_drill_modules";
-	string assembly_input = "defines.inventory.assembling_machine_input";
-	string assembly_output = "defines.inventory.assembling_machine_output";
-	string assembly_modules = "defines.inventory.assembling_machine_modules";
+	string assembly_input = "defines.inventory.crafter_input";
+	string assembly_output = "defines.inventory.crafter_output";
+	string assembly_modules = "defines.inventory.crafter_modules";
 	string vehicle_trunk = "defines.inventory.car_trunk";
 } inventory_defines;
 

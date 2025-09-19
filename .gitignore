@@ -343,3 +343,4 @@ healthchecksdb
 /.vscode
 /CppProperties.json
 /src/generator-settings.json
+/vcpkg_installed
