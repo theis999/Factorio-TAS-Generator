@@ -39,14 +39,12 @@ struct Ingredient
 	helpers.write_file(file, "\nenum IngredientType{\n", true)
 	for _, prototype in pairs(prototypes.item) do
 		if not prototype.hidden then
-			local name = prototype.name:gsub("-", "_")
-			helpers.write_file(file, string.format("\t%s,\n", name), true)
+			helpers.write_file(file, string.format("\t%s,\n", prototype.name:gsub("-", "_")), true)
 		end
 	end
 	for _, prototype in pairs(prototypes.fluid) do
 		if not prototype.hidden then
-			local name = prototype.name:gsub("-", "_")
-			helpers.write_file(file, string.format("\t%s,\n", name), true)
+			helpers.write_file(file, string.format("\t%s,\n", prototype.name:gsub("-", "_")), true)
 		end
 	end
 	helpers.write_file(file, "} type;\n", true)
@@ -562,7 +560,7 @@ struct Ingredient
 		"Heavy oil",
 		"Lubricant",
 		"Sulfuric acid",
-		"Parameter 0",
+		/*"Parameter 0",
 		"Parameter 1",
 		"Parameter 2",
 		"Parameter 3",
@@ -571,7 +569,7 @@ struct Ingredient
 		"Parameter 6",
 		"Parameter 7",
 		"Parameter 8",
-		"Parameter 9",
+		"Parameter 9",*/
 	};
 
 	static inline map<string, IngredientType> map_ingredientname_to_ingredienttype = {
@@ -1065,8 +1063,7 @@ struct Recipe
 	helpers.write_file(file, "\nenum RecipeType{\n", true)
 	for _,prototype in pairs(prototypes.recipe) do
 		if not prototype.hidden then
-			local name = prototype.name:gsub("-", "_")
-			helpers.write_file(file, string.format("\t%s,\n", name), true)
+			helpers.write_file(file, string.format("\t%s,\n", prototype.name:gsub("-", "_")), true)
 		end
 	end
 	helpers.write_file(file, "} type;\n", true)

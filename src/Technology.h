@@ -42,9 +42,9 @@ struct Technology
 		--
 		helpers.write_file(file, "\nstatic inline const vector<string> TechnologyNames = {\n", true)
 		for _, prototype in pairs(prototypes.technology) do
-			helpers.write_file(file, string.format("\t\"", prototype.name),true)
+			helpers.write_file(file, "\t\"",true)
 			helpers.write_file(file, prototype.localised_name,true)
-			helpers.write_file(file, string.format("\",\n", prototype.name),true)
+			helpers.write_file(file, "\",\n",true)
 		end
 		helpers.write_file(file, "};\n", true)
 
@@ -58,11 +58,12 @@ struct Technology
 		--
 		helpers.write_file(file, "\nstatic inline const map<string, TechnologyType> map_TechnologyName_to_TechnologyType = {\n", true)
 		for _, prototype in pairs(prototypes.technology) do
-			helpers.write_file(file, string.format("\t{TechnologyNames[%s], %s},\n", prototype.name:gsub("-", "_"), prototype.name:gsub("-", "_")),true)
+			local name = prototype.name:gsub("-", "_")
+			helpers.write_file(file, string.format("\t{TechnologyNames[%s], %s},\n", name, name),true)
 		end
 
 		for _, prototype in pairs(prototypes.technology) do
-			helpers.write_file(file, string.format("\t{to_lower(TechnologyNames[%s]), %s},\n", prototype.name:gsub("-", "_"), prototype.name:gsub("-", "_")),true)
+			helpers.write_file(file, string.format("\t{to_lower(TechnologyNames[%s]), %s},\n", name, name),true)
 		end
 
 		helpers.write_file(file, "};\n", true)

@@ -151,9 +151,9 @@ struct Item
 	helpers.write_file(file, "\nstatic inline const vector<string> names = {\n", true)
 	for _, prototype in pairs(prototypes.item) do
 		if not prototype.hidden then
-			helpers.write_file(file, string.format("\t\"", prototype.name),true)
+			helpers.write_file(file, "\t\"",true)
 			helpers.write_file(file, prototype.localised_name,true)
-			helpers.write_file(file, string.format("\",\n", prototype.name),true)
+			helpers.write_file(file, "\",\n",true)
 		end
 	end
 	helpers.write_file(file, "};\n", true)
@@ -169,13 +169,14 @@ struct Item
 	helpers.write_file(file, "\nstatic inline const map<string, ItemType> map_itemname_to_itemtype = {\n", true)
 	for _, prototype in pairs(prototypes.item) do
 		if not prototype.hidden then
-			helpers.write_file(file, string.format("\t{names[%s], %s},\n", prototype.name:gsub("-", "_"), prototype.name:gsub("-", "_")),true)
+			local name = prototype.name:gsub("-", "_")
+			helpers.write_file(file, string.format("\t{names[%s], %s},\n", name, name),true)
 		end
 	end
 
 	for _, prototype in pairs(prototypes.item) do
 		if not prototype.hidden then
-			helpers.write_file(file, string.format("\t{to_lower(names[%s]), %s},\n", prototype.name:gsub("-", "_"), prototype.name:gsub("-", "_")),true)
+			helpers.write_file(file, string.format("\t{to_lower(names[%s]), %s},\n", name, name),true)
 		end
 	end
 

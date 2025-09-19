@@ -6,7 +6,55 @@
 
 struct Building
 {
+	/* LUA CODE
 
+	helpers.write_file(file,"")
+
+	helpers.write_file(file, "\nenum BuildingType{\n", true)
+	for _, prototype in pairs(prototypes.entity) do
+		if not prototype.hidden and prototype.items_to_place_this and #prototype.items_to_place_this > 0 then
+			helpers.write_file(file, string.format("\t%s,\n", prototype.name:gsub("-", "_")), true)
+		end
+	end
+	for _, prototype in pairs(prototypes.tile) do
+		if not prototype.hidden and prototype.items_to_place_this and #prototype.items_to_place_this > 0 then
+			helpers.write_file(file, string.format("\t%s,\n", prototype.name:gsub("-", "_")), true)
+		end
+	end
+	helpers.write_file(file, "} ;\n", true)
+
+	helpers.write_file(file, "\nstatic inline const vector<string> BuildingNames = {\n", true)
+	for _, prototype in pairs(prototypes.entity) do
+		if not prototype.hidden and prototype.items_to_place_this and #prototype.items_to_place_this > 0 then
+			helpers.write_file(file, "\t\"", true)
+			helpers.write_file(file, prototype.localised_name, true)
+			helpers.write_file(file, "\",\n", true)
+		end
+	end
+	for _, prototype in pairs(prototypes.tile) do
+		if not prototype.hidden and prototype.items_to_place_this and #prototype.items_to_place_this > 0 then
+			helpers.write_file(file, "\t\"", true)
+			helpers.write_file(file, prototype.localised_name, true)
+			helpers.write_file(file, "\",\n", true)
+		end
+	end
+	helpers.write_file(file, "};\n", true)
+
+	helpers.write_file(file, "\nstatic inline const vector<string> BuildingLuaNames = {\n", true)
+	for _, prototype in pairs(prototypes.entity) do
+		if not prototype.hidden and prototype.items_to_place_this and #prototype.items_to_place_this > 0 then
+			helpers.write_file(file, string.format("\t\"%s\",\n", prototype.name), true)
+		end
+	end
+	for _, prototype in pairs(prototypes.tile) do
+		if not prototype.hidden and prototype.items_to_place_this and #prototype.items_to_place_this > 0 then
+			helpers.write_file(file, string.format("\t\"%s\",\n", prototype.name), true)
+
+		end
+	end
+	helpers.write_file(file, "};\n", true)
+
+	*/
 	enum BuildingType
 	{
 		wooden_chest,
@@ -26,9 +74,7 @@ struct Building
 		inserter,
 		long_handed_inserter,
 		fast_inserter,
-		filter_inserter,
-		stack_inserter,
-		stack_filter_inserter,
+		bulk_inserter,
 		small_electric_pole,
 		medium_electric_pole,
 		big_electric_pole,
@@ -36,23 +82,36 @@ struct Building
 		pipe,
 		pipe_to_ground,
 		pump,
-		curved_rail,
 		straight_rail,
+		half_diagonal_rail,
+		curved_rail_a,
+		curved_rail_b,
 		train_stop,
 		rail_signal,
 		rail_chain_signal,
-		logistic_chest_active_provider,
-		logistic_chest_passive_provider,
-		logistic_chest_storage,
-		logistic_chest_buffer,
-		logistic_chest_requester,
+		locomotive,
+		cargo_wagon,
+		fluid_wagon,
+		artillery_wagon,
+		car,
+		tank,
+		spidertron,
+		logistic_robot,
+		construction_robot,
+		active_provider_chest,
+		passive_provider_chest,
+		storage_chest,
+		buffer_chest,
+		requester_chest,
 		roboport,
 		small_lamp,
 		arithmetic_combinator,
 		decider_combinator,
+		selector_combinator,
 		constant_combinator,
 		power_switch,
 		programmable_speaker,
+		display_panel,
 		boiler,
 		steam_engine,
 		solar_panel,
@@ -77,18 +136,24 @@ struct Building
 		lab,
 		beacon,
 		rocket_silo,
-		land_mine,
+		cargo_landing_pad,
 		stone_wall,
 		gate,
+		radar,
+		land_mine,
 		gun_turret,
 		laser_turret,
 		flamethrower_turret,
 		artillery_turret,
-		radar,
-
-		stone_brick,
+		stone_path,
+		concrete,
+		hazard_concrete_left,
+		hazard_concrete_right,
+		refined_concrete,
+		refined_hazard_concrete_left,
+		refined_hazard_concrete_right,
+		landfill,
 	};
-
 	BuildingType type = wooden_chest;
 	double X;
 	double Y = 0;
@@ -119,9 +184,7 @@ struct Building
 		"Inserter",
 		"Long-handed inserter",
 		"Fast inserter",
-		"Filter inserter",
-		"Stack inserter",
-		"Stack filter inserter",
+		"Bulk inserter",
 		"Small electric pole",
 		"Medium electric pole",
 		"Big electric pole",
@@ -129,11 +192,22 @@ struct Building
 		"Pipe",
 		"Pipe to ground",
 		"Pump",
-		"Curved rail",
 		"Straight rail",
+		"Half diagonal rail",
+		"Curved rail",
+		"Curved rail",
 		"Train stop",
 		"Rail signal",
 		"Rail chain signal",
+		"Locomotive",
+		"Cargo wagon",
+		"Fluid wagon",
+		"Artillery wagon",
+		"Car",
+		"Tank",
+		"Spidertron",
+		"Logistic robot",
+		"Construction robot",
 		"Active provider chest",
 		"Passive provider chest",
 		"Storage chest",
@@ -143,9 +217,11 @@ struct Building
 		"Lamp",
 		"Arithmetic combinator",
 		"Decider combinator",
+		"Selector combinator",
 		"Constant combinator",
 		"Power switch",
 		"Programmable speaker",
+		"Display panel",
 		"Boiler",
 		"Steam engine",
 		"Solar panel",
@@ -170,16 +246,23 @@ struct Building
 		"Lab",
 		"Beacon",
 		"Rocket silo",
-		"Land mine",
+		"Cargo landing pad",
 		"Wall",
 		"Gate",
+		"Radar",
+		"Land mine",
 		"Gun turret",
 		"Laser turret",
 		"Flamethrower turret",
 		"Artillery turret",
-		"Radar",
-
-		"Stone brick",
+		"Stone path",
+		"Concrete",
+		"Hazard concrete left",
+		"Hazard concrete right",
+		"Refined concrete",
+		"Refined hazard concrete left",
+		"Refined hazard concrete right",
+		"Landfill",
 	};
 
 	static inline const vector<string> BuildingLuaNames = {
@@ -200,9 +283,7 @@ struct Building
 		"inserter",
 		"long-handed-inserter",
 		"fast-inserter",
-		"filter-inserter",
-		"stack-inserter",
-		"stack-filter-inserter",
+		"bulk-inserter",
 		"small-electric-pole",
 		"medium-electric-pole",
 		"big-electric-pole",
@@ -210,23 +291,36 @@ struct Building
 		"pipe",
 		"pipe-to-ground",
 		"pump",
-		"curved-rail",
 		"straight-rail",
+		"half-diagonal-rail",
+		"curved-rail-a",
+		"curved-rail-b",
 		"train-stop",
 		"rail-signal",
 		"rail-chain-signal",
-		"logistic-chest-active-provider",
-		"logistic-chest-passive-provider",
-		"logistic-chest-storage",
-		"logistic-chest-buffer",
-		"logistic-chest-requester",
+		"locomotive",
+		"cargo-wagon",
+		"fluid-wagon",
+		"artillery-wagon",
+		"car",
+		"tank",
+		"spidertron",
+		"logistic-robot",
+		"construction-robot",
+		"active-provider-chest",
+		"passive-provider-chest",
+		"storage-chest",
+		"buffer-chest",
+		"requester-chest",
 		"roboport",
 		"small-lamp",
 		"arithmetic-combinator",
 		"decider-combinator",
+		"selector-combinator",
 		"constant-combinator",
 		"power-switch",
 		"programmable-speaker",
+		"display-panel",
 		"boiler",
 		"steam-engine",
 		"solar-panel",
@@ -251,187 +345,26 @@ struct Building
 		"lab",
 		"beacon",
 		"rocket-silo",
-		"land-mine",
+		"cargo-landing-pad",
 		"stone-wall",
 		"gate",
+		"radar",
+		"land-mine",
 		"gun-turret",
 		"laser-turret",
 		"flamethrower-turret",
 		"artillery-turret",
-		"radar",
-
-		"stone-brick",
+		"stone-path",
+		"concrete",
+		"hazard-concrete-left",
+		"hazard-concrete-right",
+		"refined-concrete",
+		"refined-hazard-concrete-left",
+		"refined-hazard-concrete-right",
+		"landfill",
 	};
 
-	struct BuildingSize
-	{
-		double x, y;
-	};
-
-	BuildingSize Size(bool old = false) const;
-
-	static inline const vector<BuildingSize> BuildingSizes = {
-		{0.695313, 0.695313},
-		{0.695313, 0.695313},
-		{0.695313, 0.695313},
-		{2.593750, 2.593750},
-		{0.796875, 0.796875},
-		{0.796875, 0.796875},
-		{0.796875, 0.796875},
-		{0.796875, 0.796875},
-		{0.796875, 0.796875},
-		{0.796875, 0.796875},
-		{1.796875, 0.796875},
-		{1.796875, 0.796875},
-		{1.796875, 0.796875},
-		{0.296875, 0.296875},
-		{0.296875, 0.296875},
-		{0.296875, 0.296875},
-		{0.296875, 0.296875},
-		{0.296875, 0.296875},
-		{0.296875, 0.296875},
-		{0.296875, 0.296875},
-		{0.296875, 0.296875},
-		{0.296875, 0.296875},
-		{1.296875, 1.296875},
-		{1.398438, 1.398438},
-		{0.578125, 0.578125},
-		{0.578125, 0.488281},
-		{0.578125, 1.796875},
-		{1.500000, 2.144531},
-		{1.398438, 1.976563},
-		{1.000000, 1.000000},
-		{0.398438, 0.398438},
-		{0.398438, 0.398438},
-		{0.695313, 0.695313},
-		{0.695313, 0.695313},
-		{0.695313, 0.695313},
-		{0.695313, 0.695313},
-		{0.695313, 0.695313},
-		{3.398438, 3.398438},
-		{0.296875, 0.296875},
-		{0.695313, 1.296875},
-		{0.695313, 1.296875},
-		{0.695313, 0.695313},
-		{1.398438, 1.398438},
-		{0.593750, 0.593750},
-		{2.578125, 1.578125},
-		{2.500000, 4.695313},
-		{2.796875, 2.796875},
-		{1.796875, 1.796875},
-		{4.398438, 4.398438},
-		{0.593750, 0.593750},
-		{2.578125, 1.578125},
-		{2.500000, 4.695313},
-		{1.398438, 1.398438},
-		{2.796875, 2.796875},
-		{1.195313, 1.343750},
-		{2.398438, 2.398438},
-		{1.398438, 1.398438},
-		{1.398438, 1.398438},
-		{2.398438, 2.398438},
-		{2.398438, 2.398438},
-		{2.398438, 2.398438},
-		{2.398438, 2.398438},
-		{4.796875, 4.796875},
-		{2.398438, 2.398438},
-		{2.398438, 2.398438},
-		{2.398438, 2.398438},
-		{2.398438, 2.398438},
-		{8.796875, 8.796875},
-		{0.796875, 0.796875},
-		{0.578125, 0.578125},
-		{0.578125, 0.578125},
-		{1.398438, 1.398438},
-		{1.398438, 1.398438},
-		{1.398438, 2.398438},
-		{2.398438, 2.398438},
-		{2.398438, 2.398438},
-
-		{1, 1},
-	};
-
-	static inline const vector<BuildingSize> OldBuildingSizes = {		
-		{1, 1},
-		{1, 1},
-		{1, 1},
-		{3, 3}, 
-		{1, 1},
-		{1, 1},
-		{1, 1},
-		{1, 1},
-		{1, 1},
-		{1, 1},
-		{2, 1},
-		{2, 1},
-		{2, 1},
-		{1, 1},
-		{1, 1},
-		{1, 1},
-		{1, 1},
-		{1, 1},
-		{1, 1},
-		{1, 1},
-		{1, 1},
-		{1, 1},
-		{2, 2},
-		{2, 2},
-		{1, 1},
-		{1, 1},
-		{3, 3},
-		{1.7f, 2.4f}, // curved rail
-		{1.7f, 2.4f},
-		{1.8f, 1.8f},
-		{1, 1},
-		{1, 1},
-		{1, 1},
-		{1, 1},
-		{1, 1},
-		{1, 1},
-		{1, 1},
-		{4, 4},
-		{1, 1},
-		{1, 2},
-		{1, 2},
-		{1, 1},
-		{2, 2},
-		{1, 1},
-		{3, 2},
-		{3, 5},
-		{3, 3},
-		{2, 2},
-		{5, 5},
-		{1, 1},
-		{3, 2},
-		{3, 5},
-		{2, 2},
-		{3, 3},
-		{1, 2},
-		{3, 3},
-		{1.6f, 2},
-		{1.6f, 2},
-		{1.6f, 2},
-		{3, 3},
-		{3, 3},
-		{3, 3},
-		{5, 5},
-		{3, 3},
-		{3, 3},
-		{3, 3},
-		{3, 3},
-		{9, 9},
-		{1, 1},
-		{1, 1},
-		{1, 1},
-		{2, 2},
-		{2, 2},
-		{2, 3},
-		{3, 3},
-		{3, 3},
-	};
-	
 	static inline map<string, BuildingType> Map_BuildingName_to_BuildingType = convert_vector_to_enummap<BuildingType>(BuildingNames);
-
 
 	/*
 	*  Curved rails
