@@ -15,8 +15,3 @@ string Building::LuaName() const
 {
 	return BuildingLuaNames[type];
 }
-
-Building::BuildingSize Building::Size(bool old) const
-{
-	return old ? OldBuildingSizes[type] : BuildingSizes[type];
-}
