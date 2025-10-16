@@ -46,7 +46,7 @@ string Step::ToString()
 			return steptype + ";" + ";" + ";" + to_string(amount / 100) + ";" + ";" + string_end;
 
 		case e_limit:
-			return steptype + ";" + to_string(X) + ";" + to_string(Y) + ";" + to_string(amount) + ";" + ";" + "Chest" + ";" + string_end;
+			return steptype + ";" + to_string(X) + ";" + to_string(Y) + ";" + to_string(amount) + ";" + ";" + "Chest" + string_end;
 
 		case e_rotate:
 			return steptype + ";" + to_string(X) + ";" + to_string(Y) + ";" + to_string(amount) + ";" + Item + ";" + string_end;
@@ -55,11 +55,11 @@ string Step::ToString()
 			return steptype + ";" + to_string(X) + ";" + to_string(Y) + ";" + to_string(amount) + ";" + Item + ";" + string_end;
 
 		case e_priority:
-			return steptype + ";" + to_string(X) + ";" + to_string(Y) + ";" + ";" + ";" + priority.ToString() + ";" + string_end;
+			return steptype + ";" + to_string(X) + ";" + to_string(Y) + ";" + ";" + ";" + priority.ToString() + string_end;
 
 		case e_drive:
-				return steptype + ";;;" + to_string(amount) + ";;" + riding.ToString() + string_end;
-		
+			return steptype + ";;;" + to_string(amount) + ";;" + riding.ToString() + string_end;
+
 		default:
 			return std::format("{};{};{};{};{};{}{}",
 				steptype,
@@ -68,9 +68,9 @@ string Step::ToString()
 				params & choice_bit_vector::amount ? to_string(amount) : "",
 				params & choice_bit_vector::item ? Item : "",
 
-				params & choice_bit_vector::from_to ? inventory_types_list[inventory] : 
+				params & choice_bit_vector::from_to ? inventory_types_list[inventory] :
 					params & choice_bit_vector::building_orientation ? orientation_list[orientation] : "",
-		
+
 				string_end);
 	}
 }
