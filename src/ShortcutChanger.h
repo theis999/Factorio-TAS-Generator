@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <wx/string.h>
 
 #include "GUI_Base.h"
 #include "Settings.h"
@@ -61,7 +62,7 @@ public:
                                 // If one is found
                                 // Change the last part of the label containing the shortcut
                                 // Which incidentally also updates the keybind
-                                a->SetItemLabel(key + wxT('\t') + value);
+                                a->SetItemLabel(wxString(key) + wxT('\t') + wxString(value));
                                 found = true;
                                 break;
                             }
