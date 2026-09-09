@@ -601,7 +601,7 @@ bool cMain::DeleteRow(wxGrid* grid, wxComboBox* cmb, map<string, vector<Step>>& 
 
 bool cMain::ChangeRow(wxGrid* grid, Step step)
 {
-	if (!grid->IsSelection() || !grid->GetSelectedRows().begin())
+	if (!grid->IsSelection() || grid->GetSelectedRows().IsEmpty())
 	{
 		wxMessageBox("Please select a row to change", "Selection not valid");
 		return false;
@@ -640,7 +640,7 @@ void cMain::OnAddStepClicked(wxCommandEvent& event)
 	vector<StepLine> change;
 	if (grid_steps->IsSelection())
 	{
-		if (!grid_steps->GetSelectedRows().begin())
+		if (grid_steps->GetSelectedRows().IsEmpty())
 		{
 			return;
 		}
@@ -840,9 +840,10 @@ void cMain::OnDeleteStepClicked(wxCommandEvent& event)
 	}
 
 	if (wxMessageBox(
-		rows == 1 ? "Are you sure you want to delete this step?" : "Are you sure you want to delete these steps?",
-		rows == 1 ? "Delete step" : "Delete steps", 
-		wxICON_QUESTION | wxYES_NO, this) != wxYES)
+			rows.GetCount() == 1 ? "Are you sure you want to delete this step?" : "Are you sure you want to delete these steps?",
+			rows.GetCount() == 1 ? "Delete step" : "Delete steps",
+			wxICON_QUESTION | wxYES_NO, this) 
+		!= wxYES)
 	{
 		return;
 	}
@@ -970,9 +971,9 @@ vector<tuple<int, Step>> cMain::GetSelectedRowTuples()
 
 void cMain::OnMoveUpClicked(wxCommandEvent& event)
 {
-	if (!grid_steps->IsSelection() || !grid_steps->GetSelectedRows().begin())
+	if (!grid_steps->IsSelection() || grid_steps->GetSelectedRows().IsEmpty())
 	{
-		wxMessageBox("Please select row(s) to move", "Select row(s)");
+		wxMessageBox("Please select one or more rows to move", "Error");
 		return;
 	}
 	
@@ -982,9 +983,9 @@ void cMain::OnMoveUpClicked(wxCommandEvent& event)
 
 void cMain::OnMoveDownClicked(wxCommandEvent& event)
 {
-	if (!grid_steps->IsSelection() || !grid_steps->GetSelectedRows().begin())
+	if (!grid_steps->IsSelection() || grid_steps->GetSelectedRows().IsEmpty())
 	{
-		wxMessageBox("Please select row(s) to move", "Select row(s)");
+		wxMessageBox("Please select one or more rows to move", "Error");
 		return;
 	}
 
@@ -994,9 +995,9 @@ void cMain::OnMoveDownClicked(wxCommandEvent& event)
 
 void cMain::OnMoveUpFiveClicked(wxMouseEvent& event)
 {
-	if (!grid_steps->IsSelection() || !grid_steps->GetSelectedRows().begin())
+	if (!grid_steps->IsSelection() || grid_steps->GetSelectedRows().IsEmpty())
 	{
-		wxMessageBox("Please select row(s) to move", "Select row(s)");
+		wxMessageBox("Please select one or more rows to move", "Error");
 	}
 
 	autosaver.Push(MoveRows(grid_steps, -5));
@@ -1006,9 +1007,9 @@ void cMain::OnMoveUpFiveClicked(wxMouseEvent& event)
 
 void cMain::OnMoveDownFiveClicked(wxMouseEvent& event)
 {
-	if (!grid_steps->IsSelection() || !grid_steps->GetSelectedRows().begin())
+	if (!grid_steps->IsSelection() || grid_steps->GetSelectedRows().IsEmpty())
 	{
-		wxMessageBox("Please select row(s) to move", "Select row(s)");
+		wxMessageBox("Please select one or more rows to move", "Error");
 	}
 
 	autosaver.Push(MoveRows(grid_steps, 5));
@@ -1107,9 +1108,9 @@ void cMain::UpdateMapWithNewSteps(wxGrid* grid, wxComboBox* cmb, map<string, vec
 	auto moveTo = grid->GetNumberRows();
 	if (grid->IsSelection())
 	{
-		if (!grid->GetSelectedRows().begin())
+		if (grid->GetSelectedRows().IsEmpty())
 		{
-			wxMessageBox("Please either select row(s) or nothing", "template list selection not valid");
+			wxMessageBox("Please either select one or more rows or nothing", "template list selection not valid");
 			return;
 		}
 

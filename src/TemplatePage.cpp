@@ -210,9 +210,10 @@ void cMain::OnTemplateDeleteStepClicked(wxCommandEvent& event)
 
 void cMain::TemplateMoveRow(wxGrid* grid, wxComboBox* cmb, bool move_up, map<string, vector<Step>>& map)
 {
-	if (!grid->IsSelection() || !grid->GetSelectedRows().begin())
+	if (!grid->IsSelection() || grid->GetSelectedRows().IsEmpty())
 	{
 		wxMessageBox("Please select one or more rows to move", "Select row");
+		return;
 	}
 
 	string map_name = cmb->GetValue().ToStdString();
@@ -277,7 +278,7 @@ void cMain::OnTemplateAddToStepsListClicked(wxCommandEvent& event)
 
 	if (grid_steps->IsSelection())
 	{
-		if (!grid_steps->GetSelectedRows().begin())
+		if (grid_steps->GetSelectedRows().IsEmpty())
 		{
 			wxMessageBox("Please either select row(s) or nothing", "Step list selection not valid");
 			return;

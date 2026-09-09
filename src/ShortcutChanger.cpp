@@ -109,7 +109,7 @@ void ShortcutChanger::OnButtonClickSCSave(wxCommandEvent& event)
 				{
 					if (a->GetItemLabel().StartsWith(key))
 					{
-						a->SetItemLabel(key + wxT('\t') + input->GetValue());
+						a->SetItemLabel(wxString(key) + wxT('\t') + input->GetValue());
 					}
 				}
 			}
