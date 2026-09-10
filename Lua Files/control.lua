@@ -938,18 +938,33 @@ local function drop()
 	local can_reach = 10 > math.sqrt(
 		math.abs(storage.tas.player.position.x - storage.tas.drop_position[1])^2 + math.abs(storage.tas.player.position.y - storage.tas.drop_position[2])^2
 	)
-	if storage.tas.player.get_item_count(storage.tas.drop_item) > 0 and can_reach then
-		storage.tas.player.surface.create_entity{
-			name = "item-on-ground",
-			stack = {
-				name = storage.tas.drop_item,
-				count = 1,
-			},
-			position = storage.tas.drop_position,
-			force = "player",
-			spill = true
+	-- only works with main inventory for now, can be changed later
+	local inv = storage.tas.player.get_main_inventory()
+	local stack = inv.find_item_stack(storage.tas.drop_item)
+	if stack and can_reach then
+		local durability, ammo
+        if stack.is_tool then
+            durability = stack.durability
+        end
+        if stack.is_ammo then
+            ammo = stack.ammo
+        end
+
+		local item = {
+			name = storage.tas.drop_item,
+			count = 1,
+			health = stack.health,
+			durability = durability,
+			ammo = ammo,
 		}
-		storage.tas.player.remove_item({name = storage.tas.drop_item})
+        storage.tas.player.surface.spill_item_stack{
+            position = storage.tas.drop_position,
+            items = item,
+            force = "player",
+            allow_belts = true,
+        }
+		storage.tas.player.remove_item(item)
+		
 		end_warning_mode(string.format("Step: %s - Drop: [item=%s]", storage.tas.task, storage.tas.item ))
 		return true
 	end
